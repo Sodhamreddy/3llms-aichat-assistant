@@ -1,0 +1,55 @@
+:root {
+  font-family: ui-sans-serif, -apple-system, system-ui, 'Segoe UI', sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: #f5f4ef;
+  color: #1a1a1a;
+  line-height: 1.5;
+  min-height: 100vh;
+  font-size: 14px;
+}
+
+button { font-family: inherit; cursor: pointer; }
+textarea, input { font-family: inherit; }
+
+/* Sidebar nav item */
+.s-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 7px 10px; border-radius: 8px; border: none;
+  background: transparent; color: #374151;
+  font-size: 0.875rem; font-weight: 400;
+  cursor: pointer; width: 100%; text-align: left;
+  transition: background 0.1s;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.s-item:hover { background: rgba(0,0,0,0.05); }
+.s-item-active { background: rgba(0,0,0,0.07) !important; font-weight: 500; color: #111827; }
+
+/* Sidebar recent item */
+.s-recent {
+  display: block; padding: 6px 10px; border-radius: 8px; border: none;
+  background: transparent; color: #6b7280; font-size: 0.8125rem;
+  cursor: pointer; width: 100%; text-align: left;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  transition: background 0.1s;
+}
+.s-recent:hover { background: rgba(0,0,0,0.04); color: #374151; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 4px; }
+
+/* Animations */
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+@keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }

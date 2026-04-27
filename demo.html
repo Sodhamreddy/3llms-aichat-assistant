@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PromptHub AI | Executive Prototype</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f9fafb;
+            color: #0f172a;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.04) 0px, transparent 50%), 
+                radial-gradient(at 100% 0%, rgba(124, 58, 237, 0.04) 0px, transparent 50%);
+            margin: 0;
+            overflow-x: hidden;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.03);
+        }
+        .btn-gradient {
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.15);
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const ModelCard = ({ name, color, status, response }) => {
+            const [display, setDisplay] = useState('');
+            
+            useEffect(() => {
+                if (status === 'complete' && response) {
+                    let i = 0;
+                    const interval = setInterval(() => {
+                        setDisplay(response.substring(0, i));
+                        i++;
+                        if (i > response.length) clearInterval(interval);
+                    }, 5);
+                    return () => clearInterval(interval);
+                }
+                if (status === 'idle') setDisplay('');
+            }, [status, response]);
+
+            return (
+                <div className="glass p-8 rounded-[32px] flex-1 min-w-[320px] transition-all duration-500 border border-black/5 hover:translate-y-[-4px]">
+                    <div className="flex justify-between items-start mb-6">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg" style={{ backgroundColor: `${color}10`, color: color }}>
+                                🤖
+                            </div>
+                            <div>
+                                <span className="font-bold block text-sm">{name}</span>
+                                <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Active Node</span>
+                            </div>
+                        </div>
+                        <div className={`text-[10px] font-bold px-3 py-1 rounded-full ${status === 'complete' ? 'bg-green-50 text-green-600 border border-green-100' : 'bg-gray-50 text-gray-400 border border-gray-100'}`}>
+                            {status.toUpperCase()}
+                        </div>
+                    </div>
+                    <div className="bg-[#fcfcfd] border border-gray-50 rounded-2xl p-5 h-64 overflow-y-auto text-[13px] leading-relaxed text-gray-700 mb-5 shadow-inner">
+                        {status === 'idle' ? (
+                            <div className="h-full flex flex-col items-center justify-center text-gray-300 opacity-50">
+                                <span className="text-3xl mb-2">💤</span>
+                                <span className="font-bold">Awaiting Prompt...</span>
+                            </div>
+                        ) : display}
+                        {status === 'running' && <span className="animate-pulse font-bold" style={{color}}>|</span>}
+                    </div>
+                    <div className="flex text-[10px] font-bold text-gray-400 gap-4">
+                        <span className="bg-gray-50 px-2 py-1 rounded-md">⏱️ 0.8s Baseline</span>
+                        <span className="bg-gray-50 px-2 py-1 rounded-md">🪙 420 Tokens</span>
+                    </div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [prompt, setPrompt] = useState('');
+            const [status, setStatus] = useState('idle');
+            const [results, setResults] = useState({ claude: '', gemini: '', openai: '' });
+
+            const handleRun = async () => {
+                if (!prompt) return;
+                setStatus('running');
+                try {
+                    const res = await fetch('https://n8n.kleza.io/webhook/bf39cd7e-9f1b-4b3e-98eb-8b746cd2b510/chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ chatInput: prompt })
+                    });
+                    const data = await res.json();
+                    
+                    // Robust Data Extraction (Handle Array vs Object)
+                    let text = '';
+                    if (Array.isArray(data) && data.length > 0) {
+                        text = data[0].text || data[0].output || data[0].message || '';
+                    } else {
+                        text = data.text || data.output || data.message || '';
+                    }
+                    if (!text && typeof data === 'string') text = data;
+
+                    // Ultra-Resilient Index-Search Parser
+                    const findContent = (fullText, target, next) => {
+                        const targetIdx = fullText.toLowerCase().indexOf(target.toLowerCase());
+                        if (targetIdx === -1) return '';
+                        
+                        const dashIdx = fullText.indexOf('---', targetIdx);
+                        if (dashIdx === -1) return '';
+                        
+                        let start = dashIdx;
+                        while (start < fullText.length && (fullText[start] === '-' || fullText[start] === '\n' || fullText[start] === '\r' || fullText[start] === ' ')) start++;
+                        
+                        if (next) {
+                            const nextIdx = fullText.toLowerCase().indexOf(next.toLowerCase(), start);
+                            if (nextIdx !== -1) {
+                                let end = nextIdx;
+                                while (end > start && (fullText[end-1] === '-' || fullText[end-1] === '\n' || fullText[end-1] === '\r' || fullText[end-1] === ' ')) end--;
+                                return fullText.substring(start, end).trim();
+                            }
+                        }
+                        return fullText.substring(start).trim();
+                    };
+
+                    setResults({
+                        claude: findContent(text, 'Claude', 'Gemini') || 'Response received but search markers failed.',
+                        gemini: findContent(text, 'Gemini', null) || 'Response received but search markers failed.',
+                        openai: 'OpenAI Bypass Enforced'
+                    });
+                    setStatus('complete');
+                } catch (e) {
+                    setStatus('idle');
+                    alert('Backend connection error');
+                }
+            };
+
+            return (
+                <div className="flex min-h-screen">
+                    <div className="w-72 bg-white border-r border-black/5 p-10 flex flex-col fixed h-full shadow-sm">
+                        <div className="flex items-center gap-3 mb-16">
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-purple-600 shadow-lg shadow-blue-500/20 flex items-center justify-center text-white font-bold text-xl italic">P</div>
+                            <h1 className="text-xl font-extrabold tracking-tight gradient-text">PromptHub</h1>
+                        </div>
+                        <nav className="flex-1 space-y-3">
+                            {['Dashboard', 'Prompt Runner', 'LLM Models', 'History', 'Automations', 'Settings'].map(t => (
+                                <div key={t} className={`p-3.5 rounded-2xl cursor-pointer text-sm font-semibold transition-all ${t === 'Dashboard' ? 'bg-blue-50/50 text-blue-600 border border-blue-100/50' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-50'}`}>
+                                    {t}
+                                </div>
+                            ))}
+                        </nav>
+                    </div>
+
+                    <main className="flex-1 ml-72 p-16">
+                        <header className="flex justify-between items-center mb-16">
+                            <div>
+                                <h2 className="text-3xl font-extrabold tracking-tight text-[#0f172a]">Executive Control Panel <span className="inline-block animate-bounce ml-2">📊</span></h2>
+                                <p className="text-gray-400 font-medium">Orchestrating multi-model AI workflows in real-time.</p>
+                            </div>
+                            <div className="flex gap-4">
+                                <div className="glass px-5 py-2.5 rounded-2xl text-[11px] font-bold flex items-center gap-2 border border-black/5">
+                                    <span className="text-blue-600">2,450 / 5,000 Credits</span>
+                                </div>
+                                <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-indigo-500 to-blue-400 border-2 border-white shadow-xl"></div>
+                            </div>
+                        </header>
+
+                        <div className="glass p-10 rounded-[40px] mb-12 shadow-xl shadow-black/5 border border-black/5">
+                            <textarea 
+                                value={prompt}
+                                onChange={e => setPrompt(e.target.value)}
+                                className="w-full h-40 bg-white rounded-3xl p-8 border border-gray-100 outline-none focus:border-blue-500/30 transition-all text-lg font-medium mb-8 shadow-inner"
+                                placeholder="Enter your executive prompt..."
+                            />
+                            <div className="flex justify-between items-center">
+                                <div className="flex gap-4">
+                                    <button 
+                                        onClick={handleRun}
+                                        className="btn-gradient px-10 py-4 rounded-2xl font-extrabold text-white hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 flex items-center gap-3 text-sm"
+                                        disabled={status === 'running'}
+                                    >
+                                        {status === 'running' ? 'Orchestrating...' : <>⚡ Run Multi-Model Prompt</>}
+                                    </button>
+                                    <button className="bg-white border border-gray-200 px-6 py-4 rounded-2xl font-bold text-gray-500 hover:bg-gray-50 transition-all text-sm">💾 Save</button>
+                                </div>
+                                <span className="text-xs font-bold text-gray-400 tracking-wide uppercase">Batch Cost: <span className="text-blue-600">$0.0012</span></span>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-8 mb-16 overflow-x-auto pb-4">
+                            <ModelCard name="OpenAI GPT-4o" color="#10a37f" status={status} response={results.openai} />
+                            <ModelCard name="Anthropic Claude-3" color="#d97757" status={status} response={results.claude} />
+                            <ModelCard name="Google Gemini 1.5" color="#4285f4" status={status} response={results.gemini} />
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-8">
+                            <div className="glass p-8 rounded-[32px] h-56 col-span-2 border border-black/5">
+                                <h3 className="font-extrabold text-xs uppercase tracking-widest text-gray-400 mb-6">Network Efficiency</h3>
+                                <div className="h-full flex items-end gap-3 pb-10">
+                                    {[30, 60, 45, 90, 70, 100, 80].map((h, i) => (
+                                        <div key={i} className={`flex-1 rounded-t-xl transition-all duration-700 ${i === 5 ? 'bg-gradient-to-t from-blue-600 to-purple-600 shadow-lg shadow-blue-400/20' : 'bg-gray-100'}`} style={{ height: `${h}%` }}></div>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="glass p-8 rounded-[32px] h-56 border border-black/5">
+                                <h3 className="font-extrabold text-xs uppercase tracking-widest text-gray-400 mb-6">AI Index</h3>
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-center text-sm font-bold">
+                                        <span className="text-gray-500">Latency</span>
+                                        <span className="text-blue-600">Claude-3</span>
+                                    </div>
+                                    <div className="flex justify-between items-center text-sm font-bold border-t border-black/5 pt-4">
+                                        <span className="text-gray-500">Economics</span>
+                                        <span className="text-green-600">GPT-4o</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
