@@ -1,7 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 
-const GEMINI_INPUT_COST  = 0.075  / 1_000_000;
-const GEMINI_OUTPUT_COST = 0.30   / 1_000_000;
+// Pricing per 1M tokens (input / output)
+const PRICING = {
+  openai: { input: 0.40  / 1_000_000, output: 1.60  / 1_000_000 }, // GPT-4.1 mini
+  claude: { input: 0.80  / 1_000_000, output: 4.00  / 1_000_000 }, // Claude Haiku 4.5
+  gemini: { input: 0.075 / 1_000_000, output: 0.30  / 1_000_000 }, // Gemini 1.5 Flash
+};
+
+const calcCost = (key, input, output) =>
+  input * PRICING[key].input + output * PRICING[key].output;
 
 const SUGGESTIONS = [
   { icon: '✍️', label: 'Write something' },
@@ -10,14 +17,53 @@ const SUGGESTIONS = [
   { icon: '🧮', label: 'Analyze data' },
 ];
 
+/* ─── Error Parser ────────────────────────────────────────────────── */
+const parseError = (text) => {
+  if (!text) return null;
+  const t = text.toLowerCase();
+  if (t.startsWith('error:') || t.includes('error:')) {
+    if (t.includes('quota') || t.includes('rate limit') || t.includes('too many requests') || t.includes('429'))
+      return { icon: '⚠️', title: 'Rate Limit / Quota Exceeded', detail: 'Your API quota has been exhausted or the rate limit was hit. Try again later or upgrade your plan.' };
+    if (t.includes('unauthorized') || t.includes('invalid api key') || t.includes('api key') || t.includes('authentication') || t.includes('401'))
+      return { icon: '🔑', title: 'Invalid API Key', detail: 'The API key configured in n8n is missing or incorrect. Check your credentials.' };
+    if (t.includes('bad request') || t.includes('invalid') || t.includes('parameters') || t.includes('400'))
+      return { icon: '🚫', title: 'Bad Request', detail: 'The request parameters are invalid or unsupported by this model.' };
+    if (t.includes('not found') || t.includes('model') || t.includes('404'))
+      return { icon: '🔍', title: 'Model Not Found', detail: 'The requested model does not exist or is not available on this account.' };
+    if (t.includes('timeout') || t.includes('timed out') || t.includes('408'))
+      return { icon: '⏱️', title: 'Request Timed Out', detail: 'The model took too long to respond. Try a shorter prompt.' };
+    if (t.includes('server') || t.includes('500') || t.includes('502') || t.includes('503'))
+      return { icon: '🛠️', title: 'Server Error', detail: 'The AI provider returned a server-side error. Try again in a moment.' };
+    return { icon: '❌', title: 'Request Failed', detail: 'An unexpected error occurred while contacting this model.' };
+  }
+  return null;
+};
+
+const ErrorBlock = ({ error }) => (
+  <div style={{
+    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+    height: '100%', minHeight: '160px', gap: '10px', padding: '12px',
+    textAlign: 'center',
+  }}>
+    <span style={{ fontSize: '2rem' }}>{error.icon}</span>
+    <div style={{ fontWeight: '700', fontSize: '0.85rem', color: '#dc2626' }}>{error.title}</div>
+    <div style={{
+      fontSize: '0.75rem', color: '#6b7280', lineHeight: '1.6',
+      background: '#fef2f2', border: '1px solid #fecaca',
+      borderRadius: '8px', padding: '8px 12px', maxWidth: '240px',
+    }}>{error.detail}</div>
+  </div>
+);
+
 /* ─── Model Card ──────────────────────────────────────────────────── */
 const ModelCard = ({ name, color, status, response, elapsed, tokens, costUSD, isEstimate }) => {
   const [displayed, setDisplayed] = useState('');
   const timer = useRef(null);
+  const errorInfo = status === 'complete' ? parseError(response) : null;
 
   useEffect(() => {
     clearInterval(timer.current);
-    if (status === 'complete' && response) {
+    if (status === 'complete' && response && !parseError(response)) {
       let i = 0;
       timer.current = setInterval(() => {
         setDisplayed(response.slice(0, i));
@@ -35,8 +81,8 @@ const ModelCard = ({ name, color, status, response, elapsed, tokens, costUSD, is
   return (
     <div style={{
       flex: 1, minWidth: '280px',
-      background: '#ffffff',
-      border: `1.5px solid ${running ? color + '50' : 'rgba(0,0,0,0.07)'}`,
+      background: errorInfo ? '#fffbfb' : '#ffffff',
+      border: `1.5px solid ${running ? color + '50' : errorInfo ? '#fecaca' : 'rgba(0,0,0,0.07)'}`,
       borderRadius: '18px',
       overflow: 'hidden',
       boxShadow: running
@@ -88,6 +134,8 @@ const ModelCard = ({ name, color, status, response, elapsed, tokens, costUSD, is
             <span style={{ fontSize: '1.75rem', animation: 'float 4s ease-in-out infinite' }}>💤</span>
             <span style={{ fontSize: '0.8rem', fontWeight: '500' }}>Awaiting input…</span>
           </div>
+        ) : errorInfo ? (
+          <ErrorBlock error={errorInfo} />
         ) : (
           <div style={{ whiteSpace: 'pre-wrap' }}>
             {displayed}
@@ -104,8 +152,9 @@ const ModelCard = ({ name, color, status, response, elapsed, tokens, costUSD, is
         background: '#fafafa'
       }}>
         <Chip icon="⏱" val={elapsed != null ? `${elapsed}s` : '—'} />
-        <Chip icon="🪙" val={tokens != null ? `${Number(tokens).toLocaleString()} tkn` : '—'} suffix={isEstimate && tokens > 0 ? ' ~' : ''} />
-        {costUSD > 0 && <Chip icon="💵" val={`$${costUSD.toFixed(6)}`} green />}
+        {!errorInfo && <Chip icon="🪙" val={tokens != null ? `${Number(tokens).toLocaleString()} tkn` : '—'} suffix={isEstimate && tokens > 0 ? ' ~' : ''} />}
+        {!errorInfo && costUSD > 0 && <Chip icon="💵" val={`$${costUSD.toFixed(6)}`} green />}
+        {errorInfo && <span style={{ fontSize: '0.67rem', color: '#f87171', fontWeight: '600' }}>No tokens used</span>}
         <button
           onClick={() => navigator.clipboard.writeText(response || '')}
           title="Copy"
@@ -135,7 +184,12 @@ const PromptControl = ({ onRunComplete }) => {
   const [prompt, setPrompt]       = useState('');
   const [status, setStatus]       = useState('idle');
   const [content, setContent]     = useState({ openai: '', claude: '', gemini: '' });
-  const [stats, setStats]         = useState({ elapsed: null, totalTokens: null, runCost: null, isEstimate: false });
+  const [elapsed, setElapsed]     = useState(null);
+  const [modelStats, setModelStats] = useState({
+    openai: { tokens: null, cost: null, isEstimate: false },
+    claude: { tokens: null, cost: null, isEstimate: false },
+    gemini: { tokens: null, cost: null, isEstimate: false },
+  });
   const textareaRef               = useRef(null);
 
   /* Auto-grow textarea */
@@ -157,59 +211,52 @@ const PromptControl = ({ onRunComplete }) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chatInput: prompt })
       });
-      const elapsed = ((Date.now() - t0) / 1000).toFixed(2);
-      const data    = await res.json();
-      const raw     = Array.isArray(data) && data.length > 0 ? data[0] : data;
+      const elapsedVal = ((Date.now() - t0) / 1000).toFixed(2);
+      const data = await res.json();
+      const raw  = Array.isArray(data) && data.length > 0 ? data[0] : data;
 
-      let openaiRes = '', claudeRes = '', geminiRes = '';
-      if (raw.openai || raw.claude || raw.gemini) {
-        openaiRes = raw.openai || raw.gpt || '';
-        claudeRes = raw.claude || raw.anthropic || '';
-        geminiRes = raw.gemini || raw.google || '';
-      } else {
-        const text = raw.text || raw.output || raw.message || (typeof data === 'string' ? data : '');
-        const slice = (src, from, to) => {
-          const a = src.toLowerCase().indexOf(from.toLowerCase());
-          if (a === -1) return '';
-          const dash = src.indexOf('---', a);
-          if (dash === -1) return '';
-          let s = dash;
-          while (s < src.length && /[-\n\r ]/.test(src[s])) s++;
-          if (to) {
-            const b = src.toLowerCase().indexOf(to.toLowerCase(), s);
-            if (b !== -1) { let e = b; while (e > s && /[-\n\r ]/.test(src[e-1])) e--; return src.slice(s, e).trim(); }
-          }
-          return src.slice(s).trim();
-        };
-        openaiRes = slice(text, 'OpenAI', 'Claude') || slice(text, 'GPT', 'Claude');
-        claudeRes = slice(text, 'Claude', 'Gemini');
-        geminiRes = slice(text, 'Gemini', null);
-        if (!openaiRes && !claudeRes && !geminiRes) geminiRes = text;
-      }
+      const openaiRes = raw.openai || raw.gpt   || '';
+      const claudeRes = raw.claude || raw.anthropic || '';
+      const geminiRes = raw.gemini || raw.google || '';
 
-      const meta = raw.usageMetadata || raw.usage || raw.tokenUsage || null;
-      let inputTokens, outputTokens, totalTokens, isEstimate;
-      if (meta) {
-        inputTokens  = meta.promptTokenCount    || meta.input_tokens  || meta.inputTokens  || 0;
-        outputTokens = meta.candidatesTokenCount || meta.output_tokens || meta.outputTokens || 0;
-        totalTokens  = meta.totalTokenCount      || meta.totalTokens  || inputTokens + outputTokens;
-        isEstimate   = false;
-      } else {
-        const active = geminiRes || claudeRes || openaiRes || '';
-        inputTokens  = Math.ceil(prompt.length / 4);
-        outputTokens = Math.ceil(active.length / 4);
-        totalTokens  = inputTokens + outputTokens;
-        isEstimate   = true;
-      }
-      const runCost = inputTokens * GEMINI_INPUT_COST + outputTokens * GEMINI_OUTPUT_COST;
+      // Per-model token usage from n8n (raw.usage.openai / .claude / .gemini)
+      const usageRaw = raw.usage || {};
+      const promptIn = Math.ceil(prompt.length / 4); // shared input estimate fallback
+
+      const resolveStats = (key, responseText) => {
+        const u = usageRaw[key];
+        if (u && (u.input || u.input_tokens)) {
+          const inp = u.input || u.input_tokens || 0;
+          const out = u.output || u.output_tokens || 0;
+          return { tokens: inp + out, cost: calcCost(key, inp, out), isEstimate: false };
+        }
+        // fallback: estimate from text length
+        const inp = promptIn;
+        const out = Math.ceil((responseText || '').length / 4);
+        return { tokens: inp + out, cost: calcCost(key, inp, out), isEstimate: true };
+      };
+
+      const newModelStats = {
+        openai: resolveStats('openai', openaiRes),
+        claude: resolveStats('claude', claudeRes),
+        gemini: resolveStats('gemini', geminiRes),
+      };
+
+      const totalCost = newModelStats.openai.cost + newModelStats.claude.cost + newModelStats.gemini.cost;
+      const totalTokens = newModelStats.openai.tokens + newModelStats.claude.tokens + newModelStats.gemini.tokens;
 
       setContent({
         openai: openaiRes || 'OpenAI node not active.',
         claude: claudeRes || 'Claude node not active.',
         gemini: geminiRes || 'No Gemini response.',
       });
-      setStats({ elapsed, totalTokens, runCost, isEstimate });
-      if (onRunComplete) onRunComplete({ prompt, gemini: geminiRes, claude: claudeRes, openai: openaiRes, tokenData: { inputTokens, outputTokens, totalTokens, runCost, isEstimate } });
+      setElapsed(elapsedVal);
+      setModelStats(newModelStats);
+
+      if (onRunComplete) onRunComplete({
+        prompt, openai: openaiRes, claude: claudeRes, gemini: geminiRes,
+        tokenData: { totalTokens, runCost: totalCost, isEstimate: newModelStats.gemini.isEstimate },
+      });
       setStatus('complete');
     } catch (e) {
       console.error(e);
@@ -218,12 +265,10 @@ const PromptControl = ({ onRunComplete }) => {
     }
   };
 
-  const isActive = t => t && !t.includes('not active') && !t.includes('No response') && !t.includes('No Gemini');
-
   const models = [
-    { name: 'OpenAI GPT-4o',      color: '#10a37f', key: 'openai', response: content.openai },
-    { name: 'Anthropic Claude-3', color: '#d97757', key: 'claude', response: content.claude },
-    { name: 'Google Gemini 1.5',  color: '#4285f4', key: 'gemini', response: content.gemini },
+    { name: 'OpenAI GPT-4.1 Mini',    color: '#10a37f', key: 'openai', response: content.openai },
+    { name: 'Claude Haiku 4.5',        color: '#d97757', key: 'claude', response: content.claude },
+    { name: 'Google Gemini 1.5 Flash', color: '#4285f4', key: 'gemini', response: content.gemini },
   ];
 
   const canRun = prompt.trim().length > 0 && status !== 'running';
@@ -265,12 +310,20 @@ const PromptControl = ({ onRunComplete }) => {
         }}>
           {/* Left chips */}
           <div style={{ display: 'flex', gap: '6px' }}>
-            {stats.runCost != null && (
-              <span style={{ fontSize: '0.72rem', color: '#9ca3af', alignSelf: 'center' }}>
-                {stats.isEstimate ? '~' : ''}{Number(stats.totalTokens).toLocaleString()} tkn ·{' '}
-                <span style={{ color: '#059669', fontWeight: '600' }}>${stats.runCost.toFixed(6)}</span>
-              </span>
-            )}
+            {status === 'complete' && (() => {
+              const keys = ['openai', 'claude', 'gemini'];
+              const successKeys = keys.filter(k => !parseError(content[k]));
+              const totalTokens = successKeys.reduce((s, k) => s + (modelStats[k].tokens || 0), 0);
+              const totalCost   = successKeys.reduce((s, k) => s + (modelStats[k].cost   || 0), 0);
+              const anyEstimate = successKeys.some(k => modelStats[k].isEstimate);
+              if (successKeys.length === 0) return null;
+              return (
+                <span style={{ fontSize: '0.72rem', color: '#9ca3af', alignSelf: 'center' }}>
+                  {anyEstimate ? '~' : ''}{Number(totalTokens).toLocaleString()} tkn ·{' '}
+                  <span style={{ color: '#059669', fontWeight: '600' }}>${totalCost.toFixed(6)}</span>
+                </span>
+              );
+            })()}
           </div>
 
           {/* Right: Send button — Claude's circular dark button */}
@@ -335,7 +388,7 @@ const PromptControl = ({ onRunComplete }) => {
           width: '100%',
         }}>
           {models.map(m => {
-            const active = status === 'complete' && isActive(m.response);
+            const ms = modelStats[m.key];
             return (
               <ModelCard
                 key={m.key}
@@ -343,10 +396,10 @@ const PromptControl = ({ onRunComplete }) => {
                 color={m.color}
                 status={status}
                 response={m.response}
-                elapsed={active ? stats.elapsed : status === 'complete' ? '—' : null}
-                tokens={active ? stats.totalTokens : status === 'complete' ? 0 : null}
-                costUSD={active ? stats.runCost : 0}
-                isEstimate={stats.isEstimate}
+                elapsed={status === 'complete' ? elapsed : null}
+                tokens={status === 'complete' ? ms.tokens : null}
+                costUSD={status === 'complete' ? ms.cost : 0}
+                isEstimate={ms.isEstimate}
               />
             );
           })}
