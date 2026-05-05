@@ -1,0 +1,146 @@
+{
+   "Apollo_Downloader": {
+      "message": "Apollo አንቀሳቃሽ"
+   },
+   "Cancel": {
+      "message": "መሰረዝ"
+   },
+   "Close": {
+      "message": "መዝጋት"
+   },
+   "Company": {
+      "message": "ኩባንያ"
+   },
+   "Confirm": {
+      "message": "አረጋግጥ"
+   },
+   "Current": {
+      "message": "አሁን የታየው ገጽ አንደኛው ገጽ አይደለም። ወደ አንደኛው ገጽ መሄድ ትፈልጋለህ?"
+   },
+   "Done": {
+      "message": "ተጠናቆል"
+   },
+   "Download_Data": {
+      "message": "ውሂብ አውርድ"
+   },
+   "Download_File_Type": {
+      "message": "የፋይል አይነት አውርድ"
+   },
+   "Error": {
+      "message": "ነውር"
+   },
+   "Export": {
+      "message": "ላክ"
+   },
+   "Export_to": {
+      "message": "ላክ ወደ"
+   },
+   "Go_to": {
+      "message": "ወደ አንደኛው ገጽ ሂድ?"
+   },
+   "Login": {
+      "message": "ግባ"
+   },
+   "Navigate": {
+      "message": "ወደ አንደኛው ገጽ ሂድ"
+   },
+   "Non_Apollo": {
+      "message": "አፖሎ ያልሆኑ አባላት ‘Net New’ ወደ ተቋሚ ማንቀሳቀስ ማበልፀግና ‘ኢሜል ይጠቀሙ’ ማንቃት ይችላሉ።"
+   },
+   "Not_Now": {
+      "message": "አሁን አይደለም"
+   },
+   "People": {
+      "message": "ሰዎች"
+   },
+   "Please": {
+      "message": "እባኮትን የማውረድ ብዛት ያስገቡ፦"
+   },
+   "Pro_Plan": {
+      "message": "ፕሮ እቅፍ"
+   },
+   "Review": {
+      "message": "ግምገማ"
+   },
+   "Sign_in": {
+      "message": "ግባ"
+   },
+   "Start": {
+      "message": "ከአሁኑ ገጽ ጀምር (ነባሪ፡ አንደኛ ገጽ)"
+   },
+   "Stop": {
+      "message": "አቁም"
+   },
+   "TIPS": {
+      "message": "መነሳሳት"
+   },
+   "Tip": {
+      "message": "መነሳሳት፡ እንዴት እንደሚጠቀሙ?"
+   },
+   "Upgrade": {
+      "message": "አሻሽል"
+   },
+   "Write": {
+      "message": "ግምገማ ጻፍ"
+   },
+   "apolloDes": {
+      "message": "ከ Apollo.io አምር እና የሰዎችና የኩባንያዎች መረጃ ማስተላለፍ እንዲሁም ኢሜል፣ ስልክ ቁጥርና የማህበረሰብ መድረኮችን ጨምሮ።"
+   },
+   "apolloName": {
+      "message": "Apollo አንቀሳቃሽ፡ አፖሎ የእንደገና ተነሳና የሰዎችና የኩባንያ መረጃ እንዲወሰድ"
+   },
+   "completed": {
+      "message": "ፕሮ እቅፉን ጠናቀቃል?"
+   },
+   "contacting": {
+      "message": "በሚያገኙን ጊዜ፦"
+   },
+   "detected": {
+      "message": "ውሂብ አልተገኘም፣ እባኮትን መስርያ ይጨምሩና እንደገና ይፈትሹ።"
+   },
+   "doneText": {
+      "message": "ውሂብዎ በራሱ ይዘውራል።\u003Cbr> ካልሆነ፣ እባኮት \u003Cspan>እዚህ ጠቅ አድርጉ\u003C/span> እንዲህ በተገኘ ይዘውራል።"
+   },
+   "enableText": {
+      "message": "ወደ \u003Cspan style='font-weight:700;'>ፕሮ\u003C/span> አሻሽል እንዲሆን"
+   },
+   "exportedText": {
+      "message": "ተላክቷል {$1}/{$2} እቃዎች..."
+   },
+   "five_star": {
+      "message": "አምስት ኮከቦች ያልነበረን የምንሠጥላቸው ውሎ ነው። ስላገልግሎትህ እናመሰግናለን።"
+   },
+   "freeText": {
+      "message": "ነፃ መለያዎች እስከ {$1} እቃዎችን ይምረጣሉ።"
+   },
+   "identifier": {
+      "message": "በእኛ ላይ ለመገናኘት ማንነትዎን ያቅርቡ።"
+   },
+   "logged": {
+      "message": "እርስዎ ተሳክተዋል።"
+   },
+   "multitask": {
+      "message": "በማስተላለፍ ላይ ላሉበት የታች ይሁኑ ግን ይህን ትምህርት ክፍል ተዘግቶ ይገኝ።"
+   },
+   "prevent_loss": {
+      "message": "ውሂብን ለማጥፋት ግባ።"
+   },
+   "randomText": {
+      "message": "በ \u003Cspan>{$1}\u003C/span> እና \u003Cspan>{$2}\u003C/span> ሰከንድ መካከል የተዘረዘረ ቅርንጫፍ።"
+   },
+   "refresh": {
+      "message": "እባኮት ገጹን አድስት።"
+   },
+   "retrieval": {
+      "message": "ውሂብን ማግኘት ከሚገባ ጊዜ በላይ ወሰነ።"
+   },
+   "upgradeText": {
+      "message": "ወደ \u003Cspan style='font-weight:700;'>ፕሮ\u003C/span> አሻሽል እንዲሆን"
+   },
+   "use": {
+      "message": "አፖሎ ኢሜሎችን ይጠቀሙ"
+   },
+   "usingText": {
+      "message": "አፖሎ ኢሜሎችን መጠቀም ውሂብን ማስተላለፍን ይዘጋጅና የደህንነት ሥጋቶችን ያስተውላል። እንዲሁም {$1} የኢሜል ማረጋገጫ ክሬዲቶችን ይወጣል።"
+   }
+}

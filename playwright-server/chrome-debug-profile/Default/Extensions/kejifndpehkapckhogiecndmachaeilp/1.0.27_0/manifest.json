@@ -1,0 +1,33 @@
+{
+   "action": {
+      "default_icon": "icons/icon192.png",
+      "default_popup": "popup.html"
+   },
+   "background": {
+      "service_worker": "background.js"
+   },
+   "content_scripts": [ {
+      "all_frames": true,
+      "js": [ "content-stitch.js" ],
+      "matches": [ "*://*.appspot.com/*" ],
+      "run_at": "document_idle"
+   }, {
+      "exclude_matches": [ "*://stitch.withgoogle.com/*", "*://*.appspot.com/*" ],
+      "js": [ "content.js" ],
+      "matches": [ "\u003Call_urls>" ]
+   } ],
+   "description": "Connect and add a page to your clonewebx.softlite.io project.",
+   "host_permissions": [ "\u003Call_urls>" ],
+   "icons": {
+      "128": "icons/icon128.png",
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png"
+   },
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyBCa3sTu3S19oiA17eqQKT4BlN8J/aQrhO/Q/RVN+etrMLX1nWOUdn4JayVw8e3lmwr35Eqq7xOunWaI3y4+OmfIongayiu9NwQrtObdmsKRDpidmmh+VZUeLcJMyJZu13+qbQtyfmSv76n4LjXL0HnX0djuymjVCLlnaUI9FFmmj9dae6gs/4xRmBoW2aqfW6TF1CDHFI/a0WbzoNKhBpz53yMCUxzWtCYitp3KFJPo7wRl5X2Vp6PG7X6tdiis8xxmp6gqgxj36Y7q0SbUlIT+t8Q5c7nFwjGZ0Xwv+lfSrIXQb5n00RlVn+wT4cmqjo6yxXt1N6Qt85osJvyiGwIDAQAB",
+   "manifest_version": 3,
+   "name": "ClonewebX Softlite.io",
+   "permissions": [ "tabs", "storage", "unlimitedStorage", "scripting" ],
+   "update_url": "https://clients2.google.com/service/update2/crx",
+   "version": "1.0.27"
+}

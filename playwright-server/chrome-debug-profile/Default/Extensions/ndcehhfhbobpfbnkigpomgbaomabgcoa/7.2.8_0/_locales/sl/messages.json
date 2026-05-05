@@ -1,0 +1,146 @@
+{
+   "Apollo_Downloader": {
+      "message": "Apollo Scraper"
+   },
+   "Cancel": {
+      "message": "Prekliči"
+   },
+   "Close": {
+      "message": "Zapri"
+   },
+   "Company": {
+      "message": "Podjetje"
+   },
+   "Confirm": {
+      "message": "Potrdi"
+   },
+   "Current": {
+      "message": "Trenutna stran ni prva stran. Ali želite preiti na prvo stran?"
+   },
+   "Done": {
+      "message": "Končano"
+   },
+   "Download_Data": {
+      "message": "Prenesi podatke"
+   },
+   "Download_File_Type": {
+      "message": "Vrsta datoteke za prenos"
+   },
+   "Error": {
+      "message": "Napaka"
+   },
+   "Export": {
+      "message": "Izvozi"
+   },
+   "Export_to": {
+      "message": "Izvozi v"
+   },
+   "Go_to": {
+      "message": "Pojdi na prvo stran?"
+   },
+   "Login": {
+      "message": "Prijava"
+   },
+   "Navigate": {
+      "message": "Pojdi na prvo stran"
+   },
+   "Non_Apollo": {
+      "message": "Uporabniki, ki niso člani Apollo, lahko preklopijo na 'Net New' in omogočijo 'uporabi e-pošto', da obidejo omejitev treh strani."
+   },
+   "Not_Now": {
+      "message": "Ne zdaj"
+   },
+   "People": {
+      "message": "Ljudje"
+   },
+   "Please": {
+      "message": "Prosimo, vnesite število elementov, ki jih želite prenesti:"
+   },
+   "Pro_Plan": {
+      "message": "Pro načrt"
+   },
+   "Review": {
+      "message": "Mnenje"
+   },
+   "Sign_in": {
+      "message": "Prijava"
+   },
+   "Start": {
+      "message": "Začni na trenutni strani (privzeto: prva stran)"
+   },
+   "Stop": {
+      "message": "Ustavi"
+   },
+   "TIPS": {
+      "message": "Nasveti"
+   },
+   "Tip": {
+      "message": "Nasvet: Kako uporabiti?"
+   },
+   "Upgrade": {
+      "message": "Nadgradi"
+   },
+   "Write": {
+      "message": "Napiši mnenje"
+   },
+   "apolloDes": {
+      "message": "Pridobite lead-e iz Apollo.io in izvozite informacije o ljudeh in podjetjih, vključno z e-pošto, telefonskimi številkami in profili na družbenih omrežjih."
+   },
+   "apolloName": {
+      "message": "Apollo Scraper: Generiranje lead-ov in izvoz podatkov o ljudeh in podjetjih"
+   },
+   "completed": {
+      "message": "Ali ste dokončali Pro načrt?"
+   },
+   "contacting": {
+      "message": "Ko nas kontaktirate na"
+   },
+   "detected": {
+      "message": "Ni zaznanih podatkov, najprej začnite z iskanjem."
+   },
+   "doneText": {
+      "message": "Vaši podatki bodo samodejno preneseni.\u003Cbr> Če ne, \u003Cspan>kliknite tukaj\u003C/span> za ročni prenos."
+   },
+   "enableText": {
+      "message": "Nadgradite na \u003Cspan style='font-weight:700;'>Pro\u003C/span> za omogočanje"
+   },
+   "exportedText": {
+      "message": "Izvoženih {$1}/{$2} elementov..."
+   },
+   "five_star": {
+      "message": "Vaša ocena s petimi zvezdicami bi polepšala naš dan! Hvala za vašo podporo."
+   },
+   "freeText": {
+      "message": "Brezplačni računi lahko prenesejo do {$1} elementov."
+   },
+   "identifier": {
+      "message": "Prosimo, vključite svojo identifikacijo, ko nas kontaktirate."
+   },
+   "logged": {
+      "message": "Že ste prijavljeni."
+   },
+   "multitask": {
+      "message": "Med izvozom lahko izvajate druge naloge, vendar naj bo ta zavihek odprt."
+   },
+   "prevent_loss": {
+      "message": "Prijavite se, da preprečite izgubo podatkov."
+   },
+   "randomText": {
+      "message": "Naključni interval med \u003Cspan>{$1}\u003C/span> in \u003Cspan>{$2}\u003C/span> sekundami."
+   },
+   "refresh": {
+      "message": "Osvežite stran."
+   },
+   "retrieval": {
+      "message": "Pridobivanje podatkov je trajalo dlje, kot je bilo pričakovano."
+   },
+   "upgradeText": {
+      "message": "Nadgradite na \u003Cspan style='font-weight:700;'>Pro\u003C/span> za neomejene prenose."
+   },
+   "use": {
+      "message": "uporabi Apollo e-pošto"
+   },
+   "usingText": {
+      "message": "Uporaba Apollo e-pošt lahko upočasni izvoz podatkov in poveča varnostna tveganja. Prav tako bo porabilo {$1} kreditov za preverjanje e-pošt."
+   }
+}

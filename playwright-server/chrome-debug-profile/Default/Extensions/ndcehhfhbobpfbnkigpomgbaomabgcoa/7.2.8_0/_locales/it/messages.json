@@ -1,0 +1,146 @@
+{
+   "Apollo_Downloader": {
+      "message": "Apollo Scraper"
+   },
+   "Cancel": {
+      "message": "Annulla"
+   },
+   "Close": {
+      "message": "Chiudi"
+   },
+   "Company": {
+      "message": "Azienda"
+   },
+   "Confirm": {
+      "message": "Conferma"
+   },
+   "Current": {
+      "message": "La pagina corrente non è la prima pagina. Vuoi passare alla prima pagina?"
+   },
+   "Done": {
+      "message": "Fatto"
+   },
+   "Download_Data": {
+      "message": "Scarica dati"
+   },
+   "Download_File_Type": {
+      "message": "Tipo di file da scaricare"
+   },
+   "Error": {
+      "message": "Errore"
+   },
+   "Export": {
+      "message": "Esporta"
+   },
+   "Export_to": {
+      "message": "Esporta in"
+   },
+   "Go_to": {
+      "message": "Vai alla prima pagina?"
+   },
+   "Login": {
+      "message": "Accedi"
+   },
+   "Navigate": {
+      "message": "Vai alla prima pagina"
+   },
+   "Non_Apollo": {
+      "message": "Gli utenti non membri di Apollo possono passare a 'Net New' e abilitare 'usa email' per aggirare il limite di tre pagine."
+   },
+   "Not_Now": {
+      "message": "Non ora"
+   },
+   "People": {
+      "message": "Persone"
+   },
+   "Please": {
+      "message": "Inserisci il numero di elementi che desideri scaricare:"
+   },
+   "Pro_Plan": {
+      "message": "Piano Pro"
+   },
+   "Review": {
+      "message": "Recensione"
+   },
+   "Sign_in": {
+      "message": "Accedi"
+   },
+   "Start": {
+      "message": "Inizia dalla pagina corrente (predefinito: prima pagina)"
+   },
+   "Stop": {
+      "message": "Ferma"
+   },
+   "TIPS": {
+      "message": "Suggerimenti"
+   },
+   "Tip": {
+      "message": "Suggerimento: Come si usa?"
+   },
+   "Upgrade": {
+      "message": "Aggiorna"
+   },
+   "Write": {
+      "message": "Scrivi una recensione"
+   },
+   "apolloDes": {
+      "message": "Raccogli lead da Apollo.io ed esporta informazioni su persone e aziende, inclusi email, numeri di telefono e profili social."
+   },
+   "apolloName": {
+      "message": "Apollo Scraper: Esporta Dati su Persone e Aziende"
+   },
+   "completed": {
+      "message": "Hai completato il piano Pro?"
+   },
+   "contacting": {
+      "message": "Quando ci contatti a"
+   },
+   "detected": {
+      "message": "Nessun dato rilevato, inizia prima la tua ricerca."
+   },
+   "doneText": {
+      "message": "I tuoi dati saranno scaricati automaticamente.\u003Cbr> Se non accade, \u003Cspan>clicca qui\u003C/span> per scaricare manualmente."
+   },
+   "enableText": {
+      "message": "Aggiorna a \u003Cspan style='font-weight:700;'>Pro\u003C/span> per abilitare"
+   },
+   "exportedText": {
+      "message": "{$1}/{$2} elementi esportati..."
+   },
+   "five_star": {
+      "message": "La tua valutazione a cinque stelle illuminerà la nostra giornata! Grazie per il tuo supporto."
+   },
+   "freeText": {
+      "message": "Gli account gratuiti possono scaricare fino a {$1} elementi."
+   },
+   "identifier": {
+      "message": "Includi il tuo identificativo quando ci contatti."
+   },
+   "logged": {
+      "message": "Sei già connesso."
+   },
+   "multitask": {
+      "message": "Puoi svolgere altre attività durante l'esportazione, ma tieni aperta questa scheda."
+   },
+   "prevent_loss": {
+      "message": "Accedi per prevenire la perdita di dati."
+   },
+   "randomText": {
+      "message": "Intervallo casuale tra \u003Cspan>{$1}\u003C/span> e \u003Cspan>{$2}\u003C/span> secondi."
+   },
+   "refresh": {
+      "message": "Aggiorna la pagina."
+   },
+   "retrieval": {
+      "message": "Il recupero dei dati ha richiesto più tempo del previsto."
+   },
+   "upgradeText": {
+      "message": "Aggiorna a \u003Cspan style='font-weight:700;'>Pro\u003C/span> per download illimitati."
+   },
+   "use": {
+      "message": "usa le email di Apollo"
+   },
+   "usingText": {
+      "message": "L'uso delle email di Apollo potrebbe rallentare l'esportazione dei dati e aumentare i rischi per la sicurezza. Consumerà inoltre {$1} crediti di verifica email."
+   }
+}

@@ -1,0 +1,146 @@
+{
+   "Apollo_Downloader": {
+      "message": "Rascador d'Apollo"
+   },
+   "Cancel": {
+      "message": "Cancel·lar"
+   },
+   "Close": {
+      "message": "Tancar"
+   },
+   "Company": {
+      "message": "Empresa"
+   },
+   "Confirm": {
+      "message": "Confirmar"
+   },
+   "Current": {
+      "message": "La pàgina actual no és la primera. Vols anar a la primera pàgina?"
+   },
+   "Done": {
+      "message": "Fet"
+   },
+   "Download_Data": {
+      "message": "Descarregar dades"
+   },
+   "Download_File_Type": {
+      "message": "Tipus de fitxer a descarregar"
+   },
+   "Error": {
+      "message": "Error"
+   },
+   "Export": {
+      "message": "Exportar"
+   },
+   "Export_to": {
+      "message": "Exportar a"
+   },
+   "Go_to": {
+      "message": "Anar a la primera pàgina?"
+   },
+   "Login": {
+      "message": "Iniciar sessió"
+   },
+   "Navigate": {
+      "message": "Anar a la primera pàgina"
+   },
+   "Non_Apollo": {
+      "message": "Els usuaris que no són membres d'Apollo poden canviar a 'Net New' i habilitar 'utilitza correus electrònics' per evitar el límit de tres pàgines."
+   },
+   "Not_Now": {
+      "message": "Ara no"
+   },
+   "People": {
+      "message": "Persones"
+   },
+   "Please": {
+      "message": "Introduïu el nombre d'elements que voleu descarregar:"
+   },
+   "Pro_Plan": {
+      "message": "Pla Pro"
+   },
+   "Review": {
+      "message": "Revisió"
+   },
+   "Sign_in": {
+      "message": "Iniciar sessió"
+   },
+   "Start": {
+      "message": "Comença des de la pàgina actual (per defecte: primera pàgina)"
+   },
+   "Stop": {
+      "message": "Aturar"
+   },
+   "TIPS": {
+      "message": "Consells"
+   },
+   "Tip": {
+      "message": "Consell: Com utilitzar-ho?"
+   },
+   "Upgrade": {
+      "message": "Actualitzar"
+   },
+   "Write": {
+      "message": "Escriure una ressenya"
+   },
+   "apolloDes": {
+      "message": "Raspa contactes d'Apollo.io i exporta informació de persones i empreses, incloent-hi correus electrònics, números de telèfon i perfils de xarxes socials."
+   },
+   "apolloName": {
+      "message": "Apollo Scraper: Exporta Dades sobre Persones i Empreses"
+   },
+   "completed": {
+      "message": "Heu completat el pla Pro?"
+   },
+   "contacting": {
+      "message": "Quan contacteu amb nosaltres a"
+   },
+   "detected": {
+      "message": "No s'han detectat dades, inicieu la vostra cerca primer."
+   },
+   "doneText": {
+      "message": "Les dades es descarregaran automàticament.\u003Cbr> Si no és així, \u003Cspan>feu clic aquí\u003C/span> per descarregar manualment."
+   },
+   "enableText": {
+      "message": "Actualitzeu a \u003Cspan style='font-weight:700;'>Pro\u003C/span> per habilitar"
+   },
+   "exportedText": {
+      "message": "{$1}/{$2} elements exportats..."
+   },
+   "five_star": {
+      "message": "La vostra valoració de cinc estrelles farà el nostre dia! Gràcies pel vostre suport."
+   },
+   "freeText": {
+      "message": "Els comptes gratuïts poden descarregar fins a {$1} elements."
+   },
+   "identifier": {
+      "message": "Incloeu el vostre identificador quan ens contacteu."
+   },
+   "logged": {
+      "message": "Ja heu iniciat sessió."
+   },
+   "multitask": {
+      "message": "Podeu fer altres tasques mentre exporteu, però mantingueu aquesta pestanya oberta."
+   },
+   "prevent_loss": {
+      "message": "Inicieu sessió per evitar la pèrdua de dades."
+   },
+   "randomText": {
+      "message": "Interval aleatori entre \u003Cspan>{$1}\u003C/span> i \u003Cspan>{$2}\u003C/span> segons."
+   },
+   "refresh": {
+      "message": "Actualitzeu la pàgina."
+   },
+   "retrieval": {
+      "message": "La recuperació de dades ha trigat més del previst."
+   },
+   "upgradeText": {
+      "message": "Actualitzeu a \u003Cspan style='font-weight:700;'>Pro\u003C/span> per a descàrregues il·limitades."
+   },
+   "use": {
+      "message": "utilitzar correus electrònics d'Apollo"
+   },
+   "usingText": {
+      "message": "L'ús de correus electrònics d'Apollo pot alentir l'exportació de dades i augmentar els riscos de seguretat. També consumirà {$1} crèdits de verificació de correu electrònic."
+   }
+}

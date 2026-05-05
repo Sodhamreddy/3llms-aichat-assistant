@@ -1,0 +1,146 @@
+{
+   "Apollo_Downloader": {
+      "message": "Apollo Scraper"
+   },
+   "Cancel": {
+      "message": "Avbryt"
+   },
+   "Close": {
+      "message": "Stäng"
+   },
+   "Company": {
+      "message": "Företag"
+   },
+   "Confirm": {
+      "message": "Bekräfta"
+   },
+   "Current": {
+      "message": "Den aktuella sidan är inte den första sidan. Vill du gå till den första sidan?"
+   },
+   "Done": {
+      "message": "Klart"
+   },
+   "Download_Data": {
+      "message": "Ladda ner data"
+   },
+   "Download_File_Type": {
+      "message": "Filtyp att ladda ner"
+   },
+   "Error": {
+      "message": "Fel"
+   },
+   "Export": {
+      "message": "Exportera"
+   },
+   "Export_to": {
+      "message": "Exportera till"
+   },
+   "Go_to": {
+      "message": "Gå till första sidan?"
+   },
+   "Login": {
+      "message": "Logga in"
+   },
+   "Navigate": {
+      "message": "Gå till första sidan"
+   },
+   "Non_Apollo": {
+      "message": "Icke-Apollo-användare kan byta till 'Net New' och aktivera 'använd e-post' för att kringgå gränsen på tre sidor."
+   },
+   "Not_Now": {
+      "message": "Inte nu"
+   },
+   "People": {
+      "message": "Personer"
+   },
+   "Please": {
+      "message": "Ange antalet objekt du vill ladda ner:"
+   },
+   "Pro_Plan": {
+      "message": "Pro Plan"
+   },
+   "Review": {
+      "message": "Recension"
+   },
+   "Sign_in": {
+      "message": "Logga in"
+   },
+   "Start": {
+      "message": "Börja från den aktuella sidan (standard: första sidan)"
+   },
+   "Stop": {
+      "message": "Stoppa"
+   },
+   "TIPS": {
+      "message": "Tips"
+   },
+   "Tip": {
+      "message": "Tips: Hur använder man?"
+   },
+   "Upgrade": {
+      "message": "Uppgradera"
+   },
+   "Write": {
+      "message": "Skriv en recension"
+   },
+   "apolloDes": {
+      "message": "Hämta leads från Apollo.io och exportera information om personer och företag, inklusive e-post, telefonnummer och sociala medieprofiler."
+   },
+   "apolloName": {
+      "message": "Apollo Scraper: Leadgenerering och export av data om personer och företag"
+   },
+   "completed": {
+      "message": "Har du slutfört Pro Plan?"
+   },
+   "contacting": {
+      "message": "När du kontaktar oss på"
+   },
+   "detected": {
+      "message": "Inga data hittades, vänligen börja med att söka."
+   },
+   "doneText": {
+      "message": "Dina data laddas ner automatiskt.\u003Cbr> Om inte, \u003Cspan>klicka här\u003C/span> för att ladda ner manuellt."
+   },
+   "enableText": {
+      "message": "Uppgradera till \u003Cspan style='font-weight:700;'>Pro\u003C/span> för att aktivera"
+   },
+   "exportedText": {
+      "message": "{$1}/{$2} objekt exporterade..."
+   },
+   "five_star": {
+      "message": "Din femstjärniga recension skulle göra vår dag! Tack för ditt stöd."
+   },
+   "freeText": {
+      "message": "Gratis konton kan ladda ner upp till {$1} objekt."
+   },
+   "identifier": {
+      "message": "Vänligen inkludera ditt identifieringsnummer när du kontaktar oss."
+   },
+   "logged": {
+      "message": "Du är redan inloggad."
+   },
+   "multitask": {
+      "message": "Du kan göra andra uppgifter medan du exporterar, men håll den här fliken öppen."
+   },
+   "prevent_loss": {
+      "message": "Logga in för att förhindra dataförlust."
+   },
+   "randomText": {
+      "message": "Slumpmässigt intervall mellan \u003Cspan>{$1}\u003C/span> och \u003Cspan>{$2}\u003C/span> sekunder."
+   },
+   "refresh": {
+      "message": "Vänligen uppdatera sidan."
+   },
+   "retrieval": {
+      "message": "Hämtningen av data tog längre tid än förväntat."
+   },
+   "upgradeText": {
+      "message": "Uppgradera till \u003Cspan style='font-weight:700;'>Pro\u003C/span> för obegränsade nedladdningar."
+   },
+   "use": {
+      "message": "använd Apollo e-post"
+   },
+   "usingText": {
+      "message": "Att använda Apollo e-post kan sakta ner dataexporten och öka säkerhetsriskerna. Det kommer också att använda {$1} verifieringskrediter för e-post."
+   }
+}

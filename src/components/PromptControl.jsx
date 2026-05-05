@@ -56,8 +56,10 @@ const ErrorBlock = ({ error }) => (
 );
 
 /* ─── Model Card ──────────────────────────────────────────────────── */
-const ModelCard = ({ name, color, status, response, elapsed, tokens, costUSD, isEstimate }) => {
+const ModelCard = ({ name, color, status, response, elapsed, tokens, costUSD, isEstimate, onManualPaste, fullWidth }) => {
   const [displayed, setDisplayed] = useState('');
+  const [pasteMode, setPasteMode] = useState(false);
+  const [pasteText, setPasteText] = useState('');
   const timer = useRef(null);
   const errorInfo = status === 'complete' ? parseError(response) : null;
 
@@ -71,16 +73,25 @@ const ModelCard = ({ name, color, status, response, elapsed, tokens, costUSD, is
         if (i > response.length) clearInterval(timer.current);
       }, 4);
     }
-    if (status === 'idle') setDisplayed('');
+    if (status === 'idle') { setDisplayed(''); setPasteMode(false); setPasteText(''); }
     return () => clearInterval(timer.current);
   }, [status, response]);
+
+  const handlePasteSubmit = () => {
+    if (!pasteText.trim()) return;
+    onManualPaste(pasteText.trim());
+    setPasteMode(false);
+    setPasteText('');
+  };
 
   const running  = status === 'running';
   const complete = status === 'complete';
 
   return (
     <div style={{
-      flex: 1, minWidth: '280px',
+      flex: fullWidth ? 'none' : 1,
+      width: fullWidth ? '100%' : undefined,
+      minWidth: fullWidth ? undefined : '280px',
       background: errorInfo ? '#fffbfb' : '#ffffff',
       border: `1.5px solid ${running ? color + '50' : errorInfo ? '#fecaca' : 'rgba(0,0,0,0.07)'}`,
       borderRadius: '18px',
@@ -121,11 +132,41 @@ const ModelCard = ({ name, color, status, response, elapsed, tokens, costUSD, is
 
       {/* Body */}
       <div style={{
-        flex: 1, minHeight: '220px', maxHeight: '280px',
+        flex: 1, minHeight: fullWidth ? '300px' : '220px', maxHeight: fullWidth ? '600px' : '280px',
         padding: '16px', fontSize: '0.875rem', lineHeight: '1.75',
         color: '#374151', overflowY: 'auto',
+        display: 'flex', flexDirection: 'column',
       }}>
-        {status === 'idle' ? (
+        {pasteMode ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', height: '100%' }}>
+            <textarea
+              autoFocus
+              value={pasteText}
+              onChange={e => setPasteText(e.target.value)}
+              onKeyDown={e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) handlePasteSubmit(); }}
+              placeholder="Paste Claude's response here… (Ctrl+Enter to confirm)"
+              style={{
+                flex: 1, width: '100%', border: `1.5px solid ${color}60`,
+                borderRadius: '10px', padding: '10px', fontSize: '0.85rem',
+                lineHeight: '1.6', resize: 'none', outline: 'none',
+                fontFamily: 'inherit', color: '#374151', background: '#fafafa',
+                minHeight: '140px',
+              }}
+            />
+            <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
+              <button onClick={() => { setPasteMode(false); setPasteText(''); }} style={{
+                padding: '5px 12px', borderRadius: '8px', border: '1px solid #e5e7eb',
+                background: 'white', color: '#6b7280', fontSize: '0.75rem', cursor: 'pointer',
+              }}>Cancel</button>
+              <button onClick={handlePasteSubmit} disabled={!pasteText.trim()} style={{
+                padding: '5px 12px', borderRadius: '8px', border: 'none',
+                background: pasteText.trim() ? color : '#e5e7eb',
+                color: pasteText.trim() ? 'white' : '#9ca3af',
+                fontSize: '0.75rem', cursor: pasteText.trim() ? 'pointer' : 'not-allowed', fontWeight: '600',
+              }}>Set Response</button>
+            </div>
+          </div>
+        ) : status === 'idle' ? (
           <div style={{
             height: '180px', display: 'flex', flexDirection: 'column',
             alignItems: 'center', justifyContent: 'center', gap: '8px',
@@ -155,11 +196,23 @@ const ModelCard = ({ name, color, status, response, elapsed, tokens, costUSD, is
         {!errorInfo && <Chip icon="🪙" val={tokens != null ? `${Number(tokens).toLocaleString()} tkn` : '—'} suffix={isEstimate && tokens > 0 ? ' ~' : ''} />}
         {!errorInfo && costUSD > 0 && <Chip icon="💵" val={`$${costUSD.toFixed(6)}`} green />}
         {errorInfo && <span style={{ fontSize: '0.67rem', color: '#f87171', fontWeight: '600' }}>No tokens used</span>}
+        {onManualPaste && complete && !pasteMode && (
+          <button
+            onClick={() => setPasteMode(true)}
+            title="Paste response manually"
+            style={{
+              padding: '3px 8px', borderRadius: '6px', border: `1px solid ${color}40`,
+              background: `${color}10`, color: color,
+              display: 'flex', alignItems: 'center', gap: '3px',
+              cursor: 'pointer', fontSize: '0.65rem', fontWeight: '600',
+            }}
+          >📋 Paste</button>
+        )}
         <button
           onClick={() => navigator.clipboard.writeText(response || '')}
           title="Copy"
           style={{
-            marginLeft: 'auto', width: '26px', height: '26px', borderRadius: '6px',
+            marginLeft: onManualPaste ? '4px' : 'auto', width: '26px', height: '26px', borderRadius: '6px',
             background: 'white', border: '1px solid #e5e7eb',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             cursor: 'pointer', fontSize: '0.7rem', color: '#6b7280'
@@ -179,12 +232,16 @@ const Chip = ({ icon, val, suffix = '', green = false }) => (
   }}>{icon} {val}{suffix}</span>
 );
 
+const PLAYWRIGHT_URL = 'http://localhost:3001/run-prompt';
+const N8N_URL        = 'https://n8n.kleza.io/webhook/bf39cd7e-9f1b-4b3e-98eb-8b746cd2b510/chat';
+
 /* ─── Main Control ────────────────────────────────────────────────── */
 const PromptControl = ({ onRunComplete }) => {
   const [prompt, setPrompt]       = useState('');
   const [status, setStatus]       = useState('idle');
   const [content, setContent]     = useState({ openai: '', claude: '', gemini: '' });
   const [elapsed, setElapsed]     = useState(null);
+  const [usePlaywright, setUsePlaywright] = useState(false);
   const [modelStats, setModelStats] = useState({
     openai: { tokens: null, cost: null, isEstimate: false },
     claude: { tokens: null, cost: null, isEstimate: false },
@@ -200,13 +257,89 @@ const PromptControl = ({ onRunComplete }) => {
     }
   }, [prompt]);
 
-  const handleRun = async () => {
-    if (!prompt.trim() || status === 'running') return;
+  const buildStats = (key, text) => {
+    const inp = Math.ceil(prompt.length / 4);
+    const out = Math.ceil((text || '').length / 4);
+    return { tokens: inp + out, cost: calcCost(key, inp, out), isEstimate: true };
+  };
+
+  const handleRunPlaywright = async () => {
+    setStatus('running');
+    setContent({ openai: '', claude: '', gemini: '' });
+    const t0 = Date.now();
+
+    try {
+      const res = await fetch(PLAYWRIGHT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: res.statusText }));
+        throw new Error(err.error || res.statusText);
+      }
+
+      // Read SSE stream
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let finalResult = null;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const event = JSON.parse(line.slice(6));
+
+          if (event.type === 'partial') {
+            setContent(prev => ({ ...prev, ...event }));
+          } else if (event.type === 'complete') {
+            finalResult = event;
+          } else if (event.type === 'error') {
+            throw new Error(event.message);
+          }
+        }
+      }
+
+      if (!finalResult) throw new Error('No complete event from Playwright server.');
+
+      const { openai: oR, claude: cR, gemini: gR, elapsed: el } = finalResult;
+      const newStats = {
+        openai: buildStats('openai', oR),
+        claude: buildStats('claude', cR),
+        gemini: buildStats('gemini', gR),
+      };
+
+      setContent({ openai: oR || 'No response.', claude: cR || 'No response.', gemini: gR || 'No response.' });
+      setElapsed(el || ((Date.now() - t0) / 1000).toFixed(2));
+      setModelStats(newStats);
+
+      const totalTokens = newStats.openai.tokens + newStats.claude.tokens + newStats.gemini.tokens;
+      const totalCost   = newStats.openai.cost   + newStats.claude.cost   + newStats.gemini.cost;
+      if (onRunComplete) onRunComplete({
+        prompt, openai: oR, claude: cR, gemini: gR,
+        tokenData: { totalTokens, runCost: totalCost, isEstimate: true },
+      });
+      setStatus('complete');
+    } catch (e) {
+      console.error(e);
+      setStatus('idle');
+      alert(`Playwright server error: ${e.message}\n\nMake sure you ran: cd playwright-server && node server.js`);
+    }
+  };
+
+  const handleRunN8N = async () => {
     setStatus('running');
     const t0 = Date.now();
 
     try {
-      const res  = await fetch('https://n8n.kleza.io/webhook/bf39cd7e-9f1b-4b3e-98eb-8b746cd2b510/chat', {
+      const res  = await fetch(N8N_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chatInput: prompt })
@@ -219,9 +352,8 @@ const PromptControl = ({ onRunComplete }) => {
       const claudeRes = raw.claude || raw.anthropic || '';
       const geminiRes = raw.gemini || raw.google || '';
 
-      // Per-model token usage from n8n (raw.usage.openai / .claude / .gemini)
       const usageRaw = raw.usage || {};
-      const promptIn = Math.ceil(prompt.length / 4); // shared input estimate fallback
+      const promptIn = Math.ceil(prompt.length / 4);
 
       const resolveStats = (key, responseText) => {
         const u = usageRaw[key];
@@ -230,7 +362,6 @@ const PromptControl = ({ onRunComplete }) => {
           const out = u.output || u.output_tokens || 0;
           return { tokens: inp + out, cost: calcCost(key, inp, out), isEstimate: false };
         }
-        // fallback: estimate from text length
         const inp = promptIn;
         const out = Math.ceil((responseText || '').length / 4);
         return { tokens: inp + out, cost: calcCost(key, inp, out), isEstimate: true };
@@ -242,7 +373,7 @@ const PromptControl = ({ onRunComplete }) => {
         gemini: resolveStats('gemini', geminiRes),
       };
 
-      const totalCost = newModelStats.openai.cost + newModelStats.claude.cost + newModelStats.gemini.cost;
+      const totalCost   = newModelStats.openai.cost   + newModelStats.claude.cost   + newModelStats.gemini.cost;
       const totalTokens = newModelStats.openai.tokens + newModelStats.claude.tokens + newModelStats.gemini.tokens;
 
       setContent({
@@ -265,9 +396,21 @@ const PromptControl = ({ onRunComplete }) => {
     }
   };
 
+  const handleRun = () => usePlaywright ? handleRunPlaywright() : handleRunN8N();
+
+  const handleManualPaste = (key, text) => {
+    setContent(prev => ({ ...prev, [key]: text }));
+    const est = Math.ceil(text.length / 4);
+    setModelStats(prev => ({
+      ...prev,
+      [key]: { tokens: est, cost: calcCost(key, Math.ceil(prompt.length / 4), est), isEstimate: true },
+    }));
+    if (status !== 'complete') setStatus('complete');
+  };
+
   const models = [
     { name: 'OpenAI GPT-4.1 Mini',    color: '#10a37f', key: 'openai', response: content.openai },
-    { name: 'Claude Haiku 4.5',        color: '#d97757', key: 'claude', response: content.claude },
+    { name: usePlaywright ? 'Claude — Final Synthesis' : 'Claude Haiku 4.5', color: '#d97757', key: 'claude', response: content.claude },
     { name: 'Google Gemini 1.5 Flash', color: '#4285f4', key: 'gemini', response: content.gemini },
   ];
 
@@ -326,6 +469,46 @@ const PromptControl = ({ onRunComplete }) => {
             })()}
           </div>
 
+          {/* Mode toggle — two buttons */}
+          <div style={{
+            display: 'flex', alignItems: 'center',
+            background: '#f3f4f6', borderRadius: '20px',
+            padding: '3px', gap: '2px',
+          }}>
+            <button
+              onClick={() => setUsePlaywright(false)}
+              title="n8n API mode"
+              style={{
+                display: 'flex', alignItems: 'center', gap: '5px',
+                padding: '5px 12px', borderRadius: '16px', border: 'none',
+                background: !usePlaywright ? '#ffffff' : 'transparent',
+                color: !usePlaywright ? '#1a1a1a' : '#9ca3af',
+                fontSize: '0.72rem', fontWeight: '600', cursor: 'pointer',
+                boxShadow: !usePlaywright ? '0 1px 4px rgba(0,0,0,0.10)' : 'none',
+                transition: 'all 0.15s',
+              }}
+            >
+              <span>⚡</span>
+              <span>API</span>
+            </button>
+            <button
+              onClick={() => setUsePlaywright(true)}
+              title="Playwright browser mode"
+              style={{
+                display: 'flex', alignItems: 'center', gap: '5px',
+                padding: '5px 12px', borderRadius: '16px', border: 'none',
+                background: usePlaywright ? '#ffffff' : 'transparent',
+                color: usePlaywright ? '#7c3aed' : '#9ca3af',
+                fontSize: '0.72rem', fontWeight: '600', cursor: 'pointer',
+                boxShadow: usePlaywright ? '0 1px 4px rgba(0,0,0,0.10)' : 'none',
+                transition: 'all 0.15s',
+              }}
+            >
+              <span>🎭</span>
+              <span>Browser</span>
+            </button>
+          </div>
+
           {/* Right: Send button — Claude's circular dark button */}
           <button
             onClick={handleRun}
@@ -380,12 +563,11 @@ const PromptControl = ({ onRunComplete }) => {
 
     </div>{/* end inner 860px wrapper */}
 
-      {/* ── Model Cards — full width, below input ── */}
-      {status !== 'idle' && (
+      {/* ── Model Cards ── */}
+      {status !== 'idle' && !usePlaywright && (
         <div style={{
           display: 'flex', gap: '1rem', overflowX: 'auto',
-          paddingBottom: '0.5rem', marginTop: '1.5rem',
-          width: '100%',
+          paddingBottom: '0.5rem', marginTop: '1.5rem', width: '100%',
         }}>
           {models.map(m => {
             const ms = modelStats[m.key];
@@ -400,9 +582,61 @@ const PromptControl = ({ onRunComplete }) => {
                 tokens={status === 'complete' ? ms.tokens : null}
                 costUSD={status === 'complete' ? ms.cost : 0}
                 isEstimate={ms.isEstimate}
+                onManualPaste={(text) => handleManualPaste(m.key, text)}
               />
             );
           })}
+        </div>
+      )}
+
+      {/* ── Playwright mode: source pills + big Claude synthesis ── */}
+      {status !== 'idle' && usePlaywright && (
+        <div style={{ marginTop: '1.5rem', width: '100%' }}>
+          {/* Source status row */}
+          <div style={{ display: 'flex', gap: '10px', marginBottom: '1rem', flexWrap: 'wrap' }}>
+            {[
+              { key: 'openai',  label: 'ChatGPT',  color: '#10a37f' },
+              { key: 'gemini',  label: 'Gemini',   color: '#4285f4' },
+            ].map(s => {
+              const done = status === 'complete' && content[s.key] && !content[s.key].startsWith('Error');
+              const running = status === 'running';
+              return (
+                <div key={s.key} style={{
+                  display: 'flex', alignItems: 'center', gap: '7px',
+                  padding: '6px 14px', borderRadius: '20px',
+                  background: done ? `${s.color}10` : '#f3f4f6',
+                  border: `1px solid ${done ? s.color + '30' : '#e5e7eb'}`,
+                  fontSize: '0.78rem', fontWeight: '600',
+                  color: done ? s.color : '#9ca3af',
+                }}>
+                  <span style={{
+                    width: '7px', height: '7px', borderRadius: '50%',
+                    background: done ? s.color : running ? s.color : '#d1d5db',
+                    display: 'inline-block',
+                    animation: running ? 'blink 0.8s ease infinite' : 'none',
+                  }} />
+                  {s.label}
+                  <span style={{ fontWeight: '400', opacity: 0.7 }}>
+                    {done ? ' ✓ collected' : running ? ' collecting…' : ''}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Claude synthesis — full width */}
+          <ModelCard
+            name="Claude — Final Synthesis"
+            color="#d97757"
+            status={status}
+            response={content.claude}
+            elapsed={status === 'complete' ? elapsed : null}
+            tokens={status === 'complete' ? modelStats.claude.tokens : null}
+            costUSD={status === 'complete' ? modelStats.claude.cost : 0}
+            isEstimate={modelStats.claude.isEstimate}
+            onManualPaste={(text) => handleManualPaste('claude', text)}
+            fullWidth
+          />
         </div>
       )}
     </div>

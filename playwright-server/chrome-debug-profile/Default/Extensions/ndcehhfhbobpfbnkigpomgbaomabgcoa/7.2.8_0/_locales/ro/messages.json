@@ -1,0 +1,146 @@
+{
+   "Apollo_Downloader": {
+      "message": "Apollo Scraper"
+   },
+   "Cancel": {
+      "message": "Anulează"
+   },
+   "Close": {
+      "message": "Închide"
+   },
+   "Company": {
+      "message": "Companie"
+   },
+   "Confirm": {
+      "message": "Confirmă"
+   },
+   "Current": {
+      "message": "Pagina curentă nu este prima pagină. Doriți să mergeți la prima pagină?"
+   },
+   "Done": {
+      "message": "Gata"
+   },
+   "Download_Data": {
+      "message": "Descarcă Date"
+   },
+   "Download_File_Type": {
+      "message": "Tipul Fișierului pentru Descărcare"
+   },
+   "Error": {
+      "message": "Eroare"
+   },
+   "Export": {
+      "message": "Exportă"
+   },
+   "Export_to": {
+      "message": "Exportă către"
+   },
+   "Go_to": {
+      "message": "Mergi la prima pagină?"
+   },
+   "Login": {
+      "message": "Autentificare"
+   },
+   "Navigate": {
+      "message": "Mergi la prima pagină"
+   },
+   "Non_Apollo": {
+      "message": "Utilizatorii care nu sunt membri Apollo pot trece la 'Net New' și activa 'utilizați e-mailuri' pentru a evita limita de trei pagini."
+   },
+   "Not_Now": {
+      "message": "Nu acum"
+   },
+   "People": {
+      "message": "Persoane"
+   },
+   "Please": {
+      "message": "Vă rugăm să introduceți numărul de articole pe care doriți să le descărcați:"
+   },
+   "Pro_Plan": {
+      "message": "Plan Pro"
+   },
+   "Review": {
+      "message": "Recenzie"
+   },
+   "Sign_in": {
+      "message": "Autentificare"
+   },
+   "Start": {
+      "message": "Pornește de la pagina curentă (implicit: prima pagină)"
+   },
+   "Stop": {
+      "message": "Oprește"
+   },
+   "TIPS": {
+      "message": "Sfaturi"
+   },
+   "Tip": {
+      "message": "Sfat: Cum să folosiți?"
+   },
+   "Upgrade": {
+      "message": "Actualizare"
+   },
+   "Write": {
+      "message": "Scrie o recenzie"
+   },
+   "apolloDes": {
+      "message": "Extrageți lead-uri din Apollo.io și exportați informații despre persoane și companii, inclusiv e-mailuri, numere de telefon și profiluri de pe rețelele sociale."
+   },
+   "apolloName": {
+      "message": "Apollo Scraper: Exportați Date despre Persoane și Companii"
+   },
+   "completed": {
+      "message": "Ați finalizat Planul Pro?"
+   },
+   "contacting": {
+      "message": "Când ne contactați la"
+   },
+   "detected": {
+      "message": "Nu au fost detectate date, vă rugăm să începeți mai întâi căutarea."
+   },
+   "doneText": {
+      "message": "Datele dvs. vor fi descărcate automat.\u003Cbr> Dacă nu, \u003Cspan>faceți clic aici\u003C/span> pentru a descărca manual."
+   },
+   "enableText": {
+      "message": "Actualizați la \u003Cspan style='font-weight:700;'>Pro\u003C/span> pentru a activa"
+   },
+   "exportedText": {
+      "message": "{$1}/{$2} articole exportate..."
+   },
+   "five_star": {
+      "message": "O recenzie de cinci stele ne-ar face ziua mai bună! Vă mulțumim pentru sprijin."
+   },
+   "freeText": {
+      "message": "Conturile gratuite pot descărca până la {$1} articole."
+   },
+   "identifier": {
+      "message": "Vă rugăm să includeți identificatorul dvs. când ne contactați."
+   },
+   "logged": {
+      "message": "Sunteți deja autentificat."
+   },
+   "multitask": {
+      "message": "Puteți efectua alte sarcini în timpul exportului, dar păstrați acest tab deschis."
+   },
+   "prevent_loss": {
+      "message": "Autentificați-vă pentru a preveni pierderea datelor."
+   },
+   "randomText": {
+      "message": "Interval aleatoriu între \u003Cspan>{$1}\u003C/span> și \u003Cspan>{$2}\u003C/span> secunde."
+   },
+   "refresh": {
+      "message": "Vă rugăm să reîmprospătați pagina."
+   },
+   "retrieval": {
+      "message": "Recuperarea datelor a durat mai mult decât era de așteptat."
+   },
+   "upgradeText": {
+      "message": "Actualizați la \u003Cspan style='font-weight:700;'>Pro\u003C/span> pentru descărcări nelimitate."
+   },
+   "use": {
+      "message": "utilizați e-mailurile Apollo"
+   },
+   "usingText": {
+      "message": "Utilizarea e-mailurilor Apollo poate încetini exportul de date și poate crește riscurile de securitate. De asemenea, va consuma {$1} credite de verificare a e-mailurilor."
+   }
+}

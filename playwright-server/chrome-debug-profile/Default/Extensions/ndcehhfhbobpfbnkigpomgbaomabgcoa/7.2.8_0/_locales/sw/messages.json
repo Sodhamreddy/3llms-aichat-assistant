@@ -1,0 +1,146 @@
+{
+   "Apollo_Downloader": {
+      "message": "Apollo Scraper"
+   },
+   "Cancel": {
+      "message": "Ghairi"
+   },
+   "Close": {
+      "message": "Funga"
+   },
+   "Company": {
+      "message": "Kampuni"
+   },
+   "Confirm": {
+      "message": "Thibitisha"
+   },
+   "Current": {
+      "message": "Ukurasa wa sasa si ukurasa wa kwanza. Je, ungependa kwenda kwenye ukurasa wa kwanza?"
+   },
+   "Done": {
+      "message": "Imekamilika"
+   },
+   "Download_Data": {
+      "message": "Pakua Data"
+   },
+   "Download_File_Type": {
+      "message": "Aina ya Faili la Kupakua"
+   },
+   "Error": {
+      "message": "Hitilafu"
+   },
+   "Export": {
+      "message": "Hamisha"
+   },
+   "Export_to": {
+      "message": "Hamisha kwa"
+   },
+   "Go_to": {
+      "message": "Nenda kwenye ukurasa wa kwanza?"
+   },
+   "Login": {
+      "message": "Ingia"
+   },
+   "Navigate": {
+      "message": "Nenda kwenye ukurasa wa kwanza"
+   },
+   "Non_Apollo": {
+      "message": "Watumiaji wasio wanachama wa Apollo wanaweza kubadilisha hadi 'Net New' na kuwezesha 'tumia barua pepe' ili kukwepa kikomo cha kurasa tatu."
+   },
+   "Not_Now": {
+      "message": "Sio Sasa"
+   },
+   "People": {
+      "message": "Watu"
+   },
+   "Please": {
+      "message": "Tafadhali weka idadi ya vitu unavyotaka kupakua:"
+   },
+   "Pro_Plan": {
+      "message": "Mpango wa Pro"
+   },
+   "Review": {
+      "message": "Mapitio"
+   },
+   "Sign_in": {
+      "message": "Ingia"
+   },
+   "Start": {
+      "message": "Anza kutoka ukurasa wa sasa (chaguo-msingi: ukurasa wa kwanza)"
+   },
+   "Stop": {
+      "message": "Simamisha"
+   },
+   "TIPS": {
+      "message": "Vidokezo"
+   },
+   "Tip": {
+      "message": "Kidokezo: Jinsi ya kutumia?"
+   },
+   "Upgrade": {
+      "message": "Sasisha"
+   },
+   "Write": {
+      "message": "Andika mapitio"
+   },
+   "apolloDes": {
+      "message": "Pata viongozi kutoka Apollo.io na hamisha taarifa kuhusu watu na kampuni, pamoja na barua pepe, nambari za simu, na wasifu wa mitandao ya kijamii."
+   },
+   "apolloName": {
+      "message": "Apollo Scraper: Hamisha Data za Watu na Kampuni"
+   },
+   "completed": {
+      "message": "Je, umekamilisha Mpango wa Pro?"
+   },
+   "contacting": {
+      "message": "Unapowasiliana nasi kupitia"
+   },
+   "detected": {
+      "message": "Hakuna data iliyogunduliwa, tafadhali anzisha utafutaji wako kwanza."
+   },
+   "doneText": {
+      "message": "Data yako itapakuliwa kiotomatiki.\u003Cbr> Ikiwa sivyo, \u003Cspan>bonyeza hapa\u003C/span> kupakua mwenyewe."
+   },
+   "enableText": {
+      "message": "Sasisha hadi \u003Cspan style='font-weight:700;'>Pro\u003C/span> ili kuwezesha"
+   },
+   "exportedText": {
+      "message": "Vitu {$1}/{$2} vimehamishwa..."
+   },
+   "five_star": {
+      "message": "Ukadiriaji wako wa nyota tano utatufurahisha! Asante kwa msaada wako."
+   },
+   "freeText": {
+      "message": "Akaunti za bure zinaweza kupakua hadi vitu {$1}."
+   },
+   "identifier": {
+      "message": "Tafadhali jumuisha kitambulisho chako unapowasiliana nasi."
+   },
+   "logged": {
+      "message": "Umeingia tayari."
+   },
+   "multitask": {
+      "message": "Unaweza kufanya kazi zingine wakati wa kuhamisha, lakini tafadhali weka tabo hii wazi."
+   },
+   "prevent_loss": {
+      "message": "Ingia ili kuzuia kupoteza data."
+   },
+   "randomText": {
+      "message": "Muda wa nasibu kati ya \u003Cspan>{$1}\u003C/span> na \u003Cspan>{$2}\u003C/span> sekunde."
+   },
+   "refresh": {
+      "message": "Tafadhali rejesha ukurasa."
+   },
+   "retrieval": {
+      "message": "Upatikanaji wa data umechukua muda zaidi ya ulivyotarajiwa."
+   },
+   "upgradeText": {
+      "message": "Sasisha hadi \u003Cspan style='font-weight:700;'>Pro\u003C/span> kwa upakuaji usio na kikomo."
+   },
+   "use": {
+      "message": "tumia barua pepe za Apollo"
+   },
+   "usingText": {
+      "message": "Kutumia barua pepe za Apollo kunaweza kupunguza kasi ya uhamishaji wa data na kuongeza hatari za kiusalama. Pia itatumia {$1} mikopo ya mthibitishaji wa barua pepe."
+   }
+}

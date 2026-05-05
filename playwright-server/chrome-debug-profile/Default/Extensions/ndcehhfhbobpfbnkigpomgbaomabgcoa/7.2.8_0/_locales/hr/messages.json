@@ -1,0 +1,146 @@
+{
+   "Apollo_Downloader": {
+      "message": "Apollo Strugač"
+   },
+   "Cancel": {
+      "message": "Otkaži"
+   },
+   "Close": {
+      "message": "Zatvori"
+   },
+   "Company": {
+      "message": "Tvrtka"
+   },
+   "Confirm": {
+      "message": "Potvrdi"
+   },
+   "Current": {
+      "message": "Trenutna stranica nije prva stranica. Želite li prijeći na prvu stranicu?"
+   },
+   "Done": {
+      "message": "Gotovo"
+   },
+   "Download_Data": {
+      "message": "Preuzmi podatke"
+   },
+   "Download_File_Type": {
+      "message": "Vrsta datoteke za preuzimanje"
+   },
+   "Error": {
+      "message": "Pogreška"
+   },
+   "Export": {
+      "message": "Izvezi"
+   },
+   "Export_to": {
+      "message": "Izvezi u"
+   },
+   "Go_to": {
+      "message": "Idi na prvu stranicu?"
+   },
+   "Login": {
+      "message": "Prijavi se"
+   },
+   "Navigate": {
+      "message": "Idi na prvu stranicu"
+   },
+   "Non_Apollo": {
+      "message": "Korisnici koji nisu članovi Apollo mogu prebaciti na 'Net New' i omogućiti 'koristi e-poštu' kako bi zaobišli ograničenje od tri stranice."
+   },
+   "Not_Now": {
+      "message": "Ne sada"
+   },
+   "People": {
+      "message": "Ljudi"
+   },
+   "Please": {
+      "message": "Molimo unesite broj stavki koje želite preuzeti:"
+   },
+   "Pro_Plan": {
+      "message": "Pro plan"
+   },
+   "Review": {
+      "message": "Recenzija"
+   },
+   "Sign_in": {
+      "message": "Prijavi se"
+   },
+   "Start": {
+      "message": "Započni od trenutne stranice (zadano: prva stranica)"
+   },
+   "Stop": {
+      "message": "Zaustavi"
+   },
+   "TIPS": {
+      "message": "Savjeti"
+   },
+   "Tip": {
+      "message": "Savjet: Kako koristiti?"
+   },
+   "Upgrade": {
+      "message": "Nadogradi"
+   },
+   "Write": {
+      "message": "Napiši recenziju"
+   },
+   "apolloDes": {
+      "message": "Skupljajte lidove iz Apollo.io i izvezite informacije o ljudima i tvrtkama, uključujući e-poštu, telefonske brojeve i profile na društvenim mrežama."
+   },
+   "apolloName": {
+      "message": "Apollo Strugač: Generiranje lidova i izvoz podataka o ljudima i tvrtkama"
+   },
+   "completed": {
+      "message": "Jeste li završili Pro plan?"
+   },
+   "contacting": {
+      "message": "Prilikom kontaktiranja s nama na"
+   },
+   "detected": {
+      "message": "Podaci nisu otkriveni, molimo pokrenite prvo pretraživanje."
+   },
+   "doneText": {
+      "message": "Vaši podaci će se automatski preuzeti.\u003Cbr> Ako ne, \u003Cspan>kliknite ovdje\u003C/span> za ručno preuzimanje."
+   },
+   "enableText": {
+      "message": "Nadogradite na \u003Cspan style='font-weight:700;'>Pro\u003C/span> za omogućavanje"
+   },
+   "exportedText": {
+      "message": "{$1}/{$2} stavki izvezeno..."
+   },
+   "five_star": {
+      "message": "Vaša ocjena od pet zvjezdica uljepšat će naš dan! Hvala na podršci."
+   },
+   "freeText": {
+      "message": "Besplatni računi mogu preuzeti do {$1} stavki."
+   },
+   "identifier": {
+      "message": "Molimo uključite svoj identifikator prilikom kontaktiranja s nama."
+   },
+   "logged": {
+      "message": "Već ste prijavljeni."
+   },
+   "multitask": {
+      "message": "Možete obavljati druge zadatke tijekom izvoza, ali zadržite ovu karticu otvorenom."
+   },
+   "prevent_loss": {
+      "message": "Prijavite se kako biste spriječili gubitak podataka."
+   },
+   "randomText": {
+      "message": "Nasumični interval između \u003Cspan>{$1}\u003C/span> i \u003Cspan>{$2}\u003C/span> sekundi."
+   },
+   "refresh": {
+      "message": "Molimo osvježite stranicu."
+   },
+   "retrieval": {
+      "message": "Dohvaćanje podataka trajalo je duže nego što se očekivalo."
+   },
+   "upgradeText": {
+      "message": "Nadogradite na \u003Cspan style='font-weight:700;'>Pro\u003C/span> za neograničena preuzimanja."
+   },
+   "use": {
+      "message": "koristite Apollo e-poštu"
+   },
+   "usingText": {
+      "message": "Korištenje Apollo e-pošte može usporiti izvoz podataka i povećati sigurnosne rizike. Također će potrošiti {$1} kredita za provjeru e-pošte."
+   }
+}

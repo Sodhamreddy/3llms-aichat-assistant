@@ -1,0 +1,146 @@
+{
+   "Apollo_Downloader": {
+      "message": "Apollo Scraper"
+   },
+   "Cancel": {
+      "message": "Zrušit"
+   },
+   "Close": {
+      "message": "Zavřít"
+   },
+   "Company": {
+      "message": "Společnost"
+   },
+   "Confirm": {
+      "message": "Potvrdit"
+   },
+   "Current": {
+      "message": "Aktuální stránka není první stránka. Chcete přejít na první stránku?"
+   },
+   "Done": {
+      "message": "Hotovo"
+   },
+   "Download_Data": {
+      "message": "Stáhnout data"
+   },
+   "Download_File_Type": {
+      "message": "Typ souboru ke stažení"
+   },
+   "Error": {
+      "message": "Chyba"
+   },
+   "Export": {
+      "message": "Exportovat"
+   },
+   "Export_to": {
+      "message": "Exportovat do"
+   },
+   "Go_to": {
+      "message": "Přejít na první stránku?"
+   },
+   "Login": {
+      "message": "Přihlásit se"
+   },
+   "Navigate": {
+      "message": "Přejít na první stránku"
+   },
+   "Non_Apollo": {
+      "message": "Uživatelé, kteří nejsou členy Apollo, mohou přepnout na 'Net New' a povolit 'použít e-maily' pro obejití omezení tří stránek."
+   },
+   "Not_Now": {
+      "message": "Teď ne"
+   },
+   "People": {
+      "message": "Lidé"
+   },
+   "Please": {
+      "message": "Zadejte počet položek, které chcete stáhnout:"
+   },
+   "Pro_Plan": {
+      "message": "Pro plán"
+   },
+   "Review": {
+      "message": "Recenze"
+   },
+   "Sign_in": {
+      "message": "Přihlásit se"
+   },
+   "Start": {
+      "message": "Začít od aktuální stránky (výchozí: první stránka)"
+   },
+   "Stop": {
+      "message": "Zastavit"
+   },
+   "TIPS": {
+      "message": "Tipy"
+   },
+   "Tip": {
+      "message": "Tip: Jak používat?"
+   },
+   "Upgrade": {
+      "message": "Upgradovat"
+   },
+   "Write": {
+      "message": "Napsat recenzi"
+   },
+   "apolloDes": {
+      "message": "Získávejte potenciální zákazníky z Apollo.io a exportujte informace o lidech a společnostech, včetně e-mailů, telefonních čísel a profilů na sociálních sítích."
+   },
+   "apolloName": {
+      "message": "Apollo Scraper: Exportovat Data o Lidech a Firmách"
+   },
+   "completed": {
+      "message": "Dokončili jste Pro plán?"
+   },
+   "contacting": {
+      "message": "Při kontaktování nás na"
+   },
+   "detected": {
+      "message": "Nebyla nalezena žádná data, nejprve spusťte hledání."
+   },
+   "doneText": {
+      "message": "Vaše data se automaticky stáhnou.\u003Cbr> Pokud ne, \u003Cspan>klikněte zde\u003C/span> pro ruční stažení."
+   },
+   "enableText": {
+      "message": "Upgradujte na \u003Cspan style='font-weight:700;'>Pro\u003C/span>, aby bylo povoleno"
+   },
+   "exportedText": {
+      "message": "Exportováno {$1}/{$2} položek..."
+   },
+   "five_star": {
+      "message": "Vaše pětihvězdičkové hodnocení nám udělá radost! Děkujeme za vaši podporu."
+   },
+   "freeText": {
+      "message": "Účty zdarma mohou stáhnout až {$1} položek."
+   },
+   "identifier": {
+      "message": "Při kontaktování nás uveďte svůj identifikátor."
+   },
+   "logged": {
+      "message": "Již jste přihlášeni."
+   },
+   "multitask": {
+      "message": "Během exportu můžete vykonávat jiné úkoly, ale nechte tuto kartu otevřenou."
+   },
+   "prevent_loss": {
+      "message": "Přihlaste se, abyste zabránili ztrátě dat."
+   },
+   "randomText": {
+      "message": "Náhodný interval mezi \u003Cspan>{$1}\u003C/span> a \u003Cspan>{$2}\u003C/span> sekundami."
+   },
+   "refresh": {
+      "message": "Obnovte stránku."
+   },
+   "retrieval": {
+      "message": "Získávání dat trvalo déle, než se očekávalo."
+   },
+   "upgradeText": {
+      "message": "Upgradujte na \u003Cspan style='font-weight:700;'>Pro\u003C/span> pro neomezené stahování."
+   },
+   "use": {
+      "message": "používat e-maily Apollo"
+   },
+   "usingText": {
+      "message": "Používání e-mailů Apollo může zpomalit export dat a zvýšit bezpečnostní rizika. Rovněž to spotřebuje {$1} kreditů pro ověřování e-mailů."
+   }
+}

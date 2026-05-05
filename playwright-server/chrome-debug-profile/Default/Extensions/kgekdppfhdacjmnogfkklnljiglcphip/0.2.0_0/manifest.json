@@ -1,0 +1,38 @@
+{
+   "action": {
+      "default_icon": {
+         "16": "data/icons/16.png",
+         "32": "data/icons/32.png",
+         "48": "data/icons/48.png",
+         "64": "data/icons/64.png"
+      },
+      "default_title": "Font Inspector"
+   },
+   "background": {
+      "service_worker": "background.js"
+   },
+   "commands": {
+      "_execute_action": {
+      }
+   },
+   "description": "Click on any HTML element to get the font info in a popup!",
+   "homepage_url": "https://mybrowseraddon.com/font-inspector.html",
+   "icons": {
+      "128": "data/icons/128.png",
+      "16": "data/icons/16.png",
+      "32": "data/icons/32.png",
+      "48": "data/icons/48.png",
+      "64": "data/icons/64.png"
+   },
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtO6UKLdQkliHfagtJ6AXbOD84yRFNuGHmoH8pPtf4t0xp3S4ZVz43fyinOA8PQyNpL6+yYZOi3l0AWxSPyfqPdT8RQ3+xsec/ik3mb87qkxCaQ+OZ69tN/Gtk2pZ1oxZgXbnbaEY5WayCH1gydHB5pFdS+PqTOzZiFzy4sCUJjLfmVVk7zzPydgdHbf46+daHrV1BAlcdSOE5EOVkbxv6u9Fz19alKjCQLNYJutpsFSuRtLm416PamWgwk32QGEB/6hDyWgC6yMAJXAiN8kd6d2zUlI/gaUXzWbSOfnU+hMmRfuBrzf9ilHA5z1rlkTrpQHuCx1k796xeCViL9ux8wIDAQAB",
+   "manifest_version": 3,
+   "name": "Font Inspector",
+   "offline_enabled": true,
+   "permissions": [ "storage", "activeTab", "scripting" ],
+   "update_url": "https://clients2.google.com/service/update2/crx",
+   "version": "0.2.0",
+   "web_accessible_resources": [ {
+      "matches": [ "*://*/*" ],
+      "resources": [ "data/content_script/resources/popup.css" ]
+   } ]
+}

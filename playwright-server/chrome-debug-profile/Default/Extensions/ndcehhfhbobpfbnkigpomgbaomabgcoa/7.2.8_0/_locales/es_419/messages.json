@@ -1,0 +1,146 @@
+{
+   "Apollo_Downloader": {
+      "message": "Apollo Scraper"
+   },
+   "Cancel": {
+      "message": "Cancelar"
+   },
+   "Close": {
+      "message": "Cerrar"
+   },
+   "Company": {
+      "message": "Empresa"
+   },
+   "Confirm": {
+      "message": "Confirmar"
+   },
+   "Current": {
+      "message": "La página actual no es la primera. ¿Deseas navegar a la primera página?"
+   },
+   "Done": {
+      "message": "Hecho"
+   },
+   "Download_Data": {
+      "message": "Descargar datos"
+   },
+   "Download_File_Type": {
+      "message": "Tipo de archivo para descargar"
+   },
+   "Error": {
+      "message": "Error"
+   },
+   "Export": {
+      "message": "Exportar"
+   },
+   "Export_to": {
+      "message": "Exportar a"
+   },
+   "Go_to": {
+      "message": "¿Ir a la primera página?"
+   },
+   "Login": {
+      "message": "Iniciar sesión"
+   },
+   "Navigate": {
+      "message": "Ir a la primera página"
+   },
+   "Non_Apollo": {
+      "message": "Los usuarios que no son miembros de Apollo pueden cambiar a 'Net New' y habilitar 'usar correos electrónicos' para evitar el límite de tres páginas."
+   },
+   "Not_Now": {
+      "message": "No ahora"
+   },
+   "People": {
+      "message": "Personas"
+   },
+   "Please": {
+      "message": "Por favor, ingresa el número de elementos que deseas descargar:"
+   },
+   "Pro_Plan": {
+      "message": "Plan Pro"
+   },
+   "Review": {
+      "message": "Reseña"
+   },
+   "Sign_in": {
+      "message": "Iniciar sesión"
+   },
+   "Start": {
+      "message": "Comenzar desde la página actual (predeterminado: primera página)"
+   },
+   "Stop": {
+      "message": "Detener"
+   },
+   "TIPS": {
+      "message": "Consejos"
+   },
+   "Tip": {
+      "message": "Consejo: ¿Cómo usarlo?"
+   },
+   "Upgrade": {
+      "message": "Actualizar"
+   },
+   "Write": {
+      "message": "Escribir una reseña"
+   },
+   "apolloDes": {
+      "message": "Extrae prospectos de Apollo.io y exporta información sobre personas y empresas, incluidos correos electrónicos, números de teléfono y perfiles de redes sociales."
+   },
+   "apolloName": {
+      "message": "Apollo Scraper: Exportar Datos de Personas y Empresas"
+   },
+   "completed": {
+      "message": "¿Completaste el plan Pro?"
+   },
+   "contacting": {
+      "message": "Al contactarnos en"
+   },
+   "detected": {
+      "message": "No se detectaron datos. Por favor, inicia tu búsqueda primero."
+   },
+   "doneText": {
+      "message": "Tus datos se descargarán automáticamente.\u003Cbr> Si no es así, \u003Cspan>haz clic aquí\u003C/span> para descargar manualmente."
+   },
+   "enableText": {
+      "message": "Actualiza a \u003Cspan style='font-weight:700;'>Pro\u003C/span> para habilitar"
+   },
+   "exportedText": {
+      "message": "Exportado {$1}/{$2} elementos..."
+   },
+   "five_star": {
+      "message": "¡Tu calificación de cinco estrellas alegrará nuestro día! Gracias por tu apoyo."
+   },
+   "freeText": {
+      "message": "Las cuentas gratuitas pueden descargar hasta {$1} elementos."
+   },
+   "identifier": {
+      "message": "Incluye tu identificador al contactarnos."
+   },
+   "logged": {
+      "message": "Ya has iniciado sesión."
+   },
+   "multitask": {
+      "message": "Puedes realizar otras tareas mientras exportas, pero mantén esta pestaña abierta."
+   },
+   "prevent_loss": {
+      "message": "Inicia sesión para evitar la pérdida de datos."
+   },
+   "randomText": {
+      "message": "Intervalo aleatorio entre \u003Cspan>{$1}\u003C/span> y \u003Cspan>{$2}\u003C/span> segundos."
+   },
+   "refresh": {
+      "message": "Por favor, actualiza la página."
+   },
+   "retrieval": {
+      "message": "La recuperación de datos tomó más tiempo del esperado."
+   },
+   "upgradeText": {
+      "message": "Actualiza a \u003Cspan style='font-weight:700;'>Pro\u003C/span> para descargas ilimitadas."
+   },
+   "use": {
+      "message": "usar correos electrónicos de Apollo"
+   },
+   "usingText": {
+      "message": "El uso de correos electrónicos de Apollo puede ralentizar la exportación de datos y aumentar los riesgos de seguridad. También consumirá {$1} créditos de verificación de correos electrónicos."
+   }
+}

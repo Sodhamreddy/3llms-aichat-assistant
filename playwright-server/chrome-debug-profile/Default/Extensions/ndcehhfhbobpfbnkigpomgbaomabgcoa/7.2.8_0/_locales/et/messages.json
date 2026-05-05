@@ -1,0 +1,146 @@
+{
+   "Apollo_Downloader": {
+      "message": "Apollo Kraapija"
+   },
+   "Cancel": {
+      "message": "Tühista"
+   },
+   "Close": {
+      "message": "Sulge"
+   },
+   "Company": {
+      "message": "Ettevõte"
+   },
+   "Confirm": {
+      "message": "Kinnita"
+   },
+   "Current": {
+      "message": "Praegune leht ei ole esimene leht. Kas soovite liikuda esimesele lehele?"
+   },
+   "Done": {
+      "message": "Valmis"
+   },
+   "Download_Data": {
+      "message": "Laadi andmed alla"
+   },
+   "Download_File_Type": {
+      "message": "Failitüüp allalaadimiseks"
+   },
+   "Error": {
+      "message": "Viga"
+   },
+   "Export": {
+      "message": "Ekspordi"
+   },
+   "Export_to": {
+      "message": "Ekspordi"
+   },
+   "Go_to": {
+      "message": "Kas minna esimesele lehele?"
+   },
+   "Login": {
+      "message": "Logi sisse"
+   },
+   "Navigate": {
+      "message": "Mine esimesele lehele"
+   },
+   "Non_Apollo": {
+      "message": "Apollo liikmed, kes ei ole registreeritud, võivad vahetada 'Net New' peale ja lubada 'kasuta e-posti', et vältida kolme lehe piirangut."
+   },
+   "Not_Now": {
+      "message": "Mitte praegu"
+   },
+   "People": {
+      "message": "Inimesed"
+   },
+   "Please": {
+      "message": "Palun sisestage üksuste arv, mida soovite alla laadida:"
+   },
+   "Pro_Plan": {
+      "message": "Pro plaan"
+   },
+   "Review": {
+      "message": "Ülevaade"
+   },
+   "Sign_in": {
+      "message": "Logi sisse"
+   },
+   "Start": {
+      "message": "Alusta praeguselt lehelt (vaikimisi: esimene leht)"
+   },
+   "Stop": {
+      "message": "Peata"
+   },
+   "TIPS": {
+      "message": "Näpunäited"
+   },
+   "Tip": {
+      "message": "Näpunäide: Kuidas kasutada?"
+   },
+   "Upgrade": {
+      "message": "Uuenda"
+   },
+   "Write": {
+      "message": "Kirjuta arvustus"
+   },
+   "apolloDes": {
+      "message": "Hankige kontakte Apollo.io-st ja eksportige teavet inimeste ja ettevõtete kohta, sealhulgas e-posti aadressid, telefoninumbrid ja sotsiaalmeedia profiilid."
+   },
+   "apolloName": {
+      "message": "Apollo Scraper: Ekspordi Andmed Inimeste ja Ettevõtete Kohta"
+   },
+   "completed": {
+      "message": "Kas olete Pro plaani lõpetanud?"
+   },
+   "contacting": {
+      "message": "Meiega ühendust võttes"
+   },
+   "detected": {
+      "message": "Andmeid ei leitud, palun alusta esmalt oma otsingut."
+   },
+   "doneText": {
+      "message": "Teie andmed laaditakse automaatselt alla.\u003Cbr> Kui ei, siis \u003Cspan>klõpsake siin\u003C/span>, et käsitsi alla laadida."
+   },
+   "enableText": {
+      "message": "Uuenda \u003Cspan style='font-weight:700;'>Pro\u003C/span>-ks, et lubada"
+   },
+   "exportedText": {
+      "message": "Eksporditud {$1}/{$2} üksust..."
+   },
+   "five_star": {
+      "message": "Teie viie tärni hinnang teeks meie päeva! Täname teid toetuse eest."
+   },
+   "freeText": {
+      "message": "Tasuta kontod saavad alla laadida kuni {$1} üksust."
+   },
+   "identifier": {
+      "message": "Palun lisage oma identifikaator, kui meiega ühendust võtate."
+   },
+   "logged": {
+      "message": "Olete juba sisse logitud."
+   },
+   "multitask": {
+      "message": "Andmeid eksportides saate teha ka muid ülesandeid, kuid hoidke see vaheleht avatud."
+   },
+   "prevent_loss": {
+      "message": "Logi sisse, et vältida andmete kaotamist."
+   },
+   "randomText": {
+      "message": "Juhuslik vahemik vahemikus \u003Cspan>{$1}\u003C/span> kuni \u003Cspan>{$2}\u003C/span> sekundit."
+   },
+   "refresh": {
+      "message": "Värskendage lehte."
+   },
+   "retrieval": {
+      "message": "Andmete hankimine võttis oodatust kauem aega."
+   },
+   "upgradeText": {
+      "message": "Uuenda \u003Cspan style='font-weight:700;'>Pro\u003C/span>-ks piiramatute allalaadimiste jaoks."
+   },
+   "use": {
+      "message": "kasuta Apollo e-posti"
+   },
+   "usingText": {
+      "message": "Apollo e-posti kasutamine võib aeglustada andmete eksportimist ja suurendada turvariske. See tarbib ka {$1} e-posti kontrollimise krediiti."
+   }
+}
