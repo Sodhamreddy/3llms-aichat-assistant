@@ -31,10 +31,8 @@ const IDownload  = I(<><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12
 /* ── Nav config ────────────────────────────────────────────── */
 const MAIN_NAV = [
   { id: 'prompt-runner',   icon: IChat,     label: 'Chats' },
-  { id: 'dashboard',       icon: IGrid,     label: 'Projects' },
   { id: 'results-history', icon: IClock,    label: 'History' },
-  { id: 'analytics',       icon: IChart,    label: 'Analytics' },
-  { id: 'settings',        icon: ISettings, label: 'Customize' },
+  { id: 'settings',        icon: ISettings, label: 'Settings' },
 ];
 
 const MORE_NAV = [
@@ -52,7 +50,7 @@ const PROFILE_MENU = [
 ];
 
 /* ── Sidebar ───────────────────────────────────────────────── */
-const Sidebar = ({ activePage, onPageChange, onCollapse, history = [] }) => {
+const Sidebar = ({ activePage, onPageChange, onOpenHistory, onCollapse, history = [] }) => {
   const [moreOpen,    setMoreOpen]    = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [searchOpen,  setSearchOpen]  = useState(false);
@@ -218,7 +216,7 @@ const Sidebar = ({ activePage, onPageChange, onCollapse, history = [] }) => {
               <button
                 key={h.id}
                 className="s-recent"
-                onClick={() => onPageChange('results-history')}
+                onClick={() => onOpenHistory ? onOpenHistory(h.id) : onPageChange('results-history')}
                 title={h.prompt}
               >{h.prompt}</button>
             ))}

@@ -12,6 +12,7 @@ import SettingsPage from './pages/SettingsPage';
 function App() {
   const [activePage,   setActivePage]   = useState('prompt-runner');
   const [sidebarOpen,  setSidebarOpen]  = useState(true);
+  const [selectedHistoryId, setSelectedHistoryId] = useState(null);
 
   const [usage, setUsage] = useState(() => {
     try { const s = localStorage.getItem('ph_usage'); return s ? JSON.parse(s) : { totalInputTokens:0, totalOutputTokens:0, totalTokens:0, totalCost:0 }; }
@@ -27,6 +28,7 @@ function App() {
   useEffect(() => { localStorage.setItem('ph_history', JSON.stringify(history.slice(0,100))); }, [history]);
 
   const handleRunComplete = ({ prompt, gemini, claude, openai, tokenData }) => {
+    const id = Date.now();
     if (tokenData) setUsage(prev => ({
       totalInputTokens:  prev.totalInputTokens  + (tokenData.inputTokens  || 0),
       totalOutputTokens: prev.totalOutputTokens + (tokenData.outputTokens || 0),
@@ -34,20 +36,41 @@ function App() {
       totalCost:         prev.totalCost         + (tokenData.runCost      || 0),
     }));
     setHistory(prev => [{
-      id: Date.now(), prompt,
+      id, prompt,
       date: new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' }),
       best: gemini ? 'Gemini 1.5' : claude ? 'Claude-3' : 'GPT-4o',
       status: 'Complete', responses:{ gemini, claude, openai },
+      followUps: [],
       tokenData: tokenData || null,
     }, ...prev]);
+    setSelectedHistoryId(id);
+    return id;
+  };
+
+  const handleFollowUpComplete = ({ historyId, prompt, question, answer }) => {
+    if ((!historyId && !prompt) || !question || !answer) return;
+    setHistory(prev => {
+      const targetId = historyId || prev.find(chat => chat.prompt === prompt)?.id;
+      if (!targetId) return prev;
+      return prev.map(chat => (
+        chat.id === targetId
+          ? { ...chat, followUps: [...(chat.followUps || []), { question, answer, date: new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' }) }] }
+          : chat
+      ));
+    });
+  };
+
+  const openHistoryChat = (id = null) => {
+    setSelectedHistoryId(id);
+    setActivePage('results-history');
   };
 
   const renderPage = () => {
     switch (activePage) {
-      case 'prompt-runner':   return <PromptRunnerPage onRunComplete={handleRunComplete} />;
+      case 'prompt-runner':   return <PromptRunnerPage onRunComplete={handleRunComplete} onFollowUpComplete={handleFollowUpComplete} />;
       case 'dashboard':       return <DashboardPage history={history} usage={usage} onNavigate={setActivePage} />;
       case 'llm-models':      return <LLMModelsPage />;
-      case 'results-history': return <ResultsHistoryPage history={history} />;
+      case 'results-history': return <ResultsHistoryPage history={history} selectedId={selectedHistoryId} onSelect={setSelectedHistoryId} />;
       case 'automations':     return <AutomationsPage />;
       case 'analytics':       return <AnalyticsPage history={history} usage={usage} />;
       case 'integrations':    return <IntegrationsPage />;
@@ -71,6 +94,7 @@ function App() {
           <Sidebar
             activePage={activePage}
             onPageChange={setActivePage}
+            onOpenHistory={openHistoryChat}
             onCollapse={() => setSidebarOpen(false)}
             history={history}
           />

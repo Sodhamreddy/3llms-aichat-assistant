@@ -1,8 +1,6 @@
 const NAV_ITEMS = [
-  { id: 'dashboard',       label: 'Dashboard' },
   { id: 'prompt-runner',   label: 'Prompt Runner' },
   { id: 'results-history', label: 'History' },
-  { id: 'analytics',       label: 'Analytics' },
   { id: 'settings',        label: 'Settings' },
 ];
 
