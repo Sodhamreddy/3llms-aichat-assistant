@@ -1,0 +1,57 @@
+// Run this ONCE to login to all 3 LLMs.
+// Your sessions are saved in browser-profile/ and reused automatically.
+//
+// Usage:  node login.js
+
+const { chromium } = require('playwright');
+const path = require('path');
+const readline = require('readline');
+
+const PROFILE_DIR = path.join(__dirname, 'browser-profile');
+
+const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+const pause = (msg) => new Promise(res => rl.question(msg, res));
+
+async function main() {
+  console.log('\n Opening Chrome for first-time login...\n');
+
+  const browser = await chromium.launchPersistentContext(PROFILE_DIR, {
+    headless: false,
+    executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+    args: [
+      '--disable-blink-features=AutomationControlled',
+      '--no-sandbox',
+      '--start-maximized',
+    ],
+    ignoreDefaultArgs: ['--enable-automation'],
+    viewport: null,
+  });
+
+  const page = await browser.newPage();
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+    window.chrome = { runtime: {} };
+  });
+
+  // ── Step 1: ChatGPT ──
+  console.log('Step 1/3 — Login to ChatGPT');
+  await page.goto('https://chatgpt.com/');
+  await pause('   Login to ChatGPT in the browser, then press ENTER here... ');
+
+  // ── Step 2: Claude ──
+  console.log('\nStep 2/3 — Login to Claude');
+  await page.goto('https://claude.ai/');
+  await pause('   Login to Claude in the browser, then press ENTER here... ');
+
+  // ── Step 3: Gemini ──
+  console.log('\nStep 3/3 — Login to Gemini');
+  await page.goto('https://gemini.google.com/');
+  await pause('   Login to Gemini in the browser, then press ENTER here... ');
+
+  await browser.close();
+  rl.close();
+
+  console.log('\n All sessions saved! You can now run:  node server.js\n');
+}
+
+main().catch(e => { console.error(e); process.exit(1); });

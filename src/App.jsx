@@ -15,6 +15,7 @@ import ArchitectureDiagram from './pages/ArchitectureDiagram';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import { attachClientId } from './utils/clientIdentity';
 
+<<<<<<< HEAD
 const useIsMobile = (bp = 768) => {
   const [m, setM] = useState(typeof window !== 'undefined' && window.innerWidth <= bp);
   useEffect(() => {
@@ -62,6 +63,12 @@ function ChatApp() {
     setActivePage('prompt-runner');
     setChatKey(k => k + 1);
   };
+=======
+function App() {
+  const [activePage,   setActivePage]   = useState('prompt-runner');
+  const [sidebarOpen,  setSidebarOpen]  = useState(true);
+  const [selectedHistoryId, setSelectedHistoryId] = useState(null);
+>>>>>>> 78b2a68a (code updated according vasudha comments)
 
   const [usage, setUsage] = useState(() => {
     try { const s = localStorage.getItem('ph_usage'); return s ? JSON.parse(s) : { totalInputTokens:0, totalOutputTokens:0, totalTokens:0, totalCost:0 }; }
@@ -76,7 +83,12 @@ function ChatApp() {
   useEffect(() => { localStorage.setItem('ph_usage',   JSON.stringify(usage)); },            [usage]);
   useEffect(() => { localStorage.setItem('ph_history', JSON.stringify(history.slice(0,100))); }, [history]);
 
+<<<<<<< HEAD
   const handleRunComplete = ({ prompt, gemini, claude, openai, stage1Claude, tokenData, elapsed }) => {
+=======
+  const handleRunComplete = ({ prompt, gemini, claude, openai, tokenData }) => {
+    const id = Date.now();
+>>>>>>> 78b2a68a (code updated according vasudha comments)
     if (tokenData) setUsage(prev => ({
       totalInputTokens:  prev.totalInputTokens  + (tokenData.inputTokens  || 0),
       totalOutputTokens: prev.totalOutputTokens + (tokenData.outputTokens || 0),
@@ -87,13 +99,42 @@ function ChatApp() {
     setHistory(prev => [{
       id, prompt,
       date: new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' }),
+<<<<<<< HEAD
       best: gemini ? 'Gemini 3.1 Pro' : claude ? 'Claude Opus 4.6' : 'GPT-5.2',
       status: 'Complete', responses:{ gemini, claude, openai, stage1Claude: stage1Claude || '' },
+=======
+      best: gemini ? 'Gemini 1.5' : claude ? 'Claude-3' : 'GPT-4o',
+      status: 'Complete', responses:{ gemini, claude, openai },
+      followUps: [],
+>>>>>>> 78b2a68a (code updated according vasudha comments)
       tokenData: tokenData || null,
       elapsed: elapsed || null,
       followUps: [],
     }, ...prev]);
+<<<<<<< HEAD
     return id;
+=======
+    setSelectedHistoryId(id);
+    return id;
+  };
+
+  const handleFollowUpComplete = ({ historyId, prompt, question, answer }) => {
+    if ((!historyId && !prompt) || !question || !answer) return;
+    setHistory(prev => {
+      const targetId = historyId || prev.find(chat => chat.prompt === prompt)?.id;
+      if (!targetId) return prev;
+      return prev.map(chat => (
+        chat.id === targetId
+          ? { ...chat, followUps: [...(chat.followUps || []), { question, answer, date: new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' }) }] }
+          : chat
+      ));
+    });
+  };
+
+  const openHistoryChat = (id = null) => {
+    setSelectedHistoryId(id);
+    setActivePage('results-history');
+>>>>>>> 78b2a68a (code updated according vasudha comments)
   };
 
   const handleFollowUpComplete = ({ historyId, question, answer, elapsed }) => {
@@ -118,10 +159,17 @@ function ChatApp() {
 
   const renderPage = () => {
     switch (activePage) {
+<<<<<<< HEAD
       case 'prompt-runner':   return <PromptRunnerPage key={chatKey} onRunComplete={handleRunComplete} onFollowUpComplete={handleFollowUpComplete} />;
       case 'dashboard':       return <DashboardPage history={history} usage={usage} onNavigate={setActivePage} />;
       case 'llm-models':      return <LLMModelsPage />;
       case 'results-history': return <ResultsHistoryPage history={history} selectedId={activeHistoryId} onFollowUpComplete={handleFollowUpComplete} />;
+=======
+      case 'prompt-runner':   return <PromptRunnerPage onRunComplete={handleRunComplete} onFollowUpComplete={handleFollowUpComplete} />;
+      case 'dashboard':       return <DashboardPage history={history} usage={usage} onNavigate={setActivePage} />;
+      case 'llm-models':      return <LLMModelsPage />;
+      case 'results-history': return <ResultsHistoryPage history={history} selectedId={selectedHistoryId} onSelect={setSelectedHistoryId} />;
+>>>>>>> 78b2a68a (code updated according vasudha comments)
       case 'automations':     return <AutomationsPage />;
       case 'analytics':       return <AnalyticsPage history={history} usage={usage} />;
       case 'integrations':    return <IntegrationsPage />;
@@ -145,6 +193,7 @@ function ChatApp() {
 
   return (
     <div style={{ display:'flex', minHeight:'100vh' }}>
+<<<<<<< HEAD
       {/* Sidebar — overlay drawer on mobile, inline column on desktop */}
       {isMobile ? (
         sidebarOpen && (
@@ -163,6 +212,25 @@ function ChatApp() {
           {sidebarOpen && sidebar}
         </div>
       )}
+=======
+      {/* Sidebar */}
+      <div style={{
+        width: sidebarOpen ? '260px' : '0',
+        overflow: 'hidden',
+        transition: 'width 0.25s cubic-bezier(0.4,0,0.2,1)',
+        flexShrink: 0,
+      }}>
+        {sidebarOpen && (
+          <Sidebar
+            activePage={activePage}
+            onPageChange={setActivePage}
+            onOpenHistory={openHistoryChat}
+            onCollapse={() => setSidebarOpen(false)}
+            history={history}
+          />
+        )}
+      </div>
+>>>>>>> 78b2a68a (code updated according vasudha comments)
 
       {/* Main */}
       <main style={{
