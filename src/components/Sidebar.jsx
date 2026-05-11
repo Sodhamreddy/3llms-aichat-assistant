@@ -122,7 +122,7 @@ const Sidebar = ({ activePage, onPageChange, onOpenHistory, onCollapse, history 
       {/* ── Logo + collapse ── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 14px 6px' }}>
         <span style={{ fontSize: '1.0625rem', fontWeight: '600', color: '#111827', letterSpacing: '-0.01em', userSelect: 'none' }}>
-          Kleza AI
+          Kleza TriMind AI
         </span>
         <Btn title="Close sidebar" onClick={onCollapse}><IPanel /></Btn>
       </div>

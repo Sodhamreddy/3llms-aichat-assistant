@@ -2,6 +2,7 @@ const { chromium } = require('playwright');
 
 const CDP_URL = 'http://localhost:9222';
 const TIMEOUT  = 120_000;
+const DR_TIMEOUT = 600_000; // 10 min — deep research can take a long time
 
 // ── Connect to already-running Chrome ─────────────────────────────────────
 
@@ -131,6 +132,184 @@ async function runGemini(context, prompt) {
     await page.waitForSelector(loadingSel, { timeout: 15_000 }).catch(() => {});
     await page.waitForSelector(loadingSel, { state: 'hidden', timeout: TIMEOUT }).catch(() => {});
     await page.waitForTimeout(800);
+
+    const msgs = await page.$$eval(
+      'model-response .markdown, .response-content',
+      els => els.map(el => el.innerText.trim())
+    );
+    return msgs[msgs.length - 1] || 'No response received.';
+  } catch (e) {
+    return `Error: ${e.message}`;
+  } finally {
+    await page.close();
+  }
+}
+
+// ── ChatGPT Deep Research ─────────────────────────────────────────────────
+
+async function runChatGPTDeepResearch(context, prompt) {
+  const page = await context.newPage();
+  try {
+    await page.goto('https://chatgpt.com/', { waitUntil: 'domcontentloaded', timeout: 30_000 });
+    await page.waitForSelector('#prompt-textarea', { timeout: 30_000 });
+    await page.waitForTimeout(1000);
+
+    // Click the "+" button to open the tools/attach menu
+    let menuOpened = false;
+    const plusSelectors = [
+      'button[aria-label="Attach files"]',
+      'button[aria-label="Add attachment"]',
+      'button[aria-label="Add files and more"]',
+      '[data-testid="composer-button"]',
+    ];
+    for (const sel of plusSelectors) {
+      try {
+        await page.click(sel, { timeout: 3_000 });
+        menuOpened = true;
+        console.log('[ChatGPT-DR] Opened menu via:', sel);
+        break;
+      } catch {}
+    }
+
+    if (menuOpened) {
+      await page.waitForTimeout(600);
+      try {
+        await page.click('text=Deep research', { timeout: 4_000 });
+        console.log('[ChatGPT-DR] Deep research selected');
+        await page.waitForTimeout(500);
+      } catch {
+        console.log('[ChatGPT-DR] Deep research option not found in menu, using normal mode');
+      }
+    } else {
+      console.log('[ChatGPT-DR] + button not found, using normal mode');
+    }
+
+    // Type the prompt
+    await page.click('#prompt-textarea');
+    await page.waitForTimeout(300);
+    await page.evaluate(({ content }) => {
+      const el = document.querySelector('#prompt-textarea');
+      if (!el) return;
+      el.focus();
+      document.execCommand('selectAll', false, null);
+      document.execCommand('insertText', false, content);
+    }, { content: prompt });
+    await page.waitForTimeout(400);
+    await page.keyboard.press('Enter');
+
+    // ChatGPT shows a research plan card with Edit / Cancel / Start buttons.
+    // Wait up to 15s for it, then click the exact "Start" button.
+    try {
+      await page.waitForFunction(
+        () => [...document.querySelectorAll('button')].some(b => b.innerText.trim() === 'Start'),
+        { timeout: 15_000 }
+      );
+      const clicked = await page.evaluate(() => {
+        const btn = [...document.querySelectorAll('button')].find(b => b.innerText.trim() === 'Start');
+        if (btn) { btn.click(); return true; }
+        return false;
+      });
+      if (clicked) {
+        console.log('[ChatGPT-DR] Clicked Start on research plan');
+        await page.waitForTimeout(1000);
+      }
+    } catch {
+      console.log('[ChatGPT-DR] No research plan card detected, proceeding directly');
+    }
+
+    // Wait for generation (deep research can take many minutes)
+    await page.waitForSelector('[data-testid="stop-button"]', { timeout: 30_000 }).catch(() => {});
+    await page.waitForSelector('[data-testid="stop-button"]', { state: 'hidden', timeout: DR_TIMEOUT }).catch(() => {});
+    await page.waitForTimeout(1500);
+
+    const msgs = await page.$$eval(
+      '[data-message-author-role="assistant"]',
+      els => els.map(el => el.innerText.trim())
+    );
+    return msgs[msgs.length - 1] || 'No response received.';
+  } catch (e) {
+    return `Error: ${e.message}`;
+  } finally {
+    await page.close();
+  }
+}
+
+// ── Gemini Deep Research ──────────────────────────────────────────────────
+
+async function runGeminiDeepResearch(context, prompt) {
+  const page = await context.newPage();
+  try {
+    await page.goto('https://gemini.google.com/', { waitUntil: 'domcontentloaded', timeout: 30_000 });
+
+    const inputSel = 'rich-textarea .ql-editor, .input-area-container [contenteditable="true"]';
+    await page.waitForSelector(inputSel, { timeout: 30_000 });
+    await page.waitForTimeout(1000);
+
+    // Click the "Tools" button to open the tools menu
+    let menuOpened = false;
+    const toolsSelectors = [
+      'button[aria-label="Tools"]',
+      'button[data-test-id="tools-button"]',
+      '[aria-label="More options"]',
+    ];
+    for (const sel of toolsSelectors) {
+      try {
+        await page.click(sel, { timeout: 3_000 });
+        menuOpened = true;
+        console.log('[Gemini-DR] Opened tools menu via:', sel);
+        break;
+      } catch {}
+    }
+    if (!menuOpened) {
+      try {
+        await page.click('text=Tools', { timeout: 3_000 });
+        menuOpened = true;
+        console.log('[Gemini-DR] Opened tools menu via text=Tools');
+      } catch {}
+    }
+
+    if (menuOpened) {
+      await page.waitForTimeout(600);
+      try {
+        await page.click('text=Deep Research', { timeout: 4_000 });
+        console.log('[Gemini-DR] Deep Research selected');
+        await page.waitForTimeout(500);
+      } catch {
+        console.log('[Gemini-DR] Deep Research option not found in menu, using normal mode');
+      }
+    } else {
+      console.log('[Gemini-DR] Tools button not found, using normal mode');
+    }
+
+    // Type the prompt
+    await pasteIntoEditor(page, inputSel, prompt);
+    await page.keyboard.press('Enter');
+
+    // Gemini shows a research plan card with "Edit plan" / "Start research" buttons.
+    // Wait up to 15s for it, then click the exact "Start research" button.
+    try {
+      await page.waitForFunction(
+        () => [...document.querySelectorAll('button')].some(b => b.innerText.trim() === 'Start research'),
+        { timeout: 15_000 }
+      );
+      const clicked = await page.evaluate(() => {
+        const btn = [...document.querySelectorAll('button')].find(b => b.innerText.trim() === 'Start research');
+        if (btn) { btn.click(); return true; }
+        return false;
+      });
+      if (clicked) {
+        console.log('[Gemini-DR] Clicked Start research on research plan');
+        await page.waitForTimeout(1000);
+      }
+    } catch {
+      console.log('[Gemini-DR] No research plan card detected, proceeding directly');
+    }
+
+    // Wait for generation (deep research can take many minutes)
+    const loadingSel = 'model-response [aria-label="loading"], .loading-indicator, mat-spinner';
+    await page.waitForSelector(loadingSel, { timeout: 30_000 }).catch(() => {});
+    await page.waitForSelector(loadingSel, { state: 'hidden', timeout: DR_TIMEOUT }).catch(() => {});
+    await page.waitForTimeout(1500);
 
     const msgs = await page.$$eval(
       'model-response .markdown, .response-content',
@@ -296,14 +475,17 @@ ${followUpQuestion}
 Answer only the follow-up question using the conversation context.`;
 }
 
-async function runSelectedSources(context, prompt, selectedModels, onProgress) {
+async function runSelectedSources(context, prompt, selectedModels, onProgress, deepResearch = false) {
   const selected = new Set(selectedModels && selectedModels.length ? selectedModels : ['openai', 'gemini', 'claude']);
   const startGate = new Promise(resolve => setImmediate(resolve));
   const start = (key, runner) => selected.has(key)
     ? startGate.then(runner)
     : Promise.resolve('');
 
-  const openaiTask = start('openai', () => runChatGPT(context, prompt).then(r => {
+  const chatGPTRunner = deepResearch ? runChatGPTDeepResearch : runChatGPT;
+  const geminiRunner  = deepResearch ? runGeminiDeepResearch  : runGemini;
+
+  const openaiTask = start('openai', () => chatGPTRunner(context, prompt).then(r => {
     onProgress && onProgress('partial', { openai: r });
     return r;
   }));
@@ -311,7 +493,7 @@ async function runSelectedSources(context, prompt, selectedModels, onProgress) {
     onProgress && onProgress('partial', { claude: 'Synthesizing selected responses...' });
     return r;
   }));
-  const geminiTask = start('gemini', () => runGemini(context, prompt).then(r => {
+  const geminiTask = start('gemini', () => geminiRunner(context, prompt).then(r => {
     onProgress && onProgress('partial', { gemini: r });
     return r;
   }));
@@ -342,14 +524,14 @@ Synthesize the above into one clear, comprehensive final answer. Return only the
 
 // ── Main export ───────────────────────────────────────────────────────────
 
-async function runPromptOnAllLLMs(prompt, onProgress, selectedModels = ['openai', 'gemini', 'claude']) {
+async function runPromptOnAllLLMs(prompt, onProgress, selectedModels = ['openai', 'gemini', 'claude'], deepResearch = false) {
   const { context } = await getContext();
 
   onProgress && onProgress('running', {});
   const t0 = Date.now();
 
   // Step 1: Queue every selected source first, then release all runners together.
-  const [gptText, claudeInitial, geminiText] = await runSelectedSources(context, prompt, selectedModels, onProgress);
+  const [gptText, claudeInitial, geminiText] = await runSelectedSources(context, prompt, selectedModels, onProgress, deepResearch);
 
   // Step 2: Claude synthesizes all 3 into final answer
   const synthesisPrompt = buildSynthesisPrompt(prompt, gptText, claudeInitial, geminiText);

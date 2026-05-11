@@ -17,6 +17,13 @@ const SUGGESTIONS = [
   { icon: '🧮', label: 'Analyze data' },
 ];
 
+const RESEARCH_STEPS = [
+  { icon: '🔍', text: 'Searching the web…' },
+  { icon: '📄', text: 'Reading sources…' },
+  { icon: '🧠', text: 'Analyzing information…' },
+  { icon: '✏️', text: 'Synthesizing findings…' },
+];
+
 /* ─── Error Parser ────────────────────────────────────────────────── */
 const parseError = (text) => {
   if (!text) return null;
@@ -385,6 +392,8 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete }) => {
     claude: { tokens: null, cost: null, isEstimate: false },
     gemini: { tokens: null, cost: null, isEstimate: false },
   });
+  const [deepResearch, setDeepResearch] = useState(false);
+  const [researchStepIdx, setResearchStepIdx] = useState(0);
   const textareaRef               = useRef(null);
   const historyIdRef              = useRef(null);
 
@@ -395,6 +404,13 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete }) => {
       textareaRef.current.style.height = Math.min(textareaRef.current.scrollHeight, 200) + 'px';
     }
   }, [prompt]);
+
+  /* Cycle research step label while running in deep research mode */
+  useEffect(() => {
+    if (status !== 'running' || !deepResearch) { setResearchStepIdx(0); return; }
+    const iv = setInterval(() => setResearchStepIdx(i => (i + 1) % RESEARCH_STEPS.length), 2500);
+    return () => clearInterval(iv);
+  }, [status, deepResearch]);
 
   const buildStats = (key, text) => {
     const inp = Math.ceil(prompt.length / 4);
@@ -426,7 +442,7 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete }) => {
       const res = await fetch(PLAYWRIGHT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, selectedModels }),
+        body: JSON.stringify({ prompt, selectedModels, deepResearch }),
       });
 
       if (!res.ok) {
@@ -500,7 +516,7 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete }) => {
       const res  = await fetch(N8N_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chatInput: prompt, selectedModels })
+        body: JSON.stringify({ chatInput: prompt, selectedModels, deepResearch })
       });
       const elapsedVal = ((Date.now() - t0) / 1000).toFixed(2);
       const data = await res.json();
@@ -554,7 +570,7 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete }) => {
     }
   };
 
-  const handleRun = () => usePlaywright ? handleRunPlaywright() : handleRunN8N();
+  const handleRun = () => (usePlaywright || deepResearch) ? handleRunPlaywright() : handleRunN8N();
 
   const handleManualPaste = (key, text) => {
     setContent(prev => ({ ...prev, [key]: text }));
@@ -811,14 +827,40 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete }) => {
         </div>
       )}
 
-      {/* ── Playwright mode: source pills + big Claude synthesis ── */}
-      {status !== 'idle' && usePlaywright && (
+      {/* ── Playwright / Deep Research mode ── */}
+      {status !== 'idle' && (usePlaywright || deepResearch) && (
         <div style={{ marginTop: '1.5rem', width: '100%', maxWidth: '900px', marginLeft: 'auto', marginRight: 'auto' }}>
+
+          {/* Deep Research header banner */}
+          {deepResearch && (
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: '10px',
+              marginBottom: '1rem', padding: '10px 16px',
+              background: 'linear-gradient(135deg, #7c3aed15, #2563eb10)',
+              border: '1px solid #7c3aed30',
+              borderRadius: '14px',
+            }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              <span style={{ fontWeight: '700', fontSize: '0.82rem', color: '#7c3aed' }}>Deep Research</span>
+              <span style={{ fontSize: '0.75rem', color: '#9ca3af' }}>·</span>
+              <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+                {status === 'running' ? 'Searching and synthesizing from the web…' : 'Research complete'}
+              </span>
+              {status === 'complete' && (
+                <span style={{ marginLeft: 'auto', fontSize: '0.7rem', color: '#16a34a', fontWeight: '600', background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '2px 8px', borderRadius: '8px' }}>
+                  ✓ Done
+                </span>
+              )}
+            </div>
+          )}
+
           {/* Source status row */}
           <div style={{ display: 'flex', gap: '10px', marginBottom: '1rem', flexWrap: 'wrap' }}>
             {[
-              { key: 'openai',  label: 'ChatGPT',  color: '#10a37f' },
-              { key: 'gemini',  label: 'Gemini',   color: '#4285f4' },
+              { key: 'openai',  label: deepResearch ? 'ChatGPT Web' : 'ChatGPT',  color: '#10a37f' },
+              { key: 'gemini',  label: deepResearch ? 'Gemini Web'  : 'Gemini',    color: '#4285f4' },
             ].filter(s => selectedModels.includes(s.key)).map(s => {
               const done = status === 'complete' && content[s.key] && !content[s.key].startsWith('Error');
               const running = status === 'running';
@@ -897,7 +939,21 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete }) => {
                 padding: '16px 18px',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
               }}>
-                {status === 'running' ? 'Synthesizing selected responses...' : <MarkdownBlock text={claudeDisplay} />}
+                {status === 'running'
+                  ? deepResearch
+                    ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontSize: '1.2rem', animation: 'float 1.5s ease-in-out infinite' }}>
+                          {RESEARCH_STEPS[researchStepIdx].icon}
+                        </span>
+                        <span style={{ color: '#6b7280', fontSize: '0.9rem', fontStyle: 'italic' }}>
+                          {RESEARCH_STEPS[researchStepIdx].text}
+                        </span>
+                      </div>
+                    )
+                    : 'Synthesizing selected responses…'
+                  : <MarkdownBlock text={claudeDisplay} />
+                }
               </div>
             </div>
           </div>
@@ -1087,34 +1143,67 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete }) => {
                   </div>
                 </div>
               )}
-              <div style={{ display: 'flex', alignItems: 'center', background: '#f3f4f6', borderRadius: '18px', padding: '3px', gap: '2px' }}>
-                <button
-                  onClick={() => setUsePlaywright(false)}
-                  style={{
-                    padding: '5px 11px',
-                    borderRadius: '15px',
-                    border: 'none',
-                    background: !usePlaywright ? '#ffffff' : 'transparent',
-                    color: !usePlaywright ? '#111827' : '#9ca3af',
-                    fontSize: '0.72rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                  }}
-                >API</button>
-                <button
-                  onClick={() => setUsePlaywright(true)}
-                  style={{
-                    padding: '5px 11px',
-                    borderRadius: '15px',
-                    border: 'none',
-                    background: usePlaywright ? '#ffffff' : 'transparent',
-                    color: usePlaywright ? '#7c3aed' : '#9ca3af',
-                    fontSize: '0.72rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                  }}
-                >Browser</button>
-              </div>
+              {!deepResearch && (
+                <div style={{ display: 'flex', alignItems: 'center', background: '#f3f4f6', borderRadius: '18px', padding: '3px', gap: '2px' }}>
+                  <button
+                    onClick={() => setUsePlaywright(false)}
+                    style={{
+                      padding: '5px 11px',
+                      borderRadius: '15px',
+                      border: 'none',
+                      background: !usePlaywright ? '#ffffff' : 'transparent',
+                      color: !usePlaywright ? '#111827' : '#9ca3af',
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                  >API</button>
+                  <button
+                    onClick={() => setUsePlaywright(true)}
+                    style={{
+                      padding: '5px 11px',
+                      borderRadius: '15px',
+                      border: 'none',
+                      background: usePlaywright ? '#ffffff' : 'transparent',
+                      color: usePlaywright ? '#7c3aed' : '#9ca3af',
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                  >Browser</button>
+                </div>
+              )}
+
+              {/* Deep Research toggle */}
+              <button
+                onClick={() => {
+                  const next = !deepResearch;
+                  setDeepResearch(next);
+                  if (next) setUsePlaywright(true);
+                }}
+                disabled={status === 'running' || followUpStatus === 'running'}
+                title={deepResearch ? 'Turn off Deep Research' : 'Deep Research — searches the web for comprehensive answers'}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '5px',
+                  padding: '5px 11px', borderRadius: '15px',
+                  border: deepResearch ? 'none' : '1px solid #e5e7eb',
+                  background: deepResearch
+                    ? 'linear-gradient(135deg, #7c3aed, #2563eb)'
+                    : '#f9fafb',
+                  color: deepResearch ? '#ffffff' : '#6b7280',
+                  fontSize: '0.72rem', fontWeight: 700,
+                  cursor: status === 'running' || followUpStatus === 'running' ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.2s',
+                  boxShadow: deepResearch ? '0 2px 8px rgba(124,58,237,0.35)' : 'none',
+                  whiteSpace: 'nowrap',
+                  opacity: status === 'running' || followUpStatus === 'running' ? 0.6 : 1,
+                }}
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                Deep Research
+              </button>
             </div>
             <button
               onClick={handleComposerSubmit}

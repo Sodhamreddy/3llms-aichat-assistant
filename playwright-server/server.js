@@ -22,7 +22,7 @@ app.get('/health', (req, res) => res.json({ ok: true }));
 // Main endpoint — React calls this with { prompt }
 // Returns SSE stream so dashboard updates per-model as each finishes
 app.post('/run-prompt', async (req, res) => {
-  const { prompt, selectedModels } = req.body;
+  const { prompt, selectedModels, deepResearch = false } = req.body;
   if (!prompt || !prompt.trim()) {
     return res.status(400).json({ error: 'prompt is required' });
   }
@@ -41,7 +41,7 @@ app.post('/run-prompt', async (req, res) => {
   try {
     const result = await runPromptOnAllLLMs(prompt, (type, partial) => {
       send({ type, ...partial });
-    }, selectedModels);
+    }, selectedModels, deepResearch);
 
     send({ type: 'complete', ...result });
   } catch (e) {
