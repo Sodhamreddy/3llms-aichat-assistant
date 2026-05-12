@@ -1,0 +1,146 @@
+{
+   "Apollo_Downloader": {
+      "message": "Apollo 爬取器"
+   },
+   "Cancel": {
+      "message": "取消"
+   },
+   "Close": {
+      "message": "关闭"
+   },
+   "Company": {
+      "message": "公司"
+   },
+   "Confirm": {
+      "message": "确认"
+   },
+   "Current": {
+      "message": "当前页面不是第一页。是否跳转到第一页？"
+   },
+   "Done": {
+      "message": "完成"
+   },
+   "Download_Data": {
+      "message": "下载数据"
+   },
+   "Download_File_Type": {
+      "message": "下载文件格式"
+   },
+   "Error": {
+      "message": "错误"
+   },
+   "Export": {
+      "message": "导出"
+   },
+   "Export_to": {
+      "message": "导出为"
+   },
+   "Go_to": {
+      "message": "跳转到第一页？"
+   },
+   "Login": {
+      "message": "登录"
+   },
+   "Navigate": {
+      "message": "跳转到第一页"
+   },
+   "Non_Apollo": {
+      "message": "非 Apollo 用户可以切换到“Net New”，启用“使用邮箱”以绕过三页限制。"
+   },
+   "Not_Now": {
+      "message": "稍后再说"
+   },
+   "People": {
+      "message": "联系人"
+   },
+   "Please": {
+      "message": "请输入您想下载的项目数量："
+   },
+   "Pro_Plan": {
+      "message": "高级计划"
+   },
+   "Review": {
+      "message": "评论"
+   },
+   "Sign_in": {
+      "message": "登录"
+   },
+   "Start": {
+      "message": "从当前页开始（默认：第一页）"
+   },
+   "Stop": {
+      "message": "停止"
+   },
+   "TIPS": {
+      "message": "提示"
+   },
+   "Tip": {
+      "message": "提示：如何使用？"
+   },
+   "Upgrade": {
+      "message": "升级"
+   },
+   "Write": {
+      "message": "撰写评论"
+   },
+   "apolloDes": {
+      "message": "从 Apollo.io 爬取潜在客户并导出联系人和公司信息，包括邮箱、电话号码和社交媒体资料。"
+   },
+   "apolloName": {
+      "message": "Apollo 爬取器：Apollo 潜在客户生成与联系人及公司数据导出"
+   },
+   "completed": {
+      "message": "您是否已完成高级计划订阅？"
+   },
+   "contacting": {
+      "message": "联系我们时，请使用"
+   },
+   "detected": {
+      "message": "未检测到数据，请先开始您的搜索。"
+   },
+   "doneText": {
+      "message": "您的数据将自动下载。\u003Cbr> 如果没有，请\u003Cspan>点击这里\u003C/span>手动下载。"
+   },
+   "enableText": {
+      "message": "升级到 \u003Cspan style='font-weight:700;'>高级版\u003C/span> 以启用"
+   },
+   "exportedText": {
+      "message": "已导出 {$1}/{$2} 项..."
+   },
+   "five_star": {
+      "message": "您的五星好评是对我们最大的支持！感谢您的支持。"
+   },
+   "freeText": {
+      "message": "免费账户最多可下载 {$1} 项。"
+   },
+   "identifier": {
+      "message": "请在联系我们时附上您的标识码"
+   },
+   "logged": {
+      "message": "您已成功登录。"
+   },
+   "multitask": {
+      "message": "在导出过程中，您可以执行其他任务，但请保持此标签页打开。"
+   },
+   "prevent_loss": {
+      "message": "登录以防止数据丢失。"
+   },
+   "randomText": {
+      "message": "随机间隔时间为 \u003Cspan>{$1}\u003C/span> 到 \u003Cspan>{$2}\u003C/span> 秒。"
+   },
+   "refresh": {
+      "message": "请刷新页面后再试。"
+   },
+   "retrieval": {
+      "message": "数据检索时间超出预期。"
+   },
+   "upgradeText": {
+      "message": "升级到 \u003Cspan style='font-weight:700;'>高级版\u003C/span> 以无限制下载。"
+   },
+   "use": {
+      "message": "使用 Apollo 的邮箱"
+   },
+   "usingText": {
+      "message": "使用 Apollo 的邮箱可能会减慢数据导出速度并增加安全风险，同时会消耗 {$1} 邮箱验证积分。"
+   }
+}

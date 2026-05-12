@@ -1,0 +1,36 @@
+{
+   "action": {
+      "default_icon": "photos/iconx48.png",
+      "default_popup": "main.html"
+   },
+   "background": {
+      "service_worker": "assets/unit/service.239a1ca5.js",
+      "type": "module"
+   },
+   "content_scripts": [ {
+      "all_frames": false,
+      "css": [ "assets/style/mweb_c8364970.css" ],
+      "js": [ "assets/unit/mweb.239a1ca5.js" ],
+      "matches": [ "*://app.apollo.io/*" ],
+      "run_at": "document_end"
+   } ],
+   "default_locale": "en",
+   "description": "__MSG_apolloDes__",
+   "homepage_url": "https://aoleads.com/apollo-scraper",
+   "icons": {
+      "128": "photos/iconx128.png",
+      "16": "photos/iconx16.png",
+      "32": "photos/iconx32.png",
+      "48": "photos/iconx48.png"
+   },
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAz9Z0CEEQWybYxAAro4tFZ4X9RtsIpPC43DJYgfMN5gEEVrAQpueq3KnSAmcOA6irKXP6v9D0m4j7mrc97t2CoyDy8er3OwoPbxkUN5otsgyvzkQYukHX12088Z//CBSaY0t8KN28k1/O9ll9GZoWSzx/8xQ0et+unlRa98sMUGhW0Yr6ot8urKXyZWNmX0voeaY5c0ofDus6YNr2CYKyqN2AsDvQwfcsBZ/9oPcFP6hrdecDVNerFZk7B6Mg2tFyN6JluU7htZ2SZ1EpqaPEVmeRcOyoFzSBu167+i37+SrRQVXxser3o7U8dEzT9Kx+eZeZZIMhIEZKrKJmOcqt8wIDAQAB",
+   "manifest_version": 3,
+   "name": "__MSG_apolloName__",
+   "permissions": [ "storage", "unlimitedStorage" ],
+   "update_url": "https://clients2.google.com/service/update2/crx",
+   "version": "7.2.8",
+   "web_accessible_resources": [ {
+      "matches": [ "\u003Call_urls>" ],
+      "resources": [ "photos/*", "assets/*" ]
+   } ]
+}

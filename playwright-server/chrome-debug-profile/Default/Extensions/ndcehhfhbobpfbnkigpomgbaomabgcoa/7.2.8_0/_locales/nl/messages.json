@@ -1,0 +1,146 @@
+{
+   "Apollo_Downloader": {
+      "message": "Apollo Scraper"
+   },
+   "Cancel": {
+      "message": "Annuleren"
+   },
+   "Close": {
+      "message": "Sluiten"
+   },
+   "Company": {
+      "message": "Bedrijf"
+   },
+   "Confirm": {
+      "message": "Bevestigen"
+   },
+   "Current": {
+      "message": "De huidige pagina is niet de eerste pagina. Wilt u naar de eerste pagina gaan?"
+   },
+   "Done": {
+      "message": "Klaar"
+   },
+   "Download_Data": {
+      "message": "Gegevens downloaden"
+   },
+   "Download_File_Type": {
+      "message": "Bestandstype om te downloaden"
+   },
+   "Error": {
+      "message": "Fout"
+   },
+   "Export": {
+      "message": "Exporteren"
+   },
+   "Export_to": {
+      "message": "Exporteren naar"
+   },
+   "Go_to": {
+      "message": "Naar de eerste pagina gaan?"
+   },
+   "Login": {
+      "message": "Inloggen"
+   },
+   "Navigate": {
+      "message": "Naar de eerste pagina gaan"
+   },
+   "Non_Apollo": {
+      "message": "Niet-Apollo-gebruikers kunnen overschakelen naar 'Net New' en 'e-mails gebruiken' inschakelen om de limiet van drie pagina's te omzeilen."
+   },
+   "Not_Now": {
+      "message": "Niet nu"
+   },
+   "People": {
+      "message": "Mensen"
+   },
+   "Please": {
+      "message": "Voer het aantal items in dat u wilt downloaden:"
+   },
+   "Pro_Plan": {
+      "message": "Pro Plan"
+   },
+   "Review": {
+      "message": "Beoordeling"
+   },
+   "Sign_in": {
+      "message": "Inloggen"
+   },
+   "Start": {
+      "message": "Start vanaf de huidige pagina (standaard: eerste pagina)"
+   },
+   "Stop": {
+      "message": "Stoppen"
+   },
+   "TIPS": {
+      "message": "Tips"
+   },
+   "Tip": {
+      "message": "Tip: Hoe te gebruiken?"
+   },
+   "Upgrade": {
+      "message": "Upgraden"
+   },
+   "Write": {
+      "message": "Schrijf een beoordeling"
+   },
+   "apolloDes": {
+      "message": "Haal leads op van Apollo.io en exporteer informatie over mensen en bedrijven, inclusief e-mails, telefoonnummers en sociale mediaprofielen."
+   },
+   "apolloName": {
+      "message": "Apollo Scraper: Gegevens van Personen en Bedrijven Exporteren"
+   },
+   "completed": {
+      "message": "Heb je het Pro Plan voltooid?"
+   },
+   "contacting": {
+      "message": "Bij het contact met ons via"
+   },
+   "detected": {
+      "message": "Geen gegevens gevonden, start uw zoekopdracht eerst."
+   },
+   "doneText": {
+      "message": "Uw gegevens worden automatisch gedownload.\u003Cbr> Als dat niet het geval is, \u003Cspan>klik hier\u003C/span> om handmatig te downloaden."
+   },
+   "enableText": {
+      "message": "Upgrade naar \u003Cspan style='font-weight:700;'>Pro\u003C/span> om in te schakelen"
+   },
+   "exportedText": {
+      "message": "{$1}/{$2} items geëxporteerd..."
+   },
+   "five_star": {
+      "message": "Uw vijf-sterren beoordeling zou onze dag goed maken! Bedankt voor uw steun."
+   },
+   "freeText": {
+      "message": "Gratis accounts kunnen maximaal {$1} items downloaden."
+   },
+   "identifier": {
+      "message": "Voeg uw identificatie toe bij het contact met ons."
+   },
+   "logged": {
+      "message": "U bent al ingelogd."
+   },
+   "multitask": {
+      "message": "U kunt andere taken uitvoeren tijdens het exporteren, maar houd dit tabblad open."
+   },
+   "prevent_loss": {
+      "message": "Log in om gegevensverlies te voorkomen."
+   },
+   "randomText": {
+      "message": "Willekeurige interval tussen \u003Cspan>{$1}\u003C/span> en \u003Cspan>{$2}\u003C/span> seconden."
+   },
+   "refresh": {
+      "message": "Vernieuw de pagina."
+   },
+   "retrieval": {
+      "message": "Het ophalen van gegevens duurde langer dan verwacht."
+   },
+   "upgradeText": {
+      "message": "Upgrade naar \u003Cspan style='font-weight:700;'>Pro\u003C/span> voor onbeperkt downloaden."
+   },
+   "use": {
+      "message": "gebruik Apollo e-mails"
+   },
+   "usingText": {
+      "message": "Het gebruik van Apollo e-mails kan de gegevensexport vertragen en de beveiligingsrisico's verhogen. Het verbruikt ook {$1} e-mailverificatiekredieten."
+   }
+}

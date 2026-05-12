@@ -1,0 +1,146 @@
+{
+   "Apollo_Downloader": {
+      "message": "Apollo Nuskaitytuvas"
+   },
+   "Cancel": {
+      "message": "Atšaukti"
+   },
+   "Close": {
+      "message": "Uždaryti"
+   },
+   "Company": {
+      "message": "Įmonė"
+   },
+   "Confirm": {
+      "message": "Patvirtinti"
+   },
+   "Current": {
+      "message": "Esamas puslapis nėra pirmasis puslapis. Ar norite pereiti į pirmą puslapį?"
+   },
+   "Done": {
+      "message": "Baigta"
+   },
+   "Download_Data": {
+      "message": "Atsisiųsti duomenis"
+   },
+   "Download_File_Type": {
+      "message": "Atsisiunčiamo failo tipas"
+   },
+   "Error": {
+      "message": "Klaida"
+   },
+   "Export": {
+      "message": "Eksportuoti"
+   },
+   "Export_to": {
+      "message": "Eksportuoti į"
+   },
+   "Go_to": {
+      "message": "Eiti į pirmą puslapį?"
+   },
+   "Login": {
+      "message": "Prisijungti"
+   },
+   "Navigate": {
+      "message": "Eiti į pirmą puslapį"
+   },
+   "Non_Apollo": {
+      "message": "Ne Apollo nariai gali perjungti į 'Net New' ir įjungti 'naudoti el. paštus', kad apeitų trijų puslapių ribą."
+   },
+   "Not_Now": {
+      "message": "Ne dabar"
+   },
+   "People": {
+      "message": "Žmonės"
+   },
+   "Please": {
+      "message": "Įveskite elementų, kuriuos norite atsisiųsti, skaičių:"
+   },
+   "Pro_Plan": {
+      "message": "Pro Planas"
+   },
+   "Review": {
+      "message": "Apžvalga"
+   },
+   "Sign_in": {
+      "message": "Prisijungti"
+   },
+   "Start": {
+      "message": "Pradėti nuo esamo puslapio (numatytasis: pirmas puslapis)"
+   },
+   "Stop": {
+      "message": "Sustabdyti"
+   },
+   "TIPS": {
+      "message": "Patarimai"
+   },
+   "Tip": {
+      "message": "Patarimas: Kaip naudotis?"
+   },
+   "Upgrade": {
+      "message": "Atnaujinti"
+   },
+   "Write": {
+      "message": "Rašyti apžvalgą"
+   },
+   "apolloDes": {
+      "message": "Rinkite potencialius klientus iš Apollo.io ir eksportuokite informaciją apie žmones ir įmones, įskaitant el. paštus, telefono numerius ir socialinių tinklų profilius."
+   },
+   "apolloName": {
+      "message": "Apollo Scraper: Eksportuoti Duomenis apie Žmones ir Įmones"
+   },
+   "completed": {
+      "message": "Ar baigėte Pro planą?"
+   },
+   "contacting": {
+      "message": "Kai kreipiatės į mus adresu"
+   },
+   "detected": {
+      "message": "Duomenų nerasta, pirmiausia pradėkite paiešką."
+   },
+   "doneText": {
+      "message": "Jūsų duomenys bus automatiškai atsisiųsti.\u003Cbr> Jei ne, \u003Cspan>spustelėkite čia\u003C/span> rankiniam atsisiuntimui."
+   },
+   "enableText": {
+      "message": "Atnaujinkite į \u003Cspan style='font-weight:700;'>Pro\u003C/span>, kad aktyvuotumėte"
+   },
+   "exportedText": {
+      "message": "Eksportuota {$1}/{$2} elementų..."
+   },
+   "five_star": {
+      "message": "Jūsų penkių žvaigždučių įvertinimas padarytų mūsų dieną! Ačiū už jūsų palaikymą."
+   },
+   "freeText": {
+      "message": "Nemokamos paskyros gali atsisiųsti iki {$1} elementų."
+   },
+   "identifier": {
+      "message": "Prašome pridėti savo identifikatorių, kai kreipiatės į mus."
+   },
+   "logged": {
+      "message": "Jūs jau prisijungėte."
+   },
+   "multitask": {
+      "message": "Eksportuodami galite atlikti kitus darbus, tačiau laikykite šį skirtuką atidarytą."
+   },
+   "prevent_loss": {
+      "message": "Prisijunkite, kad išvengtumėte duomenų praradimo."
+   },
+   "randomText": {
+      "message": "Atsitiktinis intervalas tarp \u003Cspan>{$1}\u003C/span> ir \u003Cspan>{$2}\u003C/span> sekundžių."
+   },
+   "refresh": {
+      "message": "Atnaujinkite puslapį."
+   },
+   "retrieval": {
+      "message": "Duomenų gavimas užtruko ilgiau nei tikėtasi."
+   },
+   "upgradeText": {
+      "message": "Atnaujinkite į \u003Cspan style='font-weight:700;'>Pro\u003C/span> neribotam atsisiuntimui."
+   },
+   "use": {
+      "message": "naudoti Apollo el. paštus"
+   },
+   "usingText": {
+      "message": "Apollo el. paštų naudojimas gali sulėtinti duomenų eksportavimą ir padidinti saugumo riziką. Taip pat sunaudosite {$1} el. pašto tikrinimo kreditus."
+   }
+}

@@ -1,0 +1,146 @@
+{
+   "Apollo_Downloader": {
+      "message": "אפולו סקרייפר"
+   },
+   "Cancel": {
+      "message": "ביטול"
+   },
+   "Close": {
+      "message": "סגור"
+   },
+   "Company": {
+      "message": "חברה"
+   },
+   "Confirm": {
+      "message": "אשר"
+   },
+   "Current": {
+      "message": "הדף הנוכחי אינו הדף הראשון. האם ברצונך לעבור לדף הראשון?"
+   },
+   "Done": {
+      "message": "בוצע"
+   },
+   "Download_Data": {
+      "message": "הורדת נתונים"
+   },
+   "Download_File_Type": {
+      "message": "סוג קובץ להורדה"
+   },
+   "Error": {
+      "message": "שגיאה"
+   },
+   "Export": {
+      "message": "ייצוא"
+   },
+   "Export_to": {
+      "message": "ייצוא ל"
+   },
+   "Go_to": {
+      "message": "לעבור לדף הראשון?"
+   },
+   "Login": {
+      "message": "התחבר"
+   },
+   "Navigate": {
+      "message": "עבור לדף הראשון"
+   },
+   "Non_Apollo": {
+      "message": "משתמשים שאינם חברי אפולו יכולים לעבור ל-'Net New' ולהפעיל 'שימוש באימיילים' כדי לעקוף את המגבלה לשלושה דפים."
+   },
+   "Not_Now": {
+      "message": "לא עכשיו"
+   },
+   "People": {
+      "message": "אנשים"
+   },
+   "Please": {
+      "message": "אנא הזן את מספר הפריטים שברצונך להוריד:"
+   },
+   "Pro_Plan": {
+      "message": "תוכנית Pro"
+   },
+   "Review": {
+      "message": "סקירה"
+   },
+   "Sign_in": {
+      "message": "התחבר"
+   },
+   "Start": {
+      "message": "התחל מהדף הנוכחי (ברירת מחדל: הדף הראשון)"
+   },
+   "Stop": {
+      "message": "עצור"
+   },
+   "TIPS": {
+      "message": "טיפים"
+   },
+   "Tip": {
+      "message": "טיפ: כיצד להשתמש?"
+   },
+   "Upgrade": {
+      "message": "שדרוג"
+   },
+   "Write": {
+      "message": "כתוב סקירה"
+   },
+   "apolloDes": {
+      "message": "איסוף לידים מ-Apollo.io וייצוא מידע על אנשים וחברות, כולל אימיילים, מספרי טלפון ופרופילים ברשתות חברתיות."
+   },
+   "apolloName": {
+      "message": "אפולו סקרייפר: יצירת לידים וייצוא נתונים על אנשים וחברות"
+   },
+   "completed": {
+      "message": "האם השלמת את תוכנית ה-Pro?"
+   },
+   "contacting": {
+      "message": "בעת יצירת קשר איתנו ב"
+   },
+   "detected": {
+      "message": "לא נמצאו נתונים, אנא התחל את החיפוש שלך תחילה."
+   },
+   "doneText": {
+      "message": "הנתונים שלך יירדו אוטומטית.\u003Cbr> אם לא, \u003Cspan>לחץ כאן\u003C/span> להורדה ידנית."
+   },
+   "enableText": {
+      "message": "שדרג ל-\u003Cspan style='font-weight:700;'>Pro\u003C/span> כדי להפעיל"
+   },
+   "exportedText": {
+      "message": "{$1}/{$2} פריטים ייוצאו..."
+   },
+   "five_star": {
+      "message": "הדירוג שלך של חמישה כוכבים יאיר לנו את היום! תודה על התמיכה."
+   },
+   "freeText": {
+      "message": "חשבונות חינמיים יכולים להוריד עד {$1} פריטים."
+   },
+   "identifier": {
+      "message": "אנא כלול את המזהה שלך בעת יצירת קשר."
+   },
+   "logged": {
+      "message": "אתה כבר מחובר."
+   },
+   "multitask": {
+      "message": "אתה יכול לבצע משימות נוספות בזמן הייצוא, אך שמור על כרטיסייה זו פתוחה."
+   },
+   "prevent_loss": {
+      "message": "התחבר כדי למנוע אובדן נתונים."
+   },
+   "randomText": {
+      "message": "מרווח אקראי בין \u003Cspan>{$1}\u003C/span> ל-\u003Cspan>{$2}\u003C/span> שניות."
+   },
+   "refresh": {
+      "message": "אנא רענן את הדף."
+   },
+   "retrieval": {
+      "message": "אחזור הנתונים לקח יותר זמן מהמצופה."
+   },
+   "upgradeText": {
+      "message": "שדרג ל-\u003Cspan style='font-weight:700;'>Pro\u003C/span> להורדות בלתי מוגבלות."
+   },
+   "use": {
+      "message": "שימוש באימיילים של אפולו"
+   },
+   "usingText": {
+      "message": "שימוש באימיילים של אפולו עשוי להאט את ייצוא הנתונים ולהגדיל את סיכוני האבטחה. זה גם יצרוך {$1} קרדיטים לאימות אימיילים."
+   }
+}

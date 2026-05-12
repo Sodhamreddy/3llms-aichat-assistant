@@ -1,0 +1,146 @@
+{
+   "Apollo_Downloader": {
+      "message": "Apollo 爬取工具"
+   },
+   "Cancel": {
+      "message": "取消"
+   },
+   "Close": {
+      "message": "關閉"
+   },
+   "Company": {
+      "message": "公司"
+   },
+   "Confirm": {
+      "message": "確認"
+   },
+   "Current": {
+      "message": "當前頁面不是第一頁。是否跳轉到第一頁？"
+   },
+   "Done": {
+      "message": "完成"
+   },
+   "Download_Data": {
+      "message": "下載數據"
+   },
+   "Download_File_Type": {
+      "message": "下載文件類型"
+   },
+   "Error": {
+      "message": "錯誤"
+   },
+   "Export": {
+      "message": "導出"
+   },
+   "Export_to": {
+      "message": "導出到"
+   },
+   "Go_to": {
+      "message": "前往第一頁？"
+   },
+   "Login": {
+      "message": "登入"
+   },
+   "Navigate": {
+      "message": "前往第一頁"
+   },
+   "Non_Apollo": {
+      "message": "非 Apollo 會員可切換到 'Net New' 並啟用「使用電子郵件」以繞過三頁限制。"
+   },
+   "Not_Now": {
+      "message": "暫不"
+   },
+   "People": {
+      "message": "人員"
+   },
+   "Please": {
+      "message": "請輸入您要下載的項目數量："
+   },
+   "Pro_Plan": {
+      "message": "Pro 計劃"
+   },
+   "Review": {
+      "message": "評價"
+   },
+   "Sign_in": {
+      "message": "登入"
+   },
+   "Start": {
+      "message": "從當前頁面開始 (默認：第一頁)"
+   },
+   "Stop": {
+      "message": "停止"
+   },
+   "TIPS": {
+      "message": "提示"
+   },
+   "Tip": {
+      "message": "提示：如何使用？"
+   },
+   "Upgrade": {
+      "message": "升級"
+   },
+   "Write": {
+      "message": "撰寫評價"
+   },
+   "apolloDes": {
+      "message": "從 Apollo.io 獲取潛在客戶，並導出有關人員和公司的信息，包括電子郵件、電話號碼和社交媒體資料。"
+   },
+   "apolloName": {
+      "message": "Apollo 爬取工具：生成潛在客戶並導出人員和公司數據"
+   },
+   "completed": {
+      "message": "您已完成 Pro 計劃了嗎？"
+   },
+   "contacting": {
+      "message": "聯繫我們時請使用"
+   },
+   "detected": {
+      "message": "未檢測到數據，請先開始您的搜索。"
+   },
+   "doneText": {
+      "message": "您的數據將自動下載。\u003Cbr>如果沒有，\u003Cspan>點擊此處\u003C/span>手動下載。"
+   },
+   "enableText": {
+      "message": "升級到 \u003Cspan style='font-weight:700;'>Pro\u003C/span> 以啟用"
+   },
+   "exportedText": {
+      "message": "已導出 {$1}/{$2} 項目..."
+   },
+   "five_star": {
+      "message": "您的五星評價將讓我們的一天更加美好！感謝您的支持。"
+   },
+   "freeText": {
+      "message": "免費帳戶最多可下載 {$1} 項目。"
+   },
+   "identifier": {
+      "message": "聯繫我們時請附上您的標識符。"
+   },
+   "logged": {
+      "message": "您已登入。"
+   },
+   "multitask": {
+      "message": "在導出時，您可以進行其他操作，但請保持此標籤頁打開。"
+   },
+   "prevent_loss": {
+      "message": "請登入以防止數據丟失。"
+   },
+   "randomText": {
+      "message": "\u003Cspan>{$1}\u003C/span> 到 \u003Cspan>{$2}\u003C/span> 秒之間的隨機間隔。"
+   },
+   "refresh": {
+      "message": "請刷新頁面。"
+   },
+   "retrieval": {
+      "message": "數據檢索所需時間超過預期。"
+   },
+   "upgradeText": {
+      "message": "升級到 \u003Cspan style='font-weight:700;'>Pro\u003C/span> 以獲得無限制的下載。"
+   },
+   "use": {
+      "message": "使用 Apollo 電子郵件"
+   },
+   "usingText": {
+      "message": "使用 Apollo 電子郵件可能會減慢數據導出的速度並增加安全風險。此外，這將消耗 {$1} 電子郵件驗證積分。"
+   }
+}

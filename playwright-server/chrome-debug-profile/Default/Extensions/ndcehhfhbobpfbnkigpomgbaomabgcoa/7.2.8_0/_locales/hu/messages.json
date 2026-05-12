@@ -1,0 +1,146 @@
+{
+   "Apollo_Downloader": {
+      "message": "Apollo Kaparó"
+   },
+   "Cancel": {
+      "message": "Mégse"
+   },
+   "Close": {
+      "message": "Bezárás"
+   },
+   "Company": {
+      "message": "Vállalat"
+   },
+   "Confirm": {
+      "message": "Megerősítés"
+   },
+   "Current": {
+      "message": "Az aktuális oldal nem az első oldal. Szeretne az első oldalra ugrani?"
+   },
+   "Done": {
+      "message": "Kész"
+   },
+   "Download_Data": {
+      "message": "Adatok letöltése"
+   },
+   "Download_File_Type": {
+      "message": "Letöltendő fájltípus"
+   },
+   "Error": {
+      "message": "Hiba"
+   },
+   "Export": {
+      "message": "Exportálás"
+   },
+   "Export_to": {
+      "message": "Exportálás ide"
+   },
+   "Go_to": {
+      "message": "Ugrás az első oldalra?"
+   },
+   "Login": {
+      "message": "Bejelentkezés"
+   },
+   "Navigate": {
+      "message": "Ugrás az első oldalra"
+   },
+   "Non_Apollo": {
+      "message": "Az Apollo nem tagjai átkapcsolhatnak 'Net New'-ra, és bekapcsolhatják az 'e-mailek használata' opciót, hogy megkerüljék a háromoldalas korlátozást."
+   },
+   "Not_Now": {
+      "message": "Most nem"
+   },
+   "People": {
+      "message": "Személyek"
+   },
+   "Please": {
+      "message": "Kérjük, adja meg a letölteni kívánt elemek számát:"
+   },
+   "Pro_Plan": {
+      "message": "Pro terv"
+   },
+   "Review": {
+      "message": "Értékelés"
+   },
+   "Sign_in": {
+      "message": "Bejelentkezés"
+   },
+   "Start": {
+      "message": "Indítás az aktuális oldaltól (alapértelmezett: első oldal)"
+   },
+   "Stop": {
+      "message": "Leállítás"
+   },
+   "TIPS": {
+      "message": "Tippek"
+   },
+   "Tip": {
+      "message": "Tipp: Hogyan használható?"
+   },
+   "Upgrade": {
+      "message": "Frissítés"
+   },
+   "Write": {
+      "message": "Írjon értékelést"
+   },
+   "apolloDes": {
+      "message": "Gyűjtsön leadeket az Apollo.io-ról, és exportáljon információkat személyekről és vállalatokról, beleértve az e-maileket, telefonszámokat és közösségi média profilokat."
+   },
+   "apolloName": {
+      "message": "Apollo Scraper: Adatok Exportálása Emberekről és Cégekről"
+   },
+   "completed": {
+      "message": "Befejezte a Pro tervet?"
+   },
+   "contacting": {
+      "message": "Kapcsolatfelvétel esetén a"
+   },
+   "detected": {
+      "message": "Nem található adat, kérjük, indítsa el a keresését."
+   },
+   "doneText": {
+      "message": "Az adatai automatikusan letöltődnek.\u003Cbr> Ha nem, \u003Cspan>kattintson ide\u003C/span> a manuális letöltéshez."
+   },
+   "enableText": {
+      "message": "Frissítés \u003Cspan style='font-weight:700;'>Pro\u003C/span>-ra az engedélyezéshez"
+   },
+   "exportedText": {
+      "message": "{$1}/{$2} elem exportálva..."
+   },
+   "five_star": {
+      "message": "Az ötszörös csillagos értékelése feldobná a napunkat! Köszönjük a támogatását."
+   },
+   "freeText": {
+      "message": "Az ingyenes fiókok legfeljebb {$1} elemet tölthetnek le."
+   },
+   "identifier": {
+      "message": "Kérjük, adja meg az azonosítóját kapcsolatfelvételkor."
+   },
+   "logged": {
+      "message": "Már be van jelentkezve."
+   },
+   "multitask": {
+      "message": "Az exportálás közben más feladatokat is végezhet, de tartsa nyitva ezt a lapot."
+   },
+   "prevent_loss": {
+      "message": "Jelentkezzen be az adatvesztés elkerülése érdekében."
+   },
+   "randomText": {
+      "message": "Véletlenszerű intervallum \u003Cspan>{$1}\u003C/span> és \u003Cspan>{$2}\u003C/span> másodperc között."
+   },
+   "refresh": {
+      "message": "Kérjük, frissítse az oldalt."
+   },
+   "retrieval": {
+      "message": "Az adatok lekérése hosszabb ideig tartott a vártnál."
+   },
+   "upgradeText": {
+      "message": "Frissítés \u003Cspan style='font-weight:700;'>Pro\u003C/span>-ra a korlátlan letöltéshez."
+   },
+   "use": {
+      "message": "használja az Apollo e-maileket"
+   },
+   "usingText": {
+      "message": "Az Apollo e-mailek használata lassíthatja az adatok exportálását és növelheti a biztonsági kockázatokat. Emellett felhasználja a(z) {$1} e-mail ellenőrzési kreditet."
+   }
+}
