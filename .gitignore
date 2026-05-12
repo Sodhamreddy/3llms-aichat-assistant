@@ -12,10 +12,6 @@ dist
 dist-ssr
 *.local
 
-# Playwright browser profiles
-playwright-server/browser-profile/
-playwright-server/chrome-debug-profile/
-
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

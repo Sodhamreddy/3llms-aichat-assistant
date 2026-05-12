@@ -31,8 +31,10 @@ const IDownload  = I(<><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12
 /* ── Nav config ────────────────────────────────────────────── */
 const MAIN_NAV = [
   { id: 'prompt-runner',   icon: IChat,     label: 'Chats' },
+  { id: 'dashboard',       icon: IGrid,     label: 'Projects' },
   { id: 'results-history', icon: IClock,    label: 'History' },
-  { id: 'settings',        icon: ISettings, label: 'Settings' },
+  { id: 'analytics',       icon: IChart,    label: 'Analytics' },
+  { id: 'settings',        icon: ISettings, label: 'Customize' },
 ];
 
 const MORE_NAV = [
@@ -50,7 +52,7 @@ const PROFILE_MENU = [
 ];
 
 /* ── Sidebar ───────────────────────────────────────────────── */
-const Sidebar = ({ activePage, onPageChange, onOpenHistory, onCollapse, history = [] }) => {
+const Sidebar = ({ activePage, onPageChange, onCollapse, history = [] }) => {
   const [moreOpen,    setMoreOpen]    = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [searchOpen,  setSearchOpen]  = useState(false);
@@ -122,7 +124,7 @@ const Sidebar = ({ activePage, onPageChange, onOpenHistory, onCollapse, history 
       {/* ── Logo + collapse ── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 14px 6px' }}>
         <span style={{ fontSize: '1.0625rem', fontWeight: '600', color: '#111827', letterSpacing: '-0.01em', userSelect: 'none' }}>
-          Kleza TriMind AI
+          Kleza AI
         </span>
         <Btn title="Close sidebar" onClick={onCollapse}><IPanel /></Btn>
       </div>
@@ -216,7 +218,7 @@ const Sidebar = ({ activePage, onPageChange, onOpenHistory, onCollapse, history 
               <button
                 key={h.id}
                 className="s-recent"
-                onClick={() => onOpenHistory ? onOpenHistory(h.id) : onPageChange('results-history')}
+                onClick={() => onPageChange('results-history')}
                 title={h.prompt}
               >{h.prompt}</button>
             ))}

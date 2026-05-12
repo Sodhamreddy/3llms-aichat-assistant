@@ -27,7 +27,7 @@ const IntegrationsPage = () => {
       <div style={{ marginBottom: '2rem' }}>
         <h1 style={{ fontSize: '1.75rem', fontWeight: '800', color: '#0f172a', marginBottom: '0.5rem' }}>🔗 Integrations</h1>
         <p style={{ color: '#64748b', fontSize: '0.95rem' }}>
-          Connect Kleza TriMind AI to your external tools. Route AI results to Slack, Sheets, email, and more.
+          Connect PromptHub AI to your external tools. Route AI results to Slack, Sheets, email, and more.
         </p>
       </div>
 

@@ -7,7 +7,7 @@ const getGreeting = () => {
   return 'Good evening';
 };
 
-const PromptRunnerPage = ({ onRunComplete, onFollowUpComplete }) => (
+const PromptRunnerPage = ({ onRunComplete }) => (
   <div style={{
     flex: 1, display: 'flex', flexDirection: 'column',
     alignItems: 'center', justifyContent: 'center',
@@ -24,7 +24,7 @@ const PromptRunnerPage = ({ onRunComplete, onFollowUpComplete }) => (
       {getGreeting()}, Sodham
     </h1>
 
-    <PromptControl onRunComplete={onRunComplete} onFollowUpComplete={onFollowUpComplete} />
+    <PromptControl onRunComplete={onRunComplete} />
   </div>
 );
 

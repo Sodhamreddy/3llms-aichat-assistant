@@ -26,7 +26,7 @@ const DashboardPage = ({ history = [], usage = {}, onNavigate }) => {
           Welcome back, John! 👋
         </h1>
         <p style={{ color: '#64748b', fontSize: '0.95rem' }}>
-          Here's your Kleza TriMind AI overview.{' '}
+          Here's your PromptHub AI overview.{' '}
           {runs === 0
             ? 'Run your first prompt to see data populate here.'
             : <span>You've run <strong style={{ color: '#2563eb' }}>{runs} prompt{runs !== 1 ? 's' : ''}</strong> so far.</span>
