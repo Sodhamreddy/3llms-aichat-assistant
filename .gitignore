@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Chrome debug profiles — contain user sessions and locked cache files
+playwright-server/chrome-debug-profile/
+playwright-server/browser-profile/
+playwright-server/profiles/

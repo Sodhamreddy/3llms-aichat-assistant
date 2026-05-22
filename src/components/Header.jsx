@@ -1,8 +1,6 @@
 const NAV_ITEMS = [
-  { id: 'dashboard',       label: 'Dashboard' },
   { id: 'prompt-runner',   label: 'Prompt Runner' },
   { id: 'results-history', label: 'History' },
-  { id: 'analytics',       label: 'Analytics' },
   { id: 'settings',        label: 'Settings' },
 ];
 
@@ -29,7 +27,7 @@ const Header = ({ usage = {}, activePage = 'prompt-runner', onPageChange }) => {
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontSize: '0.8rem', fontWeight: '800', color: 'white',
         }}>K</div>
-        <span style={{ fontSize: '0.95rem', fontWeight: '700', color: '#1a1a1a' }}>Kleza AI</span>
+        <span style={{ fontSize: '0.95rem', fontWeight: '700', color: '#1a1a1a' }}>Kleza TriMind AI</span>
       </div>
 
       <div style={{ width: '1px', height: '20px', background: 'rgba(0,0,0,0.1)', flexShrink: 0, margin: '0 4px' }} />

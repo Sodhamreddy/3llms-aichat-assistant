@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkextension=self.webpackChunkextension||[]).push([["9876"],{47518(e,n,s){s.d(n,{createSubscriptionClient:()=>a});var t=s(66310);function a(e){return(0,t.UU)({url:"wss://subs.daily.dev/graphql",lazy:!1,connectionParams:{token:e}})}}}]);

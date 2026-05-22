@@ -1,19 +1,20 @@
-// Run this ONCE to login to all 3 LLMs.
-// Your sessions are saved in browser-profile/ and reused automatically.
+// Run this once per client to login to all 3 LLMs.
+// Sessions are saved in profiles/<client_id>/ and reused automatically.
 //
-// Usage:  node login.js
+// Usage:  node login.js client_123
 
 const { chromium } = require('playwright');
-const path = require('path');
 const readline = require('readline');
+const { getProfilePath, sanitizeClientId } = require('./session-manager');
 
-const PROFILE_DIR = path.join(__dirname, 'browser-profile');
+const CLIENT_ID = sanitizeClientId(process.argv[2] || process.env.CLIENT_ID);
+const PROFILE_DIR = getProfilePath(CLIENT_ID);
 
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 const pause = (msg) => new Promise(res => rl.question(msg, res));
 
 async function main() {
-  console.log('\n Opening Chrome for first-time login...\n');
+  console.log(`\n Opening Chrome for first-time login: ${CLIENT_ID}\n`);
 
   const browser = await chromium.launchPersistentContext(PROFILE_DIR, {
     headless: false,
@@ -51,7 +52,7 @@ async function main() {
   await browser.close();
   rl.close();
 
-  console.log('\n All sessions saved! You can now run:  node server.js\n');
+  console.log(`\n All sessions saved for ${CLIENT_ID}! You can now run:  node server.js\n`);
 }
 
 main().catch(e => { console.error(e); process.exit(1); });

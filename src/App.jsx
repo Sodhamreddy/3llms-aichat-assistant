@@ -8,10 +8,46 @@ import AutomationsPage from './pages/AutomationsPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import IntegrationsPage from './pages/IntegrationsPage';
 import SettingsPage from './pages/SettingsPage';
+import AdminPortal from './pages/AdminPortal';
+import OnboardingPage from './pages/OnboardingPage';
+import LandingPage from './pages/LandingPage';
+import { attachClientId } from './utils/clientIdentity';
 
-function App() {
-  const [activePage,   setActivePage]   = useState('prompt-runner');
-  const [sidebarOpen,  setSidebarOpen]  = useState(true);
+function ChatApp() {
+  const [onboardingDone, setOnboardingDone] = useState(() => {
+    try {
+      const u = JSON.parse(localStorage.getItem('ph_user') || '{}');
+      return Boolean(u.onboardingComplete);
+    } catch { return false; }
+  });
+
+  // Show landing only on first-ever visit (before onboarding is complete)
+  const [landingDone, setLandingDone] = useState(() => {
+    try {
+      const u = JSON.parse(localStorage.getItem('ph_user') || '{}');
+      return Boolean(u.onboardingComplete); // skip landing if already onboarded
+    } catch { return false; }
+  });
+
+  const handleOnboardingComplete = (userData) => {
+    localStorage.setItem('ph_user', JSON.stringify(attachClientId({ ...userData, onboardingComplete: true })));
+    setOnboardingDone(true);
+  };
+
+  const [activePage,      setActivePage]      = useState('prompt-runner');
+  const [sidebarOpen,     setSidebarOpen]     = useState(true);
+  const [chatKey,         setChatKey]         = useState(0);
+  const [activeHistoryId, setActiveHistoryId] = useState(null);
+
+  const handleHistorySelect = (id) => {
+    setActiveHistoryId(id);
+    setActivePage('results-history');
+  };
+
+  const handleNewChat = () => {
+    setActivePage('prompt-runner');
+    setChatKey(k => k + 1);
+  };
 
   const [usage, setUsage] = useState(() => {
     try { const s = localStorage.getItem('ph_usage'); return s ? JSON.parse(s) : { totalInputTokens:0, totalOutputTokens:0, totalTokens:0, totalCost:0 }; }
@@ -26,28 +62,48 @@ function App() {
   useEffect(() => { localStorage.setItem('ph_usage',   JSON.stringify(usage)); },            [usage]);
   useEffect(() => { localStorage.setItem('ph_history', JSON.stringify(history.slice(0,100))); }, [history]);
 
-  const handleRunComplete = ({ prompt, gemini, claude, openai, tokenData }) => {
+  const handleRunComplete = ({ prompt, gemini, claude, openai, stage1Claude, tokenData, elapsed }) => {
     if (tokenData) setUsage(prev => ({
       totalInputTokens:  prev.totalInputTokens  + (tokenData.inputTokens  || 0),
       totalOutputTokens: prev.totalOutputTokens + (tokenData.outputTokens || 0),
       totalTokens:       prev.totalTokens       + (tokenData.totalTokens  || 0),
       totalCost:         prev.totalCost         + (tokenData.runCost      || 0),
     }));
+    const id = Date.now();
     setHistory(prev => [{
-      id: Date.now(), prompt,
+      id, prompt,
       date: new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' }),
       best: gemini ? 'Gemini 1.5' : claude ? 'Claude-3' : 'GPT-4o',
-      status: 'Complete', responses:{ gemini, claude, openai },
+      status: 'Complete', responses:{ gemini, claude, openai, stage1Claude: stage1Claude || '' },
       tokenData: tokenData || null,
+      elapsed: elapsed || null,
+      followUps: [],
     }, ...prev]);
+    return id;
   };
+
+  const handleFollowUpComplete = ({ historyId, question, answer, elapsed }) => {
+    setHistory(prev => prev.map(item =>
+      item.id === historyId
+        ? { ...item, followUps: [...(item.followUps || []), { question, answer, elapsed: elapsed || null }] }
+        : item
+    ));
+  };
+
+  if (!landingDone) {
+    return <LandingPage onGetStarted={() => setLandingDone(true)} />;
+  }
+
+  if (!onboardingDone) {
+    return <OnboardingPage onComplete={handleOnboardingComplete} />;
+  }
 
   const renderPage = () => {
     switch (activePage) {
-      case 'prompt-runner':   return <PromptRunnerPage onRunComplete={handleRunComplete} />;
+      case 'prompt-runner':   return <PromptRunnerPage key={chatKey} onRunComplete={handleRunComplete} onFollowUpComplete={handleFollowUpComplete} />;
       case 'dashboard':       return <DashboardPage history={history} usage={usage} onNavigate={setActivePage} />;
       case 'llm-models':      return <LLMModelsPage />;
-      case 'results-history': return <ResultsHistoryPage history={history} />;
+      case 'results-history': return <ResultsHistoryPage history={history} selectedId={activeHistoryId} onFollowUpComplete={handleFollowUpComplete} />;
       case 'automations':     return <AutomationsPage />;
       case 'analytics':       return <AnalyticsPage history={history} usage={usage} />;
       case 'integrations':    return <IntegrationsPage />;
@@ -56,34 +112,34 @@ function App() {
     }
   };
 
-  const ml = sidebarOpen ? '260px' : '0';
-
   return (
     <div style={{ display:'flex', minHeight:'100vh' }}>
       {/* Sidebar */}
       <div style={{
-        width: sidebarOpen ? '260px' : '0',
+        width: sidebarOpen ? '240px' : '0',
         overflow: 'hidden',
-        transition: 'width 0.25s cubic-bezier(0.4,0,0.2,1)',
+        transition: 'width 0.22s cubic-bezier(0.4,0,0.2,1)',
         flexShrink: 0,
       }}>
         {sidebarOpen && (
           <Sidebar
             activePage={activePage}
             onPageChange={setActivePage}
+            onNewChat={handleNewChat}
             onCollapse={() => setSidebarOpen(false)}
             history={history}
+            onHistorySelect={handleHistorySelect}
           />
         )}
       </div>
 
       {/* Main */}
       <main style={{
-        flex: 1, background: '#f5f4ef', minHeight:'100vh',
+        flex: 1, background: '#f5f4f0', minHeight:'100vh',
         display: activePage === 'prompt-runner' ? 'flex' : 'block',
         flexDirection: 'column',
         position: 'relative',
-        transition: 'margin-left 0.25s cubic-bezier(0.4,0,0.2,1)',
+        transition: 'margin-left 0.22s cubic-bezier(0.4,0,0.2,1)',
       }}>
         {/* Floating panel-open button when sidebar is closed */}
         {!sidebarOpen && (
@@ -106,11 +162,17 @@ function App() {
 
         {activePage === 'prompt-runner'
           ? renderPage()
-          : <div style={{ padding:'2.5rem 2.5rem 3rem', maxWidth:'1200px' }}>{renderPage()}</div>
+          : activePage === 'results-history'
+            ? renderPage()
+            : <div style={{ padding:'2.5rem 2.5rem 3rem', maxWidth:'1200px' }}>{renderPage()}</div>
         }
       </main>
     </div>
   );
+}
+
+function App() {
+  return window.location.pathname.startsWith('/admin') ? <AdminPortal /> : <ChatApp />;
 }
 
 export default App;

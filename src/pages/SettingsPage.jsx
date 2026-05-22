@@ -1,15 +1,283 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { PLAYWRIGHT_SERVER } from '../config/api';
+import { ensureClientId, loadStoredUser } from '../utils/clientIdentity';
 
-const SettingsPage = ({ usage = {}, onResetUsage }) => {
-  const [name, setName]   = useState('John Doe');
-  const [email, setEmail] = useState('john@example.com');
+const MODEL_DEFS = [
+  { key: 'openai', name: 'ChatGPT', color: '#10a37f' },
+  { key: 'claude', name: 'Claude', color: '#d97757' },
+  { key: 'gemini', name: 'Gemini', color: '#4285f4' },
+];
+
+const loadUser = () => {
+  return loadStoredUser();
+};
+
+const SettingsPage = () => {
+  const storedUser = loadUser();
+  const [name, setName]   = useState(storedUser.name  || '');
+  const [email, setEmail] = useState(storedUser.email || '');
+  const [clientId] = useState(() => ensureClientId());
   const [saved, setSaved] = useState(false);
-  const [prefs, setPrefs] = useState({ emailNotif: true, autoSave: true, showTokens: false, darkMode: false });
 
-  const { totalTokens = 0, totalInputTokens = 0, totalOutputTokens = 0, totalCost = 0 } = usage;
+  // API keys & model toggles
+  const [modelToggles, setModelToggles] = useState(() => {
+    const u = loadUser();
+    const enabled = u.enabledModels || ['openai', 'claude', 'gemini'];
+    return { openai: enabled.includes('openai'), claude: enabled.includes('claude'), gemini: enabled.includes('gemini') };
+  });
+  const [keysSaved, setKeysSaved] = useState(false);
+  const [chromeStatus, setChromeStatus] = useState('idle'); // 'idle' | 'loading' | 'visible' | 'hidden' | 'error'
+  const [chromeMsg,    setChromeMsg]    = useState('');
+  const [sessionStatus, setSessionStatus] = useState({});
+  const [remoteBrowser, setRemoteBrowser] = useState({
+    open: false,
+    provider: null,
+    loading: false,
+    image: '',
+    title: '',
+    url: '',
+    error: '',
+    viewport: { width: 1280, height: 800 },
+  });
+  const remoteActionQueueRef = useRef(Promise.resolve());
 
-  const save = () => { setSaved(true); setTimeout(() => setSaved(false), 2000); };
-  const togglePref = key => setPrefs(prev => ({ ...prev, [key]: !prev[key] }));
+  const save = () => {
+    const u = loadUser();
+    localStorage.setItem('ph_user', JSON.stringify({ ...u, clientId, name: name.trim(), email: email.trim() }));
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
+
+  const saveKeys = () => {
+    const u = loadUser();
+    const enabledModels = Object.keys(modelToggles).filter(k => modelToggles[k]);
+    localStorage.setItem('ph_user', JSON.stringify({ ...u, clientId, enabledModels }));
+    setKeysSaved(true);
+    setTimeout(() => setKeysSaved(false), 2000);
+  };
+
+  const toggleModelSetting = (key) => {
+    setModelToggles(prev => {
+      const next = { ...prev, [key]: !prev[key] };
+      if (!Object.values(next).some(Boolean)) return prev;
+      return next;
+    });
+  };
+  useEffect(() => {
+    let active = true;
+    const loadSessions = async () => {
+      try {
+        const res = await fetch(`${PLAYWRIGHT_SERVER}/client/${encodeURIComponent(clientId)}/sessions`);
+        const data = await res.json();
+        if (active && res.ok) setSessionStatus(data.sessions || {});
+      } catch { /* ignore unavailable server while loading settings */ }
+    };
+    loadSessions();
+    return () => { active = false; };
+  }, [clientId]);
+
+  const checkSessions = async () => {
+    setChromeStatus('loading');
+    setChromeMsg('');
+    try {
+      const selectedModels = Object.keys(modelToggles).filter(k => modelToggles[k]);
+      const res = await fetch(`${PLAYWRIGHT_SERVER}/client/${encodeURIComponent(clientId)}/check-sessions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ selectedModels }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || res.statusText);
+      setSessionStatus(data.sessions || {});
+      setChromeStatus('hidden');
+      setChromeMsg('Session status refreshed.');
+    } catch (e) {
+      setChromeStatus('error');
+      setChromeMsg(e.message);
+    }
+  };
+
+  const remoteEndpoint = useCallback((provider, action) =>
+    `${PLAYWRIGHT_SERVER}/client/${encodeURIComponent(clientId)}/remote-browser/${encodeURIComponent(provider)}/${action}`,
+    [clientId]
+  );
+
+  const applyRemoteSnapshot = (data) => {
+    setRemoteBrowser(prev => ({
+      ...prev,
+      loading: false,
+      error: '',
+      image: data.image ? `data:image/jpeg;base64,${data.image}` : prev.image,
+      title: data.title || '',
+      url: data.url || '',
+      viewport: data.viewport || prev.viewport,
+    }));
+  };
+
+  const openRemoteLogin = async (provider) => {
+    const model = MODEL_DEFS.find(m => m.key === provider);
+    setRemoteBrowser(prev => ({ ...prev, open: true, provider, loading: true, image: '', title: model?.name || '', url: '', error: '' }));
+    setChromeMsg('');
+    try {
+      const res = await fetch(remoteEndpoint(provider, 'open'), { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || res.statusText);
+      applyRemoteSnapshot(data);
+    } catch (e) {
+      setRemoteBrowser(prev => ({ ...prev, loading: false, error: e.message }));
+    }
+  };
+
+  const refreshRemoteLogin = async () => {
+    if (!remoteBrowser.provider) return;
+    try {
+      const res = await fetch(remoteEndpoint(remoteBrowser.provider, 'screenshot'), { method: 'GET' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || res.statusText);
+      applyRemoteSnapshot(data);
+    } catch (e) {
+      setRemoteBrowser(prev => ({ ...prev, error: e.message }));
+    }
+  };
+
+  const sendRemoteAction = async (action) => {
+    const provider = remoteBrowser.provider;
+    if (!provider || remoteBrowser.loading) return;
+    remoteActionQueueRef.current = remoteActionQueueRef.current.then(async () => {
+      const res = await fetch(remoteEndpoint(provider, 'action'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(action),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || res.statusText);
+      applyRemoteSnapshot(data);
+    }).catch(e => {
+      setRemoteBrowser(prev => ({ ...prev, error: e.message }));
+    });
+    return remoteActionQueueRef.current;
+  };
+
+  const closeRemoteLogin = async () => {
+    const provider = remoteBrowser.provider;
+    setRemoteBrowser(prev => ({ ...prev, open: false, provider: null, image: '', error: '' }));
+    if (provider) {
+      await fetch(remoteEndpoint(provider, 'close'), { method: 'POST' }).catch(() => {});
+    }
+  };
+
+  const finishRemoteLogin = async () => {
+    if (!remoteBrowser.provider) return;
+    setRemoteBrowser(prev => ({ ...prev, loading: true, error: '' }));
+    try {
+      const res = await fetch(remoteEndpoint(remoteBrowser.provider, 'finish'), { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || res.statusText);
+      setSessionStatus(data.sessions || {});
+      setChromeMsg(data.message || '');
+      setChromeStatus(data.ok ? 'hidden' : 'error');
+      setRemoteBrowser(prev => ({ ...prev, open: false, provider: null, loading: false, image: '' }));
+    } catch (e) {
+      setRemoteBrowser(prev => ({ ...prev, loading: false, error: e.message }));
+    }
+  };
+
+  useEffect(() => {
+    if (!remoteBrowser.open || !remoteBrowser.provider) return undefined;
+    let active = true;
+    let busy = false;
+    const poll = async () => {
+      if (busy) return;
+      busy = true;
+      try {
+        const res = await fetch(remoteEndpoint(remoteBrowser.provider, 'screenshot'), { method: 'GET' });
+        const data = await res.json();
+        if (active && res.ok) applyRemoteSnapshot(data);
+      } catch { /* ignore transient screenshot refresh failures */ }
+      busy = false;
+    };
+    const id = setInterval(poll, 1500);
+    return () => {
+      active = false;
+      clearInterval(id);
+    };
+  }, [remoteBrowser.open, remoteBrowser.provider, remoteEndpoint]);
+
+  const getRemotePoint = (e) => {
+    if (!remoteBrowser.image) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const viewport = remoteBrowser.viewport;
+    const imageRatio = viewport.width / viewport.height;
+    const boxRatio = rect.width / rect.height;
+    let imageWidth = rect.width;
+    let imageHeight = rect.height;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    if (boxRatio > imageRatio) {
+      imageWidth = rect.height * imageRatio;
+      offsetX = (rect.width - imageWidth) / 2;
+    } else {
+      imageHeight = rect.width / imageRatio;
+      offsetY = (rect.height - imageHeight) / 2;
+    }
+
+    const localX = e.clientX - rect.left - offsetX;
+    const localY = e.clientY - rect.top - offsetY;
+    if (localX < 0 || localY < 0 || localX > imageWidth || localY > imageHeight) return null;
+
+    return {
+      x: (localX / imageWidth) * viewport.width,
+      y: (localY / imageHeight) * viewport.height,
+    };
+  };
+
+  const handleRemotePointerDown = (e) => {
+    const point = getRemotePoint(e);
+    if (!point) return;
+    e.preventDefault();
+    e.currentTarget.focus();
+    sendRemoteAction({ type: 'click', x: point.x, y: point.y });
+  };
+
+  const handleRemoteDoubleClick = (e) => {
+    const point = getRemotePoint(e);
+    if (!point) return;
+    e.preventDefault();
+    sendRemoteAction({ type: 'dblclick', x: point.x, y: point.y });
+  };
+
+  const handleRemoteWheel = (e) => {
+    e.preventDefault();
+    sendRemoteAction({ type: 'wheel', deltaX: e.deltaX, deltaY: e.deltaY });
+  };
+
+  const handleRemoteKeyDown = (e) => {
+    if (!remoteBrowser.open) return;
+    const special = new Set(['Enter', 'Tab', 'Backspace', 'Delete', 'Escape', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'PageUp', 'PageDown']);
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      const mod = e.metaKey ? 'Meta' : 'Control';
+      sendRemoteAction({ type: 'press', key: `${mod}+${e.key.length === 1 ? e.key.toUpperCase() : e.key}` });
+      return;
+    }
+    if (e.key.length === 1) {
+      e.preventDefault();
+      sendRemoteAction({ type: 'type', text: e.key });
+      return;
+    }
+    if (special.has(e.key)) {
+      e.preventDefault();
+      sendRemoteAction({ type: 'press', key: e.key });
+    }
+  };
+
+  const handleRemotePaste = (e) => {
+    const text = e.clipboardData.getData('text');
+    if (!text) return;
+    e.preventDefault();
+    sendRemoteAction({ type: 'type', text });
+  };
 
   const inputStyle = { width: '100%', padding: '0.65rem 1rem', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '0.875rem', outline: 'none', color: '#334155', boxSizing: 'border-box', background: 'white' };
   const card = { background: 'white', borderRadius: '20px', padding: '1.75rem', border: '1px solid #f1f5f9', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' };
@@ -20,20 +288,53 @@ const SettingsPage = ({ usage = {}, onResetUsage }) => {
     </div>
   );
 
+  const remoteProvider = MODEL_DEFS.find(m => m.key === remoteBrowser.provider);
+
   return (
     <div>
       <div style={{ marginBottom: '2rem' }}>
         <h1 style={{ fontSize: '1.75rem', fontWeight: '800', color: '#0f172a', marginBottom: '0.5rem' }}>⚙️ Settings</h1>
-        <p style={{ color: '#64748b', fontSize: '0.95rem' }}>Manage your profile, preferences, and API usage.</p>
+        <p style={{ color: '#64748b', fontSize: '0.95rem' }}>Manage your profile, model availability, and browser LLM sessions.</p>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+
+        {/* Models */}
+        <div style={{ ...card, gridColumn: '1 / -1' }}>
+          <h3 style={{ fontWeight: '700', color: '#0f172a', marginBottom: '0.4rem', fontSize: '0.95rem' }}>Models</h3>
+          <p style={{ fontSize: '0.82rem', color: '#64748b', marginBottom: '1.25rem', lineHeight: 1.6 }}>
+            Toggle which browser-connected models are available in chat. Changes take effect on the next prompt run.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '1.25rem' }}>
+            {MODEL_DEFS.map(m => (
+              <div key={m.key} style={{
+                border: `1.5px solid ${modelToggles[m.key] ? m.color + '40' : '#e5e7eb'}`,
+                borderRadius: '12px', padding: '12px 16px',
+                background: modelToggles[m.key] ? m.color + '05' : '#fafafa', transition: 'all 0.2s',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: m.color }} />
+                    <span style={{ fontWeight: '600', fontSize: '0.9rem', color: modelToggles[m.key] ? '#1c1c1c' : '#9ca3af' }}>{m.name}</span>
+                  </div>
+                  <Toggle on={modelToggles[m.key]} onClick={() => toggleModelSetting(m.key)} />
+                </div>
+              </div>
+            ))}
+          </div>
+          <button onClick={saveKeys} style={{
+            padding: '0.65rem 1.5rem', border: 'none', borderRadius: '10px', cursor: 'pointer',
+            fontWeight: '700', fontSize: '0.875rem', fontFamily: 'inherit', transition: 'all 0.3s',
+            background: keysSaved ? '#dcfce7' : '#d97757',
+            color: keysSaved ? '#16a34a' : 'white',
+          }}>{keysSaved ? '✓ Saved!' : 'Save Models'}</button>
+        </div>
 
         {/* Profile */}
         <div style={card}>
           <h3 style={{ fontWeight: '700', color: '#0f172a', marginBottom: '1.5rem', fontSize: '0.95rem' }}>👤 Profile</h3>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
-            <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'linear-gradient(135deg, #7c3aed, #2563eb)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: '800', color: 'white', flexShrink: 0 }}>JD</div>
+            <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: 'linear-gradient(135deg, #7c3aed, #2563eb)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', fontWeight: '800', color: 'white', flexShrink: 0 }}>{name ? name.charAt(0).toUpperCase() : 'U'}</div>
             <div>
               <div style={{ fontWeight: '700', color: '#0f172a' }}>{name}</div>
               <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Gemini 1.5 Flash · Active</div>
@@ -54,76 +355,124 @@ const SettingsPage = ({ usage = {}, onResetUsage }) => {
           }}>{saved ? '✓ Saved!' : 'Save Changes'}</button>
         </div>
 
-        {/* Real API Usage */}
-        <div style={card}>
-          <h3 style={{ fontWeight: '700', color: '#0f172a', marginBottom: '1.5rem', fontSize: '0.95rem' }}>🪙 API Usage</h3>
-          <div style={{ textAlign: 'center', padding: '1.25rem', background: 'linear-gradient(135deg, #eff6ff, #f5f3ff)', borderRadius: '16px', marginBottom: '1.5rem' }}>
-            <div style={{ fontSize: '2rem', fontWeight: '800', color: '#059669', letterSpacing: '-0.03em' }}>${totalCost.toFixed(6)}</div>
-            <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.5rem' }}>Total Gemini API cost</div>
-            <div style={{ fontSize: '0.72rem', color: '#64748b' }}>{totalTokens.toLocaleString()} tokens used</div>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', marginBottom: '1rem' }}>
-            {[
-              { label: 'Input tokens',  value: totalInputTokens,  rate: '$0.075 / 1M tokens',  color: '#2563eb' },
-              { label: 'Output tokens', value: totalOutputTokens, rate: '$0.30 / 1M tokens',   color: '#7c3aed' },
-              { label: 'Total tokens',  value: totalTokens,       rate: 'combined',             color: '#0f172a' },
-            ].map(r => (
-              <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px' }}>
-                <div>
-                  <div style={{ fontWeight: '700', fontSize: '0.875rem', color: '#0f172a' }}>{r.label}</div>
-                  <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>{r.rate}</div>
+        {/* Browser Login */}
+        <div style={{ ...card, gridColumn: '1 / -1' }}>
+          <h3 style={{ fontWeight: '700', color: '#0f172a', marginBottom: '0.4rem', fontSize: '0.95rem' }}>Browser LLM Accounts</h3>
+          <p style={{ fontSize: '0.82rem', color: '#64748b', marginBottom: '1.25rem', lineHeight: 1.6 }}>
+            Client ID: <strong>{clientId}</strong>. Each connected account is stored in its own browser profile under this client.
+          </p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.85rem', marginBottom: '1rem' }}>
+            {MODEL_DEFS.map(m => {
+              const session = sessionStatus[m.key] || {};
+              const status = session.status || 'expired';
+              const connected = status === 'connected';
+              return (
+                <div key={m.key} style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px',
+                  padding: '0.85rem 1rem', background: connected ? m.color + '08' : '#f8fafc',
+                  border: `1px solid ${connected ? m.color + '35' : '#e2e8f0'}`, borderRadius: '12px',
+                }}>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, color: '#0f172a', fontSize: '0.88rem' }}>
+                      <span style={{ width: 8, height: 8, borderRadius: '50%', background: m.color, flexShrink: 0 }} />
+                      {m.name}
+                    </div>
+                    <div style={{ marginTop: '4px', fontSize: '0.72rem', color: connected ? '#16a34a' : status === 'error' ? '#dc2626' : '#64748b', fontWeight: 700, textTransform: 'capitalize' }}>
+                      {status}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => openRemoteLogin(m.key)}
+                    disabled={chromeStatus === 'loading'}
+                    style={{
+                      padding: '0.48rem 0.8rem', borderRadius: '9px', border: 'none',
+                      background: connected ? '#ffffff' : m.color,
+                      color: connected ? m.color : '#ffffff',
+                      boxShadow: connected ? 'inset 0 0 0 1px rgba(0,0,0,0.08)' : 'none',
+                      cursor: chromeStatus === 'loading' ? 'not-allowed' : 'pointer',
+                      fontWeight: 700, fontSize: '0.74rem', whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {connected ? 'Reconnect' : 'Connect'}
+                  </button>
                 </div>
-                <span style={{ fontWeight: '800', color: r.color, fontSize: '0.95rem' }}>{r.value.toLocaleString()}</span>
-              </div>
-            ))}
+              );
+            })}
           </div>
-          <div style={{ fontSize: '0.72rem', color: '#94a3b8', textAlign: 'center' }}>
-            Gemini 1.5 Flash pricing · actual API billing
+
+          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+            <button
+              onClick={checkSessions}
+              disabled={chromeStatus === 'loading'}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '8px',
+                padding: '0.65rem 1.25rem', borderRadius: '12px',
+                border: '1px solid #e2e8f0',
+                background: 'white',
+                color: '#374151',
+                cursor: chromeStatus === 'loading' ? 'not-allowed' : 'pointer',
+                fontWeight: '700', fontSize: '0.85rem', opacity: chromeStatus === 'loading' ? 0.5 : 1, transition: 'all 0.2s',
+              }}
+            >
+              {chromeStatus === 'loading' ? '⏳ Checking…' : 'Refresh Status'}
+            </button>
+
+            {chromeMsg && (
+              <span style={{ fontSize: '0.78rem', color: chromeStatus === 'error' ? '#dc2626' : '#16a34a', fontWeight: 500 }}>
+                {chromeStatus === 'error' ? '⚠️ ' : '✓ '}{chromeMsg}
+              </span>
+            )}
           </div>
-        </div>
 
-        {/* Preferences */}
-        <div style={card}>
-          <h3 style={{ fontWeight: '700', color: '#0f172a', marginBottom: '1.5rem', fontSize: '0.95rem' }}>🎨 Preferences</h3>
-          {[
-            { key: 'emailNotif', label: 'Email notification on run complete' },
-            { key: 'autoSave',   label: 'Auto-save results to history' },
-            { key: 'showTokens', label: 'Show token counts on model cards' },
-            { key: 'darkMode',   label: 'Enable dark mode (coming soon)' },
-          ].map(p => (
-            <div key={p.key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.85rem 0', borderBottom: '1px solid #f8fafc' }}>
-              <span style={{ fontSize: '0.875rem', color: '#334155' }}>{p.label}</span>
-              <Toggle on={prefs[p.key]} onClick={() => togglePref(p.key)} />
-            </div>
-          ))}
         </div>
-
-        {/* Danger zone */}
-        <div style={{ ...card, border: '1px solid #fee2e2' }}>
-          <h3 style={{ fontWeight: '700', color: '#dc2626', marginBottom: '1.5rem', fontSize: '0.95rem' }}>⚠️ Danger Zone</h3>
-          {[
-            { label: 'Reset Usage Stats', desc: 'Clear token counts and cost totals', action: 'Reset', fn: () => { if (window.confirm('Reset all usage stats?')) onResetUsage(); } },
-            { label: 'Clear All History', desc: 'Delete all saved prompt results permanently', action: 'Clear', fn: () => {} },
-            { label: 'Delete Account',   desc: 'Permanently remove your account and data', action: 'Delete', danger: true, fn: () => {} },
-          ].map(item => (
-            <div key={item.label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.85rem 0', borderBottom: '1px solid #fff1f2' }}>
-              <div>
-                <div style={{ fontWeight: '600', fontSize: '0.875rem', color: '#0f172a' }}>{item.label}</div>
-                <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '2px' }}>{item.desc}</div>
-              </div>
-              <button onClick={item.fn} style={{
-                padding: '0.45rem 1rem', borderRadius: '8px', cursor: 'pointer', fontWeight: '600', fontSize: '0.75rem',
-                background: item.danger ? '#fee2e2' : '#f8fafc',
-                border: `1px solid ${item.danger ? '#fca5a5' : '#e2e8f0'}`,
-                color: item.danger ? '#dc2626' : '#64748b'
-              }}>{item.action}</button>
-            </div>
-          ))}
-        </div>
-
       </div>
+      {remoteBrowser.open && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(15,23,42,0.62)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.75rem' }}>
+          <div style={{ width: 'min(1500px, 100%)', height: 'min(920px, calc(100vh - 1.5rem))', background: '#ffffff', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.25)', boxShadow: '0 24px 70px rgba(0,0,0,0.35)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem', padding: '0.85rem 1rem', borderBottom: '1px solid #e5e7eb' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
+                <span style={{ width: 9, height: 9, borderRadius: '50%', background: remoteProvider?.color || '#64748b', flexShrink: 0 }} />
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '0.92rem' }}>{remoteProvider?.name || 'Remote Browser'}</div>
+                  <div style={{ fontSize: '0.72rem', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '620px' }}>{remoteBrowser.title || remoteBrowser.url}</div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+                <button onClick={() => sendRemoteAction({ type: 'back' })} style={{ padding: '0.5rem 0.8rem', borderRadius: '8px', border: '1px solid #e2e8f0', background: 'white', color: '#334155', fontWeight: 700, cursor: 'pointer' }}>Back</button>
+                <button onClick={() => sendRemoteAction({ type: 'reload' })} style={{ padding: '0.5rem 0.8rem', borderRadius: '8px', border: '1px solid #e2e8f0', background: 'white', color: '#334155', fontWeight: 700, cursor: 'pointer' }}>Reload</button>
+                <button onClick={refreshRemoteLogin} style={{ padding: '0.5rem 0.8rem', borderRadius: '8px', border: '1px solid #e2e8f0', background: 'white', color: '#334155', fontWeight: 700, cursor: 'pointer' }}>Refresh</button>
+                <button onClick={finishRemoteLogin} disabled={remoteBrowser.loading} style={{ padding: '0.5rem 0.95rem', borderRadius: '8px', border: 'none', background: remoteProvider?.color || '#2563eb', color: 'white', fontWeight: 800, cursor: remoteBrowser.loading ? 'not-allowed' : 'pointer', opacity: remoteBrowser.loading ? 0.7 : 1 }}>Finish</button>
+                <button onClick={closeRemoteLogin} style={{ padding: '0.5rem 0.8rem', borderRadius: '8px', border: '1px solid #e2e8f0', background: '#f8fafc', color: '#334155', fontWeight: 700, cursor: 'pointer' }}>Close</button>
+              </div>
+            </div>
+
+            <div style={{ background: '#111827', padding: '0.75rem', overflow: 'hidden', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+              <div
+                tabIndex={0}
+                onPointerDown={handleRemotePointerDown}
+                onDoubleClick={handleRemoteDoubleClick}
+                onWheel={handleRemoteWheel}
+                onKeyDown={handleRemoteKeyDown}
+                onPaste={handleRemotePaste}
+                style={{ width: '100%', height: '100%', minHeight: 0, background: '#0f172a', outline: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '6px', overflow: 'hidden', cursor: remoteBrowser.image ? 'crosshair' : 'default', touchAction: 'none' }}
+              >
+                {remoteBrowser.image ? (
+                  <img src={remoteBrowser.image} alt="" draggable={false} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', userSelect: 'none', pointerEvents: 'none' }} />
+                ) : (
+                  <div style={{ color: '#cbd5e1', fontWeight: 700 }}>{remoteBrowser.loading ? 'Opening...' : 'No preview'}</div>
+                )}
+              </div>
+              {remoteBrowser.error && (
+                <div style={{ marginTop: '0.75rem', color: '#fecaca', fontSize: '0.82rem', fontWeight: 700 }}>{remoteBrowser.error}</div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default SettingsPage;
+
