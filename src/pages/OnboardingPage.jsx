@@ -100,15 +100,13 @@ const OnboardingPage = ({ onComplete }) => {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || 'Signup failed.');
 
-      if (data.requiresVerification === false && data.client) {
+      if (data.client) {
         applyAuthenticatedClient(data.client);
         setStep(3);
         return;
       }
 
-      if (data.clientId) setClientId(data.clientId);
-      setNotice(`Verification code sent to ${cleanEmail}.`);
-      setStep(2);
+      throw new Error('Signup could not create an account. Please try again.');
     } catch (e) {
       setError(e.message);
     } finally {
@@ -368,28 +366,12 @@ const OnboardingPage = ({ onComplete }) => {
     cursor: 'pointer',
   };
 
-  const OrbLeft = () => (
-    <div style={{
-      width: '42%', minWidth: 300, flexShrink: 0, position: 'relative', overflow: 'hidden',
-      background: 'linear-gradient(135deg, #8ecdd4 0%, #9ac8ce 20%, #a0bfc4 38%, #c8a898 60%, #e8a882 78%, #f0b890 100%)',
-    }}>
-      <div style={{ position: 'absolute', top: '42%', left: '50%', transform: 'translate(-50%, -50%)', width: '90%', height: '70%', background: 'radial-gradient(ellipse at center, rgba(240,160,120,0.55) 0%, rgba(200,130,100,0.3) 45%, transparent 75%)', filter: 'blur(28px)' }} />
-      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '68%', paddingBottom: '68%', borderRadius: '50%', background: `radial-gradient(circle at 38% 36%, rgba(255,255,255,0.92) 0%, rgba(245,185,170,0.85) 14%, rgba(220,148,140,0.78) 28%, rgba(185,155,195,0.7) 42%, rgba(140,175,195,0.65) 58%, rgba(110,175,185,0.6) 72%, rgba(90,160,175,0.55) 86%, rgba(80,145,158,0.5) 100%)`, boxShadow: '0 0 0 1px rgba(255,255,255,0.18), 0 30px 80px rgba(160,110,90,0.35), inset 0 -20px 60px rgba(90,160,175,0.25), inset 0 10px 30px rgba(255,255,255,0.3)' }} />
-      <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-58%, -62%)', width: '28%', paddingBottom: '18%', borderRadius: '50%', background: 'radial-gradient(ellipse, rgba(255,255,255,0.65) 0%, transparent 70%)', filter: 'blur(6px)' }} />
-      <div style={{ position: 'absolute', top: 28, left: 28, display: 'flex', alignItems: 'center', gap: 10, zIndex: 2 }}>
-        <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, #7c3aed, #2563eb)', color: '#fff', display: 'grid', placeItems: 'center', fontWeight: 900, fontSize: '1rem' }}>K</div>
-        <span style={{ color: '#fff', fontWeight: 800, fontSize: '1rem', letterSpacing: '-0.01em', textShadow: '0 1px 6px rgba(0,0,0,0.25)' }}>Kleza TriMind AI</span>
-      </div>
-    </div>
-  );
-
   const StepProgress = () => (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '1.4rem 2.5rem 0' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
       {stepTitles.map((label, index) => {
         const s = index + 1;
         const done = s < step;
         const current = s === step;
-        const upcoming = s > step;
         return (
           <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
@@ -406,24 +388,37 @@ const OnboardingPage = ({ onComplete }) => {
   const SplitShell = ({ eyebrow, title, subtitle, children, actions }) => (
     <MotionDiv
       key={step}
-      initial={{ opacity: 0, x: 24 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -16 }}
+      initial={{ opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -12 }}
       transition={{ duration: 0.26, ease: 'easeOut' }}
-      style={{ position: 'fixed', inset: 0, display: 'flex', fontFamily: 'Inter, system-ui, sans-serif' }}
+      style={{ position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column', background: '#ffffff', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' }}
     >
-      <OrbLeft />
-      <div style={{ flex: 1, background: '#fff', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <StepProgress />
-        <div style={{ flex: 1, overflowY: 'auto', padding: '1.5rem 2.5rem 1rem' }}>
-          {eyebrow && <div style={{ color: '#d97757', fontSize: '0.68rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.09em', marginBottom: 8 }}>{eyebrow}</div>}
-          <h1 style={{ margin: '0 0 0.35rem', fontSize: 'clamp(1.3rem, 2.5vw, 1.75rem)', fontWeight: 700, color: '#0f172a', letterSpacing: '-0.02em' }}>{title}</h1>
-          <p style={{ margin: '0 0 1.4rem', color: '#64748b', fontSize: '0.87rem', lineHeight: 1.6 }}>{subtitle}</p>
-          {children}
+      <div style={{ flexShrink: 0, padding: '2rem clamp(1.25rem, 5vw, 4.5rem) 0' }}>
+        <div style={{ maxWidth: 1180, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <div style={{ width: 44, height: 44, borderRadius: 12, background: 'linear-gradient(135deg, #7c3aed, #2563eb)', color: '#fff', display: 'grid', placeItems: 'center', fontWeight: 900, fontSize: '1.05rem' }}>K</div>
+            <span style={{ color: '#0f172a', fontWeight: 800, fontSize: '1.08rem', letterSpacing: '-0.02em' }}>Kleza TriMind AI</span>
+          </div>
+          <StepProgress />
         </div>
-        <div style={{ flexShrink: 0, padding: '0.85rem 2.5rem 1.4rem', borderTop: '1px solid #f1f5f9' }}>
-          {error && <div style={{ color: '#b91c1c', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '0.6rem 0.8rem', fontSize: '0.79rem', fontWeight: 600, marginBottom: '0.75rem' }}>{error}</div>}
-          {notice && <div style={{ color: '#047857', background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: 8, padding: '0.6rem 0.8rem', fontSize: '0.79rem', fontWeight: 600, marginBottom: '0.75rem' }}>{notice}</div>}
+      </div>
+
+      <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '2.4rem clamp(1.25rem, 5vw, 4.5rem) 1rem' }}>
+        <div style={{ maxWidth: 1180, margin: '0 auto' }}>
+          {eyebrow && <div style={{ color: '#d97757', fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 14 }}>{eyebrow}</div>}
+          <h1 style={{ margin: '0 0 0.75rem', fontSize: 'clamp(2rem, 4vw, 3.25rem)', lineHeight: 1.05, fontWeight: 800, color: '#0f172a', letterSpacing: '-0.04em' }}>{title}</h1>
+          <p style={{ margin: '0 0 2rem', color: '#536987', fontSize: 'clamp(1rem, 1.5vw, 1.18rem)', lineHeight: 1.7, maxWidth: 760 }}>{subtitle}</p>
+          <div style={{ maxWidth: 1080 }}>
+            {children}
+          </div>
+        </div>
+      </div>
+
+      <div style={{ flexShrink: 0, padding: '1rem clamp(1.25rem, 5vw, 4.5rem) 1.6rem', borderTop: '1px solid #eef2f7', background: '#ffffff' }}>
+        <div style={{ maxWidth: 1180, margin: '0 auto' }}>
+          {error && <div style={{ color: '#b91c1c', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 10, padding: '0.72rem 0.9rem', fontSize: '0.86rem', fontWeight: 700, marginBottom: '0.85rem' }}>{error}</div>}
+          {notice && <div style={{ color: '#047857', background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: 10, padding: '0.72rem 0.9rem', fontSize: '0.86rem', fontWeight: 700, marginBottom: '0.85rem' }}>{notice}</div>}
           <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>{actions}</div>
         </div>
       </div>
@@ -682,7 +677,7 @@ const OnboardingPage = ({ onComplete }) => {
           subtitle="One prompt — three models answer in parallel, then Claude synthesises the best response."
           actions={
             <>
-              <button onClick={() => setStep(2)} style={ghostButton}>Back</button>
+              <button onClick={() => setStep(1)} style={ghostButton}>Back</button>
               <button onClick={() => setStep(4)} style={primaryButton}>Next</button>
             </>
           }

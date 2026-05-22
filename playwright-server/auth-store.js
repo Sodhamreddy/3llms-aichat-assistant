@@ -161,14 +161,37 @@ async function signupClientSupabase({ name, email, password, clientId }) {
     },
   });
 
+  let user = created.data?.user;
+
   if (created.error) {
     if (/already|registered|exists/i.test(created.error.message)) {
-      throw new Error('An account already exists for this email. Use Log in instead.');
+      const existingUser = await findSupabaseUserByEmail(cleanEmail);
+      if (!existingUser) throw new Error('An account already exists for this email. Use Log in instead.');
+
+      const existingProfile = await supabaseAdmin
+        .from('profiles')
+        .select('id')
+        .or(`id.eq.${existingUser.id},email.eq.${cleanEmail}`)
+        .maybeSingle();
+      if (existingProfile.error) throw new Error(existingProfile.error.message);
+      if (existingProfile.data) throw new Error('An account already exists for this email. Use Log in instead.');
+
+      const updated = await supabaseAdmin.auth.admin.updateUserById(existingUser.id, {
+        password,
+        email_confirm: true,
+        user_metadata: {
+          ...(existingUser.user_metadata || {}),
+          name: cleanName,
+          client_id: safeClientId,
+        },
+      });
+      if (updated.error) throw new Error(updated.error.message);
+      user = updated.data.user;
+    } else {
+      throw new Error(created.error.message);
     }
-    throw new Error(created.error.message);
   }
 
-  const user = created.data.user;
   if (!user) throw new Error('Supabase did not return a created user.');
 
   const profileResult = await supabaseAdmin
@@ -206,40 +229,9 @@ async function signupClientSupabase({ name, email, password, clientId }) {
 }
 
 async function startSignupSupabase({ name, email, password, clientId }) {
-  const cleanName = String(name || '').trim();
-  const cleanEmail = normalizeEmail(email);
-  if (!cleanName) throw new Error('Display name is required.');
-  if (!isValidEmail(cleanEmail)) throw new Error('A valid email is required.');
-  validatePassword(password);
-
-  const existing = await findSupabaseUserByEmail(cleanEmail);
-  if (existing) {
-    const profileResult = await supabaseAdmin
-      .from('profiles')
-      .select('id')
-      .eq('email', cleanEmail)
-      .maybeSingle();
-    if (profileResult.error) throw new Error(profileResult.error.message);
-    if (profileResult.data) throw new Error('An account already exists for this email. Use Log in instead.');
-  }
-
-  const safeClientId = sanitizeClientId(clientId || createClientId());
-  const otpResult = await supabaseAuth.auth.signInWithOtp({
-    email: cleanEmail,
-    options: {
-      shouldCreateUser: true,
-      data: {
-        name: cleanName,
-        client_id: safeClientId,
-      },
-    },
-  });
-  if (otpResult.error) throw new Error(otpResult.error.message);
-
   return {
-    requiresVerification: true,
-    email: cleanEmail,
-    clientId: safeClientId,
+    requiresVerification: false,
+    client: await signupClientSupabase({ name, email, password, clientId }),
   };
 }
 
