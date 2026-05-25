@@ -11,6 +11,7 @@ import SettingsPage from './pages/SettingsPage';
 import AdminPortal from './pages/AdminPortal';
 import OnboardingPage from './pages/OnboardingPage';
 import LandingPage from './pages/LandingPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import { attachClientId } from './utils/clientIdentity';
 
 function ChatApp() {
@@ -171,8 +172,17 @@ function ChatApp() {
   );
 }
 
+const isPasswordResetRoute = () => {
+  const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+  return window.location.pathname.startsWith('/reset-password')
+    || hashParams.get('type') === 'recovery'
+    || Boolean(hashParams.get('access_token') && hashParams.get('refresh_token'));
+};
+
 function App() {
-  return window.location.pathname.startsWith('/admin') ? <AdminPortal /> : <ChatApp />;
+  if (window.location.pathname.startsWith('/admin')) return <AdminPortal />;
+  if (isPasswordResetRoute()) return <ResetPasswordPage />;
+  return <ChatApp />;
 }
 
 export default App;

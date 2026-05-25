@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const {
+  googleClient,
   loginClient,
   sendPasswordReset,
   signupClient,
@@ -87,6 +88,14 @@ app.post('/auth/signup/verify', async (req, res) => {
 app.post('/auth/login', async (req, res) => {
   try {
     res.json({ ok: true, client: await loginClient(req.body || {}) });
+  } catch (e) {
+    res.status(401).json({ error: e.message });
+  }
+});
+
+app.post('/auth/google', async (req, res) => {
+  try {
+    res.json({ ok: true, client: await googleClient(req.body || {}) });
   } catch (e) {
     res.status(401).json({ error: e.message });
   }

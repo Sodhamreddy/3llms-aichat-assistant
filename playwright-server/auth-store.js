@@ -111,6 +111,23 @@ async function findSupabaseUserByEmail(email) {
   return null;
 }
 
+async function getAvailableSupabaseClientId(preferredClientId, userId) {
+  let candidate = sanitizeClientId(preferredClientId || createClientId());
+
+  for (let attempt = 0; attempt < 10; attempt += 1) {
+    const existing = await supabaseAdmin
+      .from('profiles')
+      .select('id, client_id')
+      .eq('client_id', candidate)
+      .maybeSingle();
+    if (existing.error) throw new Error(existing.error.message);
+    if (!existing.data || existing.data.id === userId) return candidate;
+    candidate = sanitizeClientId(createClientId());
+  }
+
+  throw new Error('Could not allocate a unique browser profile for this account.');
+}
+
 function publicClient(record) {
   if (!record) return null;
   return {
@@ -150,7 +167,7 @@ async function signupClientSupabase({ name, email, password, clientId }) {
   if (!isValidEmail(cleanEmail)) throw new Error('A valid email is required.');
   validatePassword(password);
 
-  const safeClientId = sanitizeClientId(clientId || createClientId());
+  let safeClientId = sanitizeClientId(clientId || createClientId());
   const created = await supabaseAdmin.auth.admin.createUser({
     email: cleanEmail,
     password,
@@ -193,6 +210,7 @@ async function signupClientSupabase({ name, email, password, clientId }) {
   }
 
   if (!user) throw new Error('Supabase did not return a created user.');
+  safeClientId = await getAvailableSupabaseClientId(safeClientId, user.id);
 
   const profileResult = await supabaseAdmin
     .from('profiles')
@@ -255,7 +273,7 @@ async function verifySignupSupabase({ name, email, password, clientId, code }) {
   const session = verifyResult.data.session;
   if (!user) throw new Error('Supabase did not return a verified user.');
 
-  const safeClientId = sanitizeClientId(clientId || user.user_metadata?.client_id || createClientId());
+  const safeClientId = await getAvailableSupabaseClientId(clientId || user.user_metadata?.client_id || createClientId(), user.id);
   const updateResult = await supabaseAdmin.auth.admin.updateUserById(user.id, {
     password,
     email_confirm: true,
@@ -325,7 +343,7 @@ async function loginClientSupabase({ email, password }) {
   if (profileResult.error) throw new Error(profileResult.error.message);
 
   if (!profileResult.data) {
-    const safeClientId = sanitizeClientId(user.user_metadata?.client_id || createClientId());
+    const safeClientId = await getAvailableSupabaseClientId(user.user_metadata?.client_id || createClientId(), user.id);
     profileResult = await supabaseAdmin
       .from('profiles')
       .upsert({
@@ -370,12 +388,110 @@ async function loginClientSupabase({ email, password }) {
   });
 }
 
+async function googleClientSupabase({ accessToken, clientId }) {
+  if (!accessToken) throw new Error('Google sign-in token is required.');
+
+  const googleRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  const googleProfile = await googleRes.json().catch(() => ({}));
+  if (!googleRes.ok) throw new Error(googleProfile.error_description || 'Google sign-in failed.');
+
+  const cleanEmail = normalizeEmail(googleProfile.email);
+  const cleanName = String(googleProfile.name || googleProfile.given_name || cleanEmail.split('@')[0] || '').trim();
+  if (!isValidEmail(cleanEmail)) throw new Error('Google did not return a valid email address.');
+
+  let user = await findSupabaseUserByEmail(cleanEmail);
+  let safeClientId = sanitizeClientId(clientId || user?.user_metadata?.client_id || createClientId());
+
+  if (!user) {
+    const created = await supabaseAdmin.auth.admin.createUser({
+      email: cleanEmail,
+      password: crypto.randomBytes(32).toString('hex'),
+      email_confirm: true,
+      user_metadata: {
+        name: cleanName,
+        client_id: safeClientId,
+        provider: 'google',
+      },
+    });
+    if (created.error) throw new Error(created.error.message);
+    user = created.data.user;
+  } else {
+    safeClientId = sanitizeClientId(user.user_metadata?.client_id || clientId || createClientId());
+    const updated = await supabaseAdmin.auth.admin.updateUserById(user.id, {
+      email_confirm: true,
+      user_metadata: {
+        ...(user.user_metadata || {}),
+        name: cleanName || user.user_metadata?.name || '',
+        client_id: safeClientId,
+        provider: 'google',
+      },
+    });
+    if (updated.error) throw new Error(updated.error.message);
+    user = updated.data.user || user;
+  }
+
+  let profileResult = await supabaseAdmin
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .maybeSingle();
+  if (profileResult.error) throw new Error(profileResult.error.message);
+
+  if (!profileResult.data) {
+    safeClientId = await getAvailableSupabaseClientId(safeClientId, user.id);
+    profileResult = await supabaseAdmin
+      .from('profiles')
+      .upsert({
+        id: user.id,
+        client_id: safeClientId,
+        name: cleanName,
+        email: cleanEmail,
+        onboarding_complete: false,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'id' })
+      .select()
+      .single();
+    if (profileResult.error) throw new Error(profileResult.error.message);
+  }
+
+  let preferencesResult = await supabaseAdmin
+    .from('client_preferences')
+    .select('*')
+    .eq('user_id', user.id)
+    .maybeSingle();
+  if (preferencesResult.error) throw new Error(preferencesResult.error.message);
+
+  if (!preferencesResult.data) {
+    preferencesResult = await supabaseAdmin
+      .from('client_preferences')
+      .upsert({
+        user_id: user.id,
+        mode: DEFAULT_MODE,
+        enabled_models: DEFAULT_MODELS,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'user_id' })
+      .select()
+      .single();
+    if (preferencesResult.error) throw new Error(preferencesResult.error.message);
+  }
+
+  getProfilePath(profileResult.data.client_id);
+  return publicSupabaseClient({
+    user,
+    profile: profileResult.data,
+    preferences: preferencesResult.data,
+  });
+}
+
 async function sendPasswordResetSupabase({ email }) {
   const cleanEmail = normalizeEmail(email);
   if (!isValidEmail(cleanEmail)) throw new Error('A valid email is required.');
+  const appUrl = (process.env.APP_URL || process.env.VITE_APP_URL || 'http://127.0.0.1:5173').replace(/\/+$/, '');
 
   const resetResult = await supabaseAuth.auth.resetPasswordForEmail(cleanEmail, {
-    redirectTo: process.env.APP_URL || process.env.VITE_APP_URL || undefined,
+    redirectTo: `${appUrl}/reset-password`,
   });
   if (resetResult.error) throw new Error(resetResult.error.message);
   return { email: cleanEmail };
@@ -498,6 +614,53 @@ function loginClientLocal({ email, password }) {
   return publicClient(record);
 }
 
+async function googleClientLocal({ accessToken, email, name, clientId }) {
+  let googleEmail = email;
+  let googleName = name;
+  if (accessToken) {
+    const googleRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    const googleProfile = await googleRes.json().catch(() => ({}));
+    if (!googleRes.ok) throw new Error(googleProfile.error_description || 'Google sign-in failed.');
+    googleEmail = googleProfile.email;
+    googleName = googleProfile.name || googleProfile.given_name;
+  }
+
+  const cleanEmail = normalizeEmail(googleEmail);
+  const cleanName = String(googleName || cleanEmail.split('@')[0] || '').trim();
+  if (!isValidEmail(cleanEmail)) throw new Error('A valid Google email is required.');
+
+  const store = readStore();
+  const existingClientId = store.byEmail[cleanEmail];
+  if (existingClientId && store.clients[existingClientId]) return publicClient(store.clients[existingClientId]);
+
+  let safeClientId = sanitizeClientId(clientId || createClientId());
+  if (store.clients[safeClientId]) safeClientId = sanitizeClientId(createClientId());
+
+  const now = new Date().toISOString();
+  const salt = crypto.randomBytes(16).toString('hex');
+  const record = {
+    client_id: safeClientId,
+    name: cleanName,
+    email: cleanEmail,
+    password_salt: salt,
+    password_hash: hashPassword(crypto.randomBytes(32).toString('hex'), salt),
+    auth_provider: 'google',
+    mode: DEFAULT_MODE,
+    enabled_models: DEFAULT_MODELS,
+    onboarding_complete: false,
+    created_at: now,
+    updated_at: now,
+  };
+
+  store.byEmail[cleanEmail] = safeClientId;
+  store.clients[safeClientId] = record;
+  writeStore(store);
+  getProfilePath(safeClientId);
+  return publicClient(record);
+}
+
 function upsertClientPreferencesLocal({ clientId, name, email, mode, enabledModels }) {
   const safeClientId = sanitizeClientId(clientId);
   const cleanEmail = normalizeEmail(email);
@@ -549,6 +712,11 @@ async function loginClient(input) {
   return loginClientLocal(input);
 }
 
+async function googleClient(input) {
+  if (isSupabaseEnabled()) return googleClientSupabase(input);
+  return googleClientLocal(input);
+}
+
 async function upsertClientPreferences(input) {
   if (isSupabaseEnabled()) return upsertClientPreferencesSupabase(input);
   return upsertClientPreferencesLocal(input);
@@ -561,6 +729,7 @@ async function sendPasswordReset(input) {
 
 module.exports = {
   isSupabaseEnabled,
+  googleClient,
   loginClient,
   publicClient,
   sendPasswordReset,

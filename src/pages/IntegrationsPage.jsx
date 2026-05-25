@@ -70,7 +70,7 @@ const IntegrationsPage = () => {
       <div style={{ marginBottom: '2rem' }}>
         <h1 style={{ fontSize: '1.75rem', fontWeight: '800', color: '#0f172a', marginBottom: '0.5rem' }}>🔗 Integrations</h1>
         <p style={{ color: '#64748b', fontSize: '0.95rem' }}>
-          Manage the n8n webhook and provider API keys used by Kleza TriMind AI.
+          Manage the n8n webhook and provider API keys used by Kleza Excelliq AI.
         </p>
       </div>
 

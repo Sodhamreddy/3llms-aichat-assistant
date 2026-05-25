@@ -97,7 +97,10 @@ const Sidebar = ({ activePage, onPageChange, onNewChat, onCollapse, history = []
     setProfileOpen(false);
     if (action === 'settings') onPageChange('settings');
     if (action === 'help')     window.open('mailto:support@kleza.io', '_blank');
-    if (action === 'logout')   { localStorage.clear(); window.location.reload(); }
+    if (action === 'logout') {
+      localStorage.removeItem('ph_user');
+      window.location.reload();
+    }
   };
 
   return (
@@ -119,7 +122,7 @@ const Sidebar = ({ activePage, onPageChange, onNewChat, onCollapse, history = []
             fontSize: '0.7rem', fontWeight: '800', color: 'white', flexShrink: 0,
           }}>K</div>
           <span style={{ fontSize: '0.9rem', fontWeight: '600', color: '#1c1c1c', letterSpacing: '-0.02em' }}>
-            Kleza TriMind AI
+            Kleza Excelliq AI
           </span>
         </div>
         <button

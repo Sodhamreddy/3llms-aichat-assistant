@@ -705,6 +705,14 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete }) => {
     });
   };
 
+  const getConnectedBrowserModels = async (clientId, requestedModels) => {
+    const res = await fetch(`${PLAYWRIGHT_SERVER}/client/${encodeURIComponent(clientId)}/sessions`);
+    if (!res.ok) return requestedModels;
+    const data = await res.json().catch(() => ({}));
+    const sessions = data.sessions || {};
+    return requestedModels.filter(key => sessions[key]?.status === 'connected');
+  };
+
   const handleStop = () => {
     if (abortControllerRef.current) abortControllerRef.current.abort();
     setStatus('idle');
@@ -725,10 +733,19 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete }) => {
     const t0 = Date.now();
 
     try {
+      const clientId = ensureClientId();
+      const activeModels = await getConnectedBrowserModels(clientId, selectedModels);
+      if (!activeModels.length) {
+        throw new Error('No connected browser LLM accounts found. Open Settings and connect at least one model.');
+      }
+      if (activeModels.length !== selectedModels.length) {
+        setSelectedModels(activeModels);
+      }
+
       const res = await fetch(PLAYWRIGHT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ clientId: ensureClientId(), prompt, selectedModels, deepResearch }),
+        body: JSON.stringify({ clientId, prompt, selectedModels: activeModels, deepResearch }),
         signal: abortControllerRef.current?.signal,
       });
 
@@ -773,15 +790,15 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete }) => {
       // cRaw = Claude's direct answer (for the card); cR = synthesis (for the bubble)
       const claudeCardText = cRaw || cR || 'No response.';
       const newStats = {
-        openai: selectedModels.includes('openai') ? buildStats('openai', oR) : { tokens: null, cost: null, isEstimate: false },
-        claude: buildStats('claude', claudeCardText),
-        gemini: selectedModels.includes('gemini') ? buildStats('gemini', gR) : { tokens: null, cost: null, isEstimate: false },
+        openai: activeModels.includes('openai') ? buildStats('openai', oR) : { tokens: null, cost: null, isEstimate: false },
+        claude: activeModels.includes('claude') ? buildStats('claude', claudeCardText) : { tokens: null, cost: null, isEstimate: false },
+        gemini: activeModels.includes('gemini') ? buildStats('gemini', gR) : { tokens: null, cost: null, isEstimate: false },
       };
 
       setContent(prev => ({
-        openai: selectedModels.includes('openai') ? (oR || prev.openai || 'No response.') : '',
-        claude: claudeCardText,
-        gemini: selectedModels.includes('gemini')
+        openai: activeModels.includes('openai') ? (oR || prev.openai || 'No response.') : '',
+        claude: activeModels.includes('claude') ? claudeCardText : '',
+        gemini: activeModels.includes('gemini')
           ? (isNoResponseText(gR) ? (prev.gemini || gR || 'No response.') : gR)
           : '',
       }));
@@ -792,7 +809,7 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete }) => {
       const totalTokens = (newStats.openai.tokens || 0) + (newStats.claude.tokens || 0) + (newStats.gemini.tokens || 0);
       const totalCost   = (newStats.openai.cost || 0) + (newStats.claude.cost || 0) + (newStats.gemini.cost || 0);
       if (onRunComplete) historyIdRef.current = onRunComplete({
-        prompt, openai: selectedModels.includes('openai') ? oR : '', claude: cR, stage1Claude: claudeCardText, gemini: selectedModels.includes('gemini') ? gR : '',
+        prompt, openai: activeModels.includes('openai') ? oR : '', claude: activeModels.includes('claude') ? cR : '', stage1Claude: activeModels.includes('claude') ? claudeCardText : '', gemini: activeModels.includes('gemini') ? gR : '',
         tokenData: { totalTokens, runCost: totalCost, isEstimate: true },
         elapsed: el || ((Date.now() - t0) / 1000).toFixed(2),
       });

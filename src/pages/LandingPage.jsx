@@ -72,7 +72,7 @@ const HeroMockup = () => {
         {/* Top bar */}
         <div style={{ background: '#f9f8f7', borderBottom: '1px solid #ede9e4', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '6px' }}>
           {['#ff5f57','#febc2e','#28c840'].map(c => <div key={c} style={{ width: 10, height: 10, borderRadius: '50%', background: c }} />)}
-          <div style={{ flex: 1, margin: '0 12px', background: '#ede9e4', borderRadius: '6px', padding: '3px 10px', fontSize: '0.68rem', color: '#9ca3af', textAlign: 'center' }}>kleza-trimind-ai</div>
+          <div style={{ flex: 1, margin: '0 12px', background: '#ede9e4', borderRadius: '6px', padding: '3px 10px', fontSize: '0.68rem', color: '#9ca3af', textAlign: 'center' }}>kleza-excelliq-ai</div>
         </div>
 
         <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px', background: '#f5f4f0' }}>
@@ -171,7 +171,7 @@ const LandingPage = ({ onGetStarted }) => {
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '9px' }}>
           <div style={{ width: 30, height: 30, borderRadius: '8px', background: 'linear-gradient(135deg, #7c3aed, #2563eb)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 800, color: 'white' }}>K</div>
-          <span style={{ fontWeight: 700, fontSize: '0.95rem', color: C.dark, letterSpacing: '-0.02em' }}>Kleza TriMind AI</span>
+          <span style={{ fontWeight: 700, fontSize: '0.95rem', color: C.dark, letterSpacing: '-0.02em' }}>Kleza Excelliq AI</span>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
@@ -238,7 +238,7 @@ const LandingPage = ({ onGetStarted }) => {
                 <div key={i} style={{ width: 24, height: 24, borderRadius: '50%', background: c, border: '2px solid white', marginLeft: i ? -8 : 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.55rem', color: 'white', fontWeight: 700 }}>K</div>
               ))}
             </div>
-            <span>Join teams using Kleza TriMind AI for research & decisions</span>
+            <span>Join teams using Kleza Excelliq AI for research & decisions</span>
           </motion.div>
         </div>
 
@@ -397,7 +397,7 @@ const LandingPage = ({ onGetStarted }) => {
       <footer style={{ borderTop: '1px solid rgba(0,0,0,0.07)', padding: '2rem 2.5rem', maxWidth: '1100px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div style={{ width: 24, height: 24, borderRadius: '6px', background: 'linear-gradient(135deg, #7c3aed, #2563eb)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 800, color: 'white' }}>K</div>
-          <span style={{ fontWeight: 600, fontSize: '0.85rem', color: C.dark }}>Kleza TriMind AI</span>
+          <span style={{ fontWeight: 600, fontSize: '0.85rem', color: C.dark }}>Kleza Excelliq AI</span>
         </div>
         <div style={{ fontSize: '0.75rem', color: C.muted }}>© 2026 Kleza Solutions. All rights reserved.</div>
         <div style={{ display: 'flex', gap: '1.25rem' }}>

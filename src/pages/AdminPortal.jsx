@@ -50,7 +50,7 @@ const Metric = ({ label, value, note, color }) => (
 const AdminPortal = () => {
   const [email, setEmail] = useState('navadeepu24@gmail.com');
   const [password, setPassword] = useState('');
-  const [token, setToken] = useState(() => localStorage.getItem('trimind_admin_token') || '');
+  const [token, setToken] = useState(() => localStorage.getItem('excelliq_admin_token') || '');
   const [data, setData] = useState(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -69,7 +69,7 @@ const AdminPortal = () => {
     } catch (e) {
       setError(e.message);
       if (/invalid|expired|log in/i.test(e.message)) {
-        localStorage.removeItem('trimind_admin_token');
+        localStorage.removeItem('excelliq_admin_token');
         setToken('');
       }
     } finally {
@@ -95,7 +95,7 @@ const AdminPortal = () => {
       });
       const payload = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(payload.error || 'Admin login failed.');
-      localStorage.setItem('trimind_admin_token', payload.token);
+      localStorage.setItem('excelliq_admin_token', payload.token);
       setToken(payload.token);
       setPassword('');
       await loadAnalytics(payload.token);
@@ -107,7 +107,7 @@ const AdminPortal = () => {
   };
 
   const logout = () => {
-    localStorage.removeItem('trimind_admin_token');
+    localStorage.removeItem('excelliq_admin_token');
     setToken('');
     setData(null);
   };
@@ -120,7 +120,7 @@ const AdminPortal = () => {
             <div>
               <div style={{ width: 42, height: 42, borderRadius: 12, background: 'linear-gradient(135deg, #7c3aed, #2563eb)', display: 'grid', placeItems: 'center', fontWeight: 900, marginBottom: '1.4rem' }}>K</div>
               <div style={{ color: '#fed7aa', fontSize: '0.74rem', fontWeight: 900, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Admin portal</div>
-              <h1 style={{ fontSize: '2rem', lineHeight: 1.1, margin: '0.7rem 0 0' }}>Kleza TriMind AI operations</h1>
+              <h1 style={{ fontSize: '2rem', lineHeight: 1.1, margin: '0.7rem 0 0' }}>Kleza Excelliq AI operations</h1>
               <p style={{ color: '#cbd5e1', lineHeight: 1.6, marginTop: '1rem' }}>
                 A separate admin page for user analytics, account setup state, and browser LLM session health.
               </p>

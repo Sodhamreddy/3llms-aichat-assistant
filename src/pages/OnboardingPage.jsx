@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useGoogleLogin } from '@react-oauth/google';
 import { PLAYWRIGHT_SERVER } from '../config/api';
 import { attachClientId, ensureClientId, saveStoredUser } from '../utils/clientIdentity';
 
@@ -66,6 +67,37 @@ const OnboardingPage = ({ onComplete }) => {
     saveStoredUser(saved);
     return saved;
   };
+
+  const completeGoogleAuth = async (tokenResponse) => {
+    setError('');
+    setNotice('');
+    setBusy(true);
+    try {
+      const res = await fetch(`${PLAYWRIGHT_SERVER}/auth/google`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ accessToken: tokenResponse.access_token, clientId }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Google sign-in failed.');
+      const saved = applyAuthenticatedClient(data.client);
+      if (saved.onboardingComplete) {
+        onComplete({ ...saved, onboardingComplete: true });
+        return;
+      }
+      setStep(3);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const googleLogin = useGoogleLogin({
+    onSuccess: completeGoogleAuth,
+    onError: () => setError('Google sign-in was cancelled or failed.'),
+    scope: 'openid email profile',
+  });
 
   const submitAuth = async () => {
     setError('');
@@ -398,7 +430,7 @@ const OnboardingPage = ({ onComplete }) => {
         <div style={{ maxWidth: 1180, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{ width: 44, height: 44, borderRadius: 12, background: 'linear-gradient(135deg, #7c3aed, #2563eb)', color: '#fff', display: 'grid', placeItems: 'center', fontWeight: 900, fontSize: '1.05rem' }}>K</div>
-            <span style={{ color: '#0f172a', fontWeight: 800, fontSize: '1.08rem', letterSpacing: '-0.02em' }}>Kleza TriMind AI</span>
+            <span style={{ color: '#0f172a', fontWeight: 800, fontSize: '1.08rem', letterSpacing: '-0.02em' }}>Kleza Excelliq AI</span>
           </div>
           <StepProgress />
         </div>
@@ -494,7 +526,7 @@ const OnboardingPage = ({ onComplete }) => {
             {/* Logo top-left */}
             <div style={{ position: 'absolute', top: 28, left: 28, display: 'flex', alignItems: 'center', gap: 10, zIndex: 2 }}>
               <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg, #7c3aed, #2563eb)', color: '#fff', display: 'grid', placeItems: 'center', fontWeight: 900, fontSize: '1rem' }}>K</div>
-              <span style={{ color: '#fff', fontWeight: 800, fontSize: '1rem', letterSpacing: '-0.01em', textShadow: '0 1px 6px rgba(0,0,0,0.25)' }}>Kleza TriMind AI</span>
+              <span style={{ color: '#fff', fontWeight: 800, fontSize: '1rem', letterSpacing: '-0.01em', textShadow: '0 1px 6px rgba(0,0,0,0.25)' }}>Kleza Excelliq AI</span>
             </div>
           </div>
 
@@ -510,8 +542,43 @@ const OnboardingPage = ({ onComplete }) => {
                 {isLogin ? 'Log in' : 'Sign up'}
               </h1>
               <p style={{ margin: '0 0 1.75rem', color: '#64748b', fontSize: '0.88rem', lineHeight: 1.55 }}>
-                {isLogin ? 'Welcome back. Log in to your Kleza TriMind account.' : 'Sign up for free to access to any of our products'}
+                {isLogin ? 'Welcome back. Log in to your Kleza Excelliq account.' : 'Sign up for free to access to any of our products'}
               </p>
+
+              <button
+                type="button"
+                onClick={() => googleLogin()}
+                disabled={busy}
+                style={{
+                  width: '100%',
+                  border: '1.5px solid #e5e7eb',
+                  borderRadius: 8,
+                  background: '#ffffff',
+                  color: '#0f172a',
+                  padding: '0.72rem 0.9rem',
+                  fontWeight: 700,
+                  fontSize: '0.88rem',
+                  fontFamily: 'inherit',
+                  cursor: busy ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 10,
+                  marginBottom: '1rem',
+                  boxShadow: '0 1px 2px rgba(15, 23, 42, 0.04)',
+                }}
+              >
+                <span style={{ width: 20, height: 20, borderRadius: '50%', display: 'grid', placeItems: 'center', fontWeight: 900, fontSize: '0.95rem', color: '#4285f4', background: '#ffffff' }}>G</span>
+                {isLogin ? 'Log in with Google' : 'Sign up with Google'}
+              </button>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: '1rem' }}>
+                <div style={{ height: 1, background: '#e5e7eb', flex: 1 }} />
+                <span style={{ color: '#94a3b8', fontSize: '0.76rem', fontWeight: 700 }}>
+                  {isLogin ? 'or log in with email' : 'or sign up with email'}
+                </span>
+                <div style={{ height: 1, background: '#e5e7eb', flex: 1 }} />
+              </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 {/* Display name — signup only */}
@@ -665,7 +732,7 @@ const OnboardingPage = ({ onComplete }) => {
 
     if (step === 3) {
       const cards = [
-        { num: 1, title: 'Ask once', body: 'Write one prompt in TriMind AI.' },
+        { num: 1, title: 'Ask once', body: 'Write one prompt in Excelliq AI.' },
         { num: 2, title: 'Run providers', body: 'Selected models answer simultaneously from saved accounts or keys.' },
         { num: 3, title: 'Compare', body: 'Each model result stays visible side by side for easy comparison.' },
         { num: 4, title: 'Synthesize', body: 'Claude prepares one final, consolidated answer from all results.' },

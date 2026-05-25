@@ -556,7 +556,14 @@ async function validateProviderSession(context, clientId, provider) {
 async function validateClientSessions(context, clientId, selectedModels = Object.keys(PROVIDERS)) {
   const selected = selectedModels && selectedModels.length ? selectedModels : Object.keys(PROVIDERS);
   const providers = [...new Set(selected.map(normalizeProvider).filter(Boolean))];
-  const results = await Promise.all(providers.map(provider => validateProviderSession(context, clientId, provider)));
+  const safeClientId = sanitizeClientId(clientId);
+  const saved = readSessionStore()[safeClientId] || {};
+  const trusted = providers
+    .filter(provider => saved[provider]?.status === 'connected')
+    .map(provider => saved[provider]);
+  const needsValidation = providers.filter(provider => saved[provider]?.status !== 'connected');
+  const checked = await Promise.all(needsValidation.map(provider => validateProviderSession(context, safeClientId, provider)));
+  const results = [...trusted, ...checked];
   const unavailable = results.filter(item => item.status !== 'connected');
 
   if (unavailable.length) {
