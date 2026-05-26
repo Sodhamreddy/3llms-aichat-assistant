@@ -3,11 +3,17 @@
   "version": "1.0.0",
   "description": "Playwright server to automate ChatGPT, Claude, and Gemini",
   "main": "server.js",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "start": "node server.js",
-    "login": "node login.js"
+    "login": "node login.js",
+    "install:browser": "playwright install chromium",
+    "install:browser:with-deps": "playwright install --with-deps chromium"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.106.2",
     "cors": "^2.8.5",
     "express": "^4.18.2",
     "playwright": "^1.44.0"

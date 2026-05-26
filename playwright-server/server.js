@@ -30,8 +30,20 @@ const {
 } = require('./session-manager');
 
 const app = express();
-app.use(cors());
-app.use(express.json());
+const allowedOrigins = String(process.env.ALLOWED_ORIGINS || process.env.APP_URL || '')
+  .split(',')
+  .map(origin => origin.trim().replace(/\/+$/, ''))
+  .filter(Boolean);
+
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.length === 0) return callback(null, true);
+    const normalizedOrigin = origin.replace(/\/+$/, '');
+    if (allowedOrigins.includes(normalizedOrigin)) return callback(null, true);
+    return callback(new Error(`CORS blocked origin: ${origin}`));
+  },
+}));
+app.use(express.json({ limit: '1mb' }));
 
 const runningClients = new Set();
 

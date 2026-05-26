@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGoogleLogin } from '@react-oauth/google';
-import { PLAYWRIGHT_SERVER } from '../config/api';
+import { PLAYWRIGHT_SERVER, REMOTE_LOGIN_MODE } from '../config/api';
 import { attachClientId, ensureClientId, saveStoredUser } from '../utils/clientIdentity';
 
 const MODEL_DEFS = [
@@ -45,7 +45,17 @@ const OnboardingPage = ({ onComplete }) => {
     error: '',
     viewport: { width: 1280, height: 800 },
   });
+  const [nativeLogin, setNativeLogin] = useState({
+    open: false,
+    provider: null,
+    loading: false,
+    error: '',
+    message: '',
+  });
   const remoteActionQueueRef = useRef(Promise.resolve());
+  const remoteActionInFlightRef = useRef(false);
+  const remoteTypingBufferRef = useRef('');
+  const remoteTypingTimerRef = useRef(null);
 
   const enabledModels = Object.keys(models).filter(key => models[key].enabled);
   const remoteProvider = MODEL_DEFS.find(model => model.key === remoteBrowser.provider);
@@ -220,6 +230,42 @@ const OnboardingPage = ({ onComplete }) => {
     }));
   };
 
+  const openNativeLogin = async (provider) => {
+    const model = MODEL_DEFS.find(item => item.key === provider);
+    setNativeLogin({
+      open: true,
+      provider,
+      loading: true,
+      error: '',
+      message: `Opening real Chrome for ${model?.name || 'this provider'}...`,
+    });
+    try {
+      const res = await fetch(`${PLAYWRIGHT_SERVER}/client/${encodeURIComponent(clientId)}/show-chrome`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || res.statusText);
+      setNativeLogin(prev => ({
+        ...prev,
+        loading: false,
+        error: '',
+        message: `${model?.name || 'Provider'} opened in a real Chrome window. Log in there, then click Finish here.`,
+      }));
+    } catch (e) {
+      setNativeLogin(prev => ({ ...prev, loading: false, error: e.message, message: '' }));
+    }
+  };
+
+  const openPreferredLogin = (provider) => {
+    if (REMOTE_LOGIN_MODE === 'native') {
+      openNativeLogin(provider);
+      return;
+    }
+    openRemoteLogin(provider);
+  };
+
   const openRemoteLogin = async (provider) => {
     const model = MODEL_DEFS.find(item => item.key === provider);
     setRemoteBrowser(prev => ({ ...prev, open: true, provider, loading: true, image: '', title: model?.name || '', url: '', error: '' }));
@@ -247,23 +293,78 @@ const OnboardingPage = ({ onComplete }) => {
 
   const sendRemoteAction = async (action) => {
     const provider = remoteBrowser.provider;
-    if (!provider || remoteBrowser.loading) return;
+    if (!provider || remoteBrowser.loading) return Promise.resolve();
     remoteActionQueueRef.current = remoteActionQueueRef.current.then(async () => {
-      const res = await fetch(remoteEndpoint(provider, 'action'), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(action),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || res.statusText);
-      applyRemoteSnapshot(data);
-    }).catch(e => setRemoteBrowser(prev => ({ ...prev, error: e.message })));
+      remoteActionInFlightRef.current = true;
+      try {
+        const res = await fetch(remoteEndpoint(provider, 'action'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(action),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || res.statusText);
+        applyRemoteSnapshot(data);
+      } finally {
+        remoteActionInFlightRef.current = false;
+      }
+    }).catch(e => {
+      remoteActionInFlightRef.current = false;
+      setRemoteBrowser(prev => ({ ...prev, error: e.message }));
+    });
+    return remoteActionQueueRef.current;
+  };
+
+  const flushRemoteTyping = () => {
+    if (remoteTypingTimerRef.current) {
+      clearTimeout(remoteTypingTimerRef.current);
+      remoteTypingTimerRef.current = null;
+    }
+    const text = remoteTypingBufferRef.current;
+    remoteTypingBufferRef.current = '';
+    return text ? sendRemoteAction({ type: 'type', text }) : Promise.resolve();
+  };
+
+  const queueRemoteTyping = (text) => {
+    if (!text) return;
+    remoteTypingBufferRef.current += text;
+    if (remoteTypingTimerRef.current) clearTimeout(remoteTypingTimerRef.current);
+    remoteTypingTimerRef.current = setTimeout(() => {
+      flushRemoteTyping();
+    }, 70);
   };
 
   const closeRemoteLogin = async () => {
     const provider = remoteBrowser.provider;
+    if (remoteTypingTimerRef.current) clearTimeout(remoteTypingTimerRef.current);
+    remoteTypingTimerRef.current = null;
+    remoteTypingBufferRef.current = '';
     setRemoteBrowser(prev => ({ ...prev, open: false, provider: null, image: '', error: '' }));
     if (provider) await fetch(remoteEndpoint(provider, 'close'), { method: 'POST' }).catch(() => {});
+  };
+
+  const closeNativeLogin = async () => {
+    const provider = nativeLogin.provider;
+    setNativeLogin({ open: false, provider: null, loading: false, error: '', message: '' });
+    if (provider) {
+      await fetch(`${PLAYWRIGHT_SERVER}/client/${encodeURIComponent(clientId)}/hide-chrome`, { method: 'POST' }).catch(() => {});
+    }
+  };
+
+  const finishNativeLogin = async () => {
+    const provider = nativeLogin.provider;
+    if (!provider) return;
+    setNativeLogin(prev => ({ ...prev, loading: true, error: '', message: 'Checking the login session...' }));
+    try {
+      const res = await fetch(remoteEndpoint(provider, 'finish'), { method: 'POST' });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || res.statusText);
+      if (!data.ok) throw new Error(data.message || 'Login was not detected yet. Keep the Chrome window open and finish the login.');
+      setBrowserAuth(prev => ({ ...prev, [provider]: true }));
+      setNativeLogin({ open: false, provider: null, loading: false, error: '', message: '' });
+    } catch (e) {
+      setNativeLogin(prev => ({ ...prev, loading: false, error: e.message, message: '' }));
+    }
   };
 
   const finishRemoteLogin = async () => {
@@ -287,7 +388,7 @@ const OnboardingPage = ({ onComplete }) => {
     let active = true;
     let busyPoll = false;
     const poll = async () => {
-      if (busyPoll) return;
+      if (busyPoll || remoteActionInFlightRef.current) return;
       busyPoll = true;
       try {
         const res = await fetch(remoteEndpoint(remoteBrowser.provider, 'screenshot'));
@@ -298,7 +399,7 @@ const OnboardingPage = ({ onComplete }) => {
       }
       busyPoll = false;
     };
-    const id = setInterval(poll, 1500);
+    const id = setInterval(poll, 900);
     return () => {
       active = false;
       clearInterval(id);
@@ -812,7 +913,7 @@ const OnboardingPage = ({ onComplete }) => {
         <SplitShell
           eyebrow={mode === 'browser' ? 'Connect accounts' : 'API keys'}
           title={mode === 'browser' ? 'Connect your LLM accounts' : 'Add your provider keys'}
-          subtitle={mode === 'browser' ? 'Click Connect to open a secure login window for each model. Click Finish after signing in.' : 'Paste your API keys below. Keys are stored locally and sent with every request.'}
+          subtitle={mode === 'browser' ? 'Click Connect to open the real Chrome profile for each model. Log in normally, then click Finish.' : 'Paste your API keys below. Keys are stored locally and sent with every request.'}
           actions={
             <>
               <button onClick={() => setStep(4)} style={ghostButton}>Back</button>
@@ -838,7 +939,7 @@ const OnboardingPage = ({ onComplete }) => {
                       <span style={{ display: 'block', width: 18, height: 18, borderRadius: '50%', background: '#fff', transform: state.enabled ? 'translateX(18px)' : 'translateX(0)', transition: 'transform 0.18s' }} />
                     </button>
                     {mode === 'browser' ? (
-                      <button onClick={() => openRemoteLogin(model.key)} disabled={!state.enabled}
+                      <button onClick={() => openPreferredLogin(model.key)} disabled={!state.enabled}
                         style={{ border: `1.5px solid ${connected ? '#16a34a' : model.color}`, borderRadius: 8, background: connected ? '#ecfdf5' : `${model.color}`, color: connected ? '#047857' : '#fff', padding: '0.4rem 0.9rem', fontWeight: 700, fontSize: '0.78rem', cursor: state.enabled ? 'pointer' : 'not-allowed', opacity: state.enabled ? 1 : 0.45, whiteSpace: 'nowrap', fontFamily: 'inherit' }}>
                         {connected ? '✓ Connected' : `Connect`}
                       </button>
@@ -914,6 +1015,52 @@ const OnboardingPage = ({ onComplete }) => {
     <div style={{ minHeight: '100vh', background: '#f5f4f0', fontFamily: 'Inter, system-ui, sans-serif', overflow: 'hidden' }}>
       <AnimatePresence mode="wait">{renderStep()}</AnimatePresence>
 
+      {nativeLogin.open && (
+        <div style={{ position: 'fixed', inset: 0, zIndex: 320, background: 'rgba(15,23,42,0.58)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
+          <div style={{ width: 'min(520px, 100%)', background: '#fff', borderRadius: 18, padding: '1.35rem', boxShadow: '0 24px 70px rgba(15,23,42,0.26)', border: '1px solid #e5e7eb' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.8rem', marginBottom: '0.85rem' }}>
+              <span style={{ width: 10, height: 10, borderRadius: '50%', background: MODEL_DEFS.find(model => model.key === nativeLogin.provider)?.color || '#64748b' }} />
+              <div>
+                <h3 style={{ margin: 0, fontSize: '1rem', color: '#0f172a' }}>Login in real Chrome</h3>
+                <p style={{ margin: '0.2rem 0 0', color: '#64748b', fontSize: '0.82rem', lineHeight: 1.55 }}>
+                  Use the Chrome window that just opened. It uses your saved Excelliq browser profile.
+                </p>
+              </div>
+            </div>
+
+            <div style={{ borderRadius: 14, background: '#f8fafc', border: '1px solid #e2e8f0', padding: '0.95rem', color: '#334155', fontSize: '0.86rem', lineHeight: 1.6, marginBottom: '1rem' }}>
+              <div style={{ fontWeight: 800, color: '#0f172a', marginBottom: '0.35rem' }}>What to do</div>
+              <div>1. Complete the login in the real Chrome window.</div>
+              <div>2. Return here after the provider shows your signed-in account.</div>
+              <div>3. Click Finish so Excelliq can save the session status.</div>
+            </div>
+
+            {nativeLogin.message && <div style={{ color: '#047857', fontWeight: 700, fontSize: '0.82rem', marginBottom: '0.85rem' }}>{nativeLogin.message}</div>}
+            {nativeLogin.error && <div style={{ color: '#dc2626', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 10, padding: '0.75rem', fontWeight: 700, fontSize: '0.82rem', marginBottom: '0.85rem' }}>{nativeLogin.error}</div>}
+
+            <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => {
+                  const provider = nativeLogin.provider;
+                  setNativeLogin({ open: false, provider: null, loading: false, error: '', message: '' });
+                  openRemoteLogin(provider);
+                }}
+                disabled={nativeLogin.loading}
+                style={{ ...ghostButton, padding: '0.65rem 0.9rem' }}
+              >
+                Use in-app preview
+              </button>
+              <button onClick={closeNativeLogin} disabled={nativeLogin.loading} style={{ ...ghostButton, padding: '0.65rem 0.9rem', cursor: nativeLogin.loading ? 'not-allowed' : 'pointer' }}>
+                Hide Chrome
+              </button>
+              <button onClick={finishNativeLogin} disabled={nativeLogin.loading} style={{ ...primaryButton, width: 'auto', padding: '0.65rem 1rem', opacity: nativeLogin.loading ? 0.65 : 1 }}>
+                {nativeLogin.loading ? 'Please wait...' : 'Finish'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {remoteBrowser.open && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(15,23,42,0.66)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.75rem' }}>
           <div style={{ width: 'min(1500px, 100%)', height: 'min(920px, calc(100vh - 1.5rem))', background: '#ffffff', borderRadius: 12, overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: '0 24px 70px rgba(0,0,0,0.35)' }}>
@@ -945,16 +1092,19 @@ const OnboardingPage = ({ onComplete }) => {
                   if (!point) return;
                   e.preventDefault();
                   e.currentTarget.focus();
+                  flushRemoteTyping();
                   sendRemoteAction({ type: 'click', x: point.x, y: point.y });
                 }}
                 onDoubleClick={e => {
                   const point = getRemotePoint(e);
                   if (!point) return;
                   e.preventDefault();
+                  flushRemoteTyping();
                   sendRemoteAction({ type: 'dblclick', x: point.x, y: point.y });
                 }}
                 onWheel={e => {
                   e.preventDefault();
+                  flushRemoteTyping();
                   sendRemoteAction({ type: 'wheel', deltaX: e.deltaX, deltaY: e.deltaY });
                 }}
                 onKeyDown={e => {
@@ -962,12 +1112,14 @@ const OnboardingPage = ({ onComplete }) => {
                   if (e.ctrlKey || e.metaKey) {
                     e.preventDefault();
                     const mod = e.metaKey ? 'Meta' : 'Control';
+                    flushRemoteTyping();
                     sendRemoteAction({ type: 'press', key: `${mod}+${e.key.length === 1 ? e.key.toUpperCase() : e.key}` });
                   } else if (e.key.length === 1) {
                     e.preventDefault();
-                    sendRemoteAction({ type: 'type', text: e.key });
+                    queueRemoteTyping(e.key);
                   } else if (special.has(e.key)) {
                     e.preventDefault();
+                    flushRemoteTyping();
                     sendRemoteAction({ type: 'press', key: e.key });
                   }
                 }}
@@ -975,9 +1127,10 @@ const OnboardingPage = ({ onComplete }) => {
                   const text = e.clipboardData.getData('text');
                   if (!text) return;
                   e.preventDefault();
-                  sendRemoteAction({ type: 'type', text });
+                  queueRemoteTyping(text);
+                  flushRemoteTyping();
                 }}
-                style={{ width: '100%', height: '100%', minHeight: 0, background: '#0f172a', outline: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 6, overflow: 'hidden', cursor: remoteBrowser.image ? 'crosshair' : 'default', touchAction: 'none' }}
+                style={{ width: '100%', height: '100%', minHeight: 0, background: '#0f172a', outline: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 6, overflow: 'hidden', cursor: 'default', touchAction: 'none' }}
               >
                 {remoteBrowser.image
                   ? <img src={remoteBrowser.image} alt="" draggable={false} style={{ width: '100%', height: '100%', objectFit: 'contain', userSelect: 'none', pointerEvents: 'none' }} />

@@ -81,10 +81,29 @@ const PROVIDER_ALIASES = {
 const activeContexts = new Map();
 const launchLocks = new Map();
 const remoteLoginPages = new Map();
+const envFlag = (name, fallback = false) => {
+  const value = process.env[name];
+  if (value === undefined || value === '') return fallback;
+  return ['1', 'true', 'yes', 'on'].includes(String(value).toLowerCase());
+};
+const PLAYWRIGHT_HEADLESS = envFlag(
+  'PLAYWRIGHT_HEADLESS',
+  process.platform !== 'win32' && !process.env.DISPLAY
+);
 
 const REMOTE_VIEWPORT = {
   width: Number(process.env.REMOTE_BROWSER_WIDTH || 1280),
   height: Number(process.env.REMOTE_BROWSER_HEIGHT || 800),
+};
+const REMOTE_SCREENSHOT_QUALITY = Number(process.env.REMOTE_SCREENSHOT_QUALITY || 58);
+const REMOTE_SETTLE_MS = {
+  click: Number(process.env.REMOTE_CLICK_SETTLE_MS || 220),
+  dblclick: Number(process.env.REMOTE_CLICK_SETTLE_MS || 220),
+  type: Number(process.env.REMOTE_TYPE_SETTLE_MS || 35),
+  press: Number(process.env.REMOTE_PRESS_SETTLE_MS || 90),
+  wheel: Number(process.env.REMOTE_WHEEL_SETTLE_MS || 35),
+  reload: Number(process.env.REMOTE_NAV_SETTLE_MS || 350),
+  back: Number(process.env.REMOTE_NAV_SETTLE_MS || 350),
 };
 
 function ensureDir(dir) {
@@ -207,6 +226,7 @@ async function getCDPWindow(context) {
 }
 
 async function setChromeVisible(context) {
+  if (PLAYWRIGHT_HEADLESS) return;
   const { cdp, windowId } = await getCDPWindow(context);
   await cdp.send('Browser.setWindowBounds', {
     windowId,
@@ -216,6 +236,7 @@ async function setChromeVisible(context) {
 }
 
 async function setChromeHidden(context) {
+  if (PLAYWRIGHT_HEADLESS) return;
   const { cdp, windowId } = await getCDPWindow(context);
   await cdp.send('Browser.setWindowBounds', {
     windowId,
@@ -276,11 +297,11 @@ async function launchPersistentClientContext(clientId, { visible = false } = {})
   ].filter(Boolean);
 
   const context = await chromium.launchPersistentContext(profilePath, {
-    headless: false,
+    headless: PLAYWRIGHT_HEADLESS,
     executablePath: chromeExists ? CHROME_EXE : undefined,
     args,
     ignoreDefaultArgs: ['--enable-automation'],
-    viewport: null,
+    viewport: PLAYWRIGHT_HEADLESS ? REMOTE_VIEWPORT : null,
   });
 
   context.on('close', () => activeContexts.delete(safeClientId));
@@ -378,7 +399,7 @@ async function captureRemoteBrowser(clientId, provider) {
 
   const image = await page.screenshot({
     type: 'jpeg',
-    quality: 72,
+    quality: Math.max(35, Math.min(85, REMOTE_SCREENSHOT_QUALITY)),
     fullPage: false,
     animations: 'disabled',
   });
@@ -408,14 +429,14 @@ async function performRemoteBrowserAction(clientId, provider, action = {}) {
   if (type === 'click') {
     const x = clampCoordinate(action.x, REMOTE_VIEWPORT.width);
     const y = clampCoordinate(action.y, REMOTE_VIEWPORT.height);
-    await page.mouse.click(x, y, { delay: 45 });
+    await page.mouse.click(x, y, { delay: 0 });
   } else if (type === 'dblclick') {
     const x = clampCoordinate(action.x, REMOTE_VIEWPORT.width);
     const y = clampCoordinate(action.y, REMOTE_VIEWPORT.height);
-    await page.mouse.dblclick(x, y, { delay: 45 });
+    await page.mouse.dblclick(x, y, { delay: 15 });
   } else if (type === 'type') {
     const text = String(action.text || '').slice(0, 2000);
-    if (text) await page.keyboard.type(text, { delay: 15 });
+    if (text) await page.keyboard.type(text, { delay: 1 });
   } else if (type === 'press') {
     const key = String(action.key || '').slice(0, 40);
     if (key) await page.keyboard.press(key);
@@ -429,7 +450,8 @@ async function performRemoteBrowserAction(clientId, provider, action = {}) {
     throw new Error(`Unsupported remote browser action: ${type}`);
   }
 
-  await page.waitForTimeout(850);
+  const settleMs = REMOTE_SETTLE_MS[type] ?? 120;
+  if (settleMs > 0) await page.waitForTimeout(settleMs);
   const pages = session.context.pages().filter(item => !item.isClosed());
   const newestPage = pages[pages.length - 1];
   if (newestPage && newestPage !== page) {
