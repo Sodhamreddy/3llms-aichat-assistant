@@ -8,3 +8,8 @@ const isLocalBrowser =
 export const REMOTE_LOGIN_MODE =
   import.meta.env.VITE_REMOTE_LOGIN_MODE ||
   (isLocalBrowser ? 'native' : 'preview');
+
+export const SHARED_BROWSER_CLIENT_ID =
+  import.meta.env.VITE_SHARED_BROWSER_CLIENT_ID || '';
+
+export const USE_SHARED_BROWSER = Boolean(SHARED_BROWSER_CLIENT_ID);

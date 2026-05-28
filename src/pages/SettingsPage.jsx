@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { PLAYWRIGHT_SERVER, REMOTE_LOGIN_MODE } from '../config/api';
+import { PLAYWRIGHT_SERVER, REMOTE_LOGIN_MODE, USE_SHARED_BROWSER } from '../config/api';
 import { ensureClientId, loadStoredUser } from '../utils/clientIdentity';
 
 const MODEL_DEFS = [
@@ -469,7 +469,9 @@ const SettingsPage = () => {
         <div style={{ ...card, gridColumn: '1 / -1' }}>
           <h3 style={{ fontWeight: '700', color: '#0f172a', marginBottom: '0.4rem', fontSize: '0.95rem' }}>Browser LLM Accounts</h3>
           <p style={{ fontSize: '0.82rem', color: '#64748b', marginBottom: '1.25rem', lineHeight: 1.6 }}>
-            Client ID: <strong>{clientId}</strong>. Each connected account is stored in its own browser profile under this client.
+            {USE_SHARED_BROWSER
+              ? 'Shared Browser Mode is enabled. ChatGPT, Claude, and Gemini are managed from one server-side browser profile for this workspace.'
+              : <>Client ID: <strong>{clientId}</strong>. Each connected account is stored in its own browser profile under this client.</>}
           </p>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.85rem', marginBottom: '1rem' }}>
@@ -477,6 +479,7 @@ const SettingsPage = () => {
               const session = sessionStatus[m.key] || {};
               const status = session.status || 'expired';
               const connected = status === 'connected';
+              const managedStatus = USE_SHARED_BROWSER ? `Managed: ${status}` : status;
               return (
                 <div key={m.key} style={{
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px',
@@ -489,22 +492,22 @@ const SettingsPage = () => {
                       {m.name}
                     </div>
                     <div style={{ marginTop: '4px', fontSize: '0.72rem', color: connected ? '#16a34a' : status === 'error' ? '#dc2626' : '#64748b', fontWeight: 700, textTransform: 'capitalize' }}>
-                      {status}
+                      {managedStatus}
                     </div>
                   </div>
                   <button
                     onClick={() => openPreferredLogin(m.key)}
-                    disabled={chromeStatus === 'loading'}
+                    disabled={chromeStatus === 'loading' || USE_SHARED_BROWSER}
                     style={{
                       padding: '0.48rem 0.8rem', borderRadius: '9px', border: 'none',
                       background: connected ? '#ffffff' : m.color,
                       color: connected ? m.color : '#ffffff',
                       boxShadow: connected ? 'inset 0 0 0 1px rgba(0,0,0,0.08)' : 'none',
-                      cursor: chromeStatus === 'loading' ? 'not-allowed' : 'pointer',
+                      cursor: chromeStatus === 'loading' || USE_SHARED_BROWSER ? 'not-allowed' : 'pointer',
                       fontWeight: 700, fontSize: '0.74rem', whiteSpace: 'nowrap',
                     }}
                   >
-                    {connected ? 'Reconnect' : 'Connect'}
+                    {USE_SHARED_BROWSER ? 'Server managed' : connected ? 'Reconnect' : 'Connect'}
                   </button>
                 </div>
               );

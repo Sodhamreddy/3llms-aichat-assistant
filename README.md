@@ -25,3 +25,7 @@ Copy `.env.example` to `.env` and fill in the Supabase, Google OAuth, and backen
 ## Deployment
 
 See [DEPLOYMENT.md](./DEPLOYMENT.md) for the full production checklist.
+
+## Full project documentation
+
+See [PROJECT_DOCUMENTATION.md](./PROJECT_DOCUMENTATION.md) for a detailed non-technical and technical explanation of the product, architecture, deployment model, and user flows.

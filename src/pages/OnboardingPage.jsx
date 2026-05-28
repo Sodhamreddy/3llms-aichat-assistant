@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGoogleLogin } from '@react-oauth/google';
-import { PLAYWRIGHT_SERVER, REMOTE_LOGIN_MODE } from '../config/api';
+import { PLAYWRIGHT_SERVER, REMOTE_LOGIN_MODE, USE_SHARED_BROWSER } from '../config/api';
 import { attachClientId, ensureClientId, saveStoredUser } from '../utils/clientIdentity';
 
 const MODEL_DEFS = [
@@ -432,7 +432,7 @@ const OnboardingPage = ({ onComplete }) => {
   const finishSetup = async () => {
     setError('');
     if (!enabledModels.length) return setError('Select at least one provider.');
-    if (mode === 'browser') {
+    if (mode === 'browser' && !USE_SHARED_BROWSER) {
       const missing = enabledModels.filter(key => !browserAuth[key]);
       if (missing.length) {
         const names = MODEL_DEFS.filter(model => missing.includes(model.key)).map(model => model.name).join(', ');
@@ -869,7 +869,7 @@ const OnboardingPage = ({ onComplete }) => {
         <SplitShell
           eyebrow="Connection mode"
           title="Choose how to connect"
-          subtitle="Browser Mode uses your existing accounts — no API keys needed. Switch to API Mode if you prefer direct key access."
+          subtitle={USE_SHARED_BROWSER ? 'Browser Mode is ready with provider accounts managed securely on the server. Switch to API Mode only if you want to use your own keys.' : 'Browser Mode uses your existing accounts - no API keys needed. Switch to API Mode if you prefer direct key access.'}
           actions={
             <>
               <button onClick={() => setStep(3)} style={ghostButton}>Back</button>
@@ -879,7 +879,7 @@ const OnboardingPage = ({ onComplete }) => {
         >
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
             {[
-              { key: 'browser', title: 'Browser Mode', badge: 'Recommended', text: 'Log in to ChatGPT, Claude, and Gemini inside a secure server browser — no API keys required.', points: ['No API keys needed', 'Uses your existing accounts', 'Isolated server browser profile'], color: '#7c3aed' },
+              { key: 'browser', title: 'Browser Mode', badge: 'Recommended', text: USE_SHARED_BROWSER ? 'Use the managed ChatGPT, Claude, and Gemini sessions already connected on the server.' : 'Log in to ChatGPT, Claude, and Gemini inside a secure server browser - no API keys required.', points: USE_SHARED_BROWSER ? ['No user login needed', 'Managed provider sessions', 'Ready after signup'] : ['No API keys needed', 'Uses your existing accounts', 'Isolated server browser profile'], color: '#7c3aed' },
               { key: 'api', title: 'API Mode', badge: 'Optional', text: 'Paste provider API keys and let the workflow call the APIs directly for faster, more stable responses.', points: ['Faster & more stable', 'Requires provider API keys', 'Great for power users'], color: '#16a34a' },
             ].map(option => {
               const selected = mode === option.key;
@@ -911,9 +911,9 @@ const OnboardingPage = ({ onComplete }) => {
     if (step === 5) {
       return (
         <SplitShell
-          eyebrow={mode === 'browser' ? 'Connect accounts' : 'API keys'}
-          title={mode === 'browser' ? 'Connect your LLM accounts' : 'Add your provider keys'}
-          subtitle={mode === 'browser' ? 'Click Connect to open the real Chrome profile for each model. Log in normally, then click Finish.' : 'Paste your API keys below. Keys are stored locally and sent with every request.'}
+          eyebrow={mode === 'browser' ? (USE_SHARED_BROWSER ? 'Managed accounts' : 'Connect accounts') : 'API keys'}
+          title={mode === 'browser' ? (USE_SHARED_BROWSER ? 'Provider accounts are ready' : 'Connect your LLM accounts') : 'Add your provider keys'}
+          subtitle={mode === 'browser' ? (USE_SHARED_BROWSER ? 'Your workspace uses shared server-side ChatGPT, Claude, and Gemini sessions. You can continue without logging in to each provider.' : 'Click Connect to open the real Chrome profile for each model. Log in normally, then click Finish.') : 'Paste your API keys below. Keys are stored locally and sent with every request.'}
           actions={
             <>
               <button onClick={() => setStep(4)} style={ghostButton}>Back</button>
@@ -924,14 +924,14 @@ const OnboardingPage = ({ onComplete }) => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {MODEL_DEFS.map(model => {
               const state = models[model.key];
-              const connected = browserAuth[model.key];
+              const connected = USE_SHARED_BROWSER || browserAuth[model.key];
               return (
                 <div key={model.key} style={{ border: `1.5px solid ${state.enabled ? model.color + '40' : '#e5e7eb'}`, borderRadius: 12, padding: '0.9rem 1.1rem', background: state.enabled ? `${model.color}06` : '#fafafa', display: 'flex', alignItems: 'center', gap: '1rem' }}>
                   <div style={{ width: 10, height: 10, borderRadius: '50%', background: model.color, flexShrink: 0 }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '0.88rem', marginBottom: 2 }}>{model.name}</div>
                     <div style={{ fontSize: '0.74rem', color: connected ? '#16a34a' : '#94a3b8', fontWeight: 600 }}>
-                      {mode === 'browser' ? (connected ? '● Connected' : '● Not connected') : model.apiLabel}
+                      {mode === 'browser' ? (USE_SHARED_BROWSER ? 'Managed shared account' : connected ? 'Connected' : 'Not connected') : model.apiLabel}
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexShrink: 0 }}>
@@ -939,9 +939,9 @@ const OnboardingPage = ({ onComplete }) => {
                       <span style={{ display: 'block', width: 18, height: 18, borderRadius: '50%', background: '#fff', transform: state.enabled ? 'translateX(18px)' : 'translateX(0)', transition: 'transform 0.18s' }} />
                     </button>
                     {mode === 'browser' ? (
-                      <button onClick={() => openPreferredLogin(model.key)} disabled={!state.enabled}
-                        style={{ border: `1.5px solid ${connected ? '#16a34a' : model.color}`, borderRadius: 8, background: connected ? '#ecfdf5' : `${model.color}`, color: connected ? '#047857' : '#fff', padding: '0.4rem 0.9rem', fontWeight: 700, fontSize: '0.78rem', cursor: state.enabled ? 'pointer' : 'not-allowed', opacity: state.enabled ? 1 : 0.45, whiteSpace: 'nowrap', fontFamily: 'inherit' }}>
-                        {connected ? '✓ Connected' : `Connect`}
+                      <button onClick={() => openPreferredLogin(model.key)} disabled={!state.enabled || USE_SHARED_BROWSER}
+                        style={{ border: `1.5px solid ${connected ? '#16a34a' : model.color}`, borderRadius: 8, background: connected ? '#ecfdf5' : `${model.color}`, color: connected ? '#047857' : '#fff', padding: '0.4rem 0.9rem', fontWeight: 700, fontSize: '0.78rem', cursor: !state.enabled || USE_SHARED_BROWSER ? 'not-allowed' : 'pointer', opacity: state.enabled ? 1 : 0.45, whiteSpace: 'nowrap', fontFamily: 'inherit' }}>
+                        {USE_SHARED_BROWSER ? 'Managed' : connected ? 'Connected' : `Connect`}
                       </button>
                     ) : (
                       <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
@@ -992,8 +992,8 @@ const OnboardingPage = ({ onComplete }) => {
             <div style={{ padding: '0.6rem 1rem', background: '#f8fafc', borderBottom: '1px solid #e5e7eb', fontSize: '0.7rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.07em' }}>Providers</div>
             {MODEL_DEFS.map(model => {
               const enabled = enabledModels.includes(model.key);
-              const connected = browserAuth[model.key];
-              const statusText = !enabled ? 'Disabled' : mode === 'browser' ? (connected ? 'Connected' : 'Not connected') : 'Enabled';
+              const connected = USE_SHARED_BROWSER || browserAuth[model.key];
+              const statusText = !enabled ? 'Disabled' : mode === 'browser' ? (USE_SHARED_BROWSER ? 'Managed shared account' : connected ? 'Connected' : 'Not connected') : 'Enabled';
               const statusColor = !enabled ? '#94a3b8' : connected || mode === 'api' ? '#16a34a' : '#f59e0b';
               return (
                 <div key={model.key} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.65rem 1rem', borderBottom: '1px solid #f1f5f9', fontSize: '0.84rem' }}>

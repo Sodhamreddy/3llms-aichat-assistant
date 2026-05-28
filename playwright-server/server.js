@@ -57,6 +57,23 @@ function getRequestClientId(req) {
   );
 }
 
+const sharedBrowserClientId = process.env.SHARED_BROWSER_CLIENT_ID
+  ? sanitizeClientId(process.env.SHARED_BROWSER_CLIENT_ID)
+  : '';
+
+function getBrowserClientId(req) {
+  return sharedBrowserClientId || getRequestClientId(req);
+}
+
+function browserClientMeta(req, browserClientId) {
+  const requestedClientId = getRequestClientId(req);
+  return {
+    clientId: browserClientId,
+    requestedClientId,
+    sharedBrowser: Boolean(sharedBrowserClientId),
+  };
+}
+
 function parseProvider(req) {
   const requested = req.params.provider || req.body?.provider || req.query?.provider;
   if (!requested) return null;
@@ -133,7 +150,7 @@ app.post('/auth/preferences', async (req, res) => {
 
 async function showChromeForClient(req, res) {
   try {
-    const clientId = getRequestClientId(req);
+    const clientId = getBrowserClientId(req);
     const provider = parseProvider(req);
     const session = await getClientContext(clientId, { visible: true });
 
@@ -148,7 +165,7 @@ async function showChromeForClient(req, res) {
 
     res.json({
       ok: true,
-      clientId: session.clientId,
+      ...browserClientMeta(req, session.clientId),
       profilePath: session.profilePath,
       opened,
       sessions: getClientSessions(session.clientId),
@@ -161,13 +178,13 @@ async function showChromeForClient(req, res) {
 
 async function hideChromeForClient(req, res) {
   try {
-    const clientId = getRequestClientId(req);
+    const clientId = getBrowserClientId(req);
     const session = await getClientContext(clientId, { visible: false });
     await setChromeHidden(session.context);
 
     res.json({
       ok: true,
-      clientId: session.clientId,
+      ...browserClientMeta(req, session.clientId),
       profilePath: session.profilePath,
       sessions: getClientSessions(session.clientId),
       message: 'Chrome hidden. Browser mode is ready for this client profile.',
@@ -184,14 +201,14 @@ app.post('/hide-chrome', hideChromeForClient);
 
 app.post('/client/:clientId/remote-browser/:provider/open', async (req, res) => {
   try {
-    const clientId = getRequestClientId(req);
+    const clientId = getBrowserClientId(req);
     const provider = parseProvider(req);
     upsertSession(clientId, provider, {
       status: 'expired',
       last_checked_at: new Date().toISOString(),
       error: null,
     });
-    res.json({ ok: true, ...(await captureRemoteBrowser(clientId, provider)) });
+    res.json({ ok: true, ...browserClientMeta(req, clientId), ...(await captureRemoteBrowser(clientId, provider)) });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
@@ -199,9 +216,9 @@ app.post('/client/:clientId/remote-browser/:provider/open', async (req, res) => 
 
 app.get('/client/:clientId/remote-browser/:provider/screenshot', async (req, res) => {
   try {
-    const clientId = getRequestClientId(req);
+    const clientId = getBrowserClientId(req);
     const provider = parseProvider(req);
-    res.json({ ok: true, ...(await captureRemoteBrowser(clientId, provider)) });
+    res.json({ ok: true, ...browserClientMeta(req, clientId), ...(await captureRemoteBrowser(clientId, provider)) });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
@@ -209,9 +226,9 @@ app.get('/client/:clientId/remote-browser/:provider/screenshot', async (req, res
 
 app.post('/client/:clientId/remote-browser/:provider/action', async (req, res) => {
   try {
-    const clientId = getRequestClientId(req);
+    const clientId = getBrowserClientId(req);
     const provider = parseProvider(req);
-    res.json({ ok: true, ...(await performRemoteBrowserAction(clientId, provider, req.body)) });
+    res.json({ ok: true, ...browserClientMeta(req, clientId), ...(await performRemoteBrowserAction(clientId, provider, req.body)) });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
@@ -219,7 +236,7 @@ app.post('/client/:clientId/remote-browser/:provider/action', async (req, res) =
 
 app.post('/client/:clientId/remote-browser/:provider/finish', async (req, res) => {
   try {
-    const clientId = getRequestClientId(req);
+    const clientId = getBrowserClientId(req);
     const provider = parseProvider(req);
     const session = await getClientContext(clientId, { visible: false });
     const result = await validateProviderSession(session.context, session.clientId, provider);
@@ -228,7 +245,7 @@ app.post('/client/:clientId/remote-browser/:provider/finish', async (req, res) =
 
     res.json({
       ok: result.status === 'connected',
-      clientId: session.clientId,
+      ...browserClientMeta(req, session.clientId),
       provider,
       session: result,
       sessions: getClientSessions(session.clientId),
@@ -243,10 +260,10 @@ app.post('/client/:clientId/remote-browser/:provider/finish', async (req, res) =
 
 app.post('/client/:clientId/remote-browser/:provider/close', async (req, res) => {
   try {
-    const clientId = getRequestClientId(req);
+    const clientId = getBrowserClientId(req);
     const provider = parseProvider(req);
     await closeRemoteBrowserPage(clientId, provider);
-    res.json({ ok: true, clientId, provider });
+    res.json({ ok: true, ...browserClientMeta(req, clientId), provider });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
@@ -254,8 +271,8 @@ app.post('/client/:clientId/remote-browser/:provider/close', async (req, res) =>
 
 app.get('/client/:clientId/sessions', (req, res) => {
   try {
-    const clientId = getRequestClientId(req);
-    res.json({ ok: true, clientId, sessions: getClientSessions(clientId) });
+    const clientId = getBrowserClientId(req);
+    res.json({ ok: true, ...browserClientMeta(req, clientId), sessions: getClientSessions(clientId) });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
@@ -263,7 +280,7 @@ app.get('/client/:clientId/sessions', (req, res) => {
 
 app.post('/client/:clientId/check-sessions', async (req, res) => {
   try {
-    const clientId = getRequestClientId(req);
+    const clientId = getBrowserClientId(req);
     const session = await getClientContext(clientId, { visible: false });
     const providers = selectedProvidersFromBody(req).map(normalizeProvider).filter(Boolean);
     await Promise.all([...new Set(providers)].map(provider =>
@@ -272,7 +289,7 @@ app.post('/client/:clientId/check-sessions', async (req, res) => {
     await setChromeHidden(session.context).catch(() => {});
     res.json({
       ok: true,
-      clientId: session.clientId,
+      ...browserClientMeta(req, session.clientId),
       profilePath: session.profilePath,
       sessions: getClientSessions(session.clientId),
     });
@@ -285,12 +302,17 @@ app.get('/', (req, res) => res.send(`
   <body style="font-family:sans-serif;padding:2rem;background:#f9fafb">
     <h2>Playwright LLM Server</h2>
     <p style="color:green;font-weight:bold">Server is running on port ${PORT}</p>
+    ${sharedBrowserClientId ? `<p><strong>Shared Browser Mode:</strong> enabled with profile <code>${sharedBrowserClientId}</code>.</p>` : ''}
     <p>POST <code>/run-prompt</code> with <code>{ "clientId": "client_123", "prompt": "..." }</code>.</p>
     <p>Use <code>/client/:clientId/show-chrome</code> to connect ChatGPT, Claude, and Gemini for each client.</p>
   </body>
 `));
 
-app.get('/health', (req, res) => res.json({ ok: true }));
+app.get('/health', (req, res) => res.json({
+  ok: true,
+  sharedBrowser: Boolean(sharedBrowserClientId),
+  sharedBrowserClientId: sharedBrowserClientId || null,
+}));
 
 app.get('/admin/analytics', async (req, res) => {
   try {
@@ -310,7 +332,8 @@ app.post('/admin/login', (req, res) => {
 
 app.post('/run-prompt', async (req, res) => {
   const { prompt, selectedModels, deepResearch = false } = req.body;
-  const clientId = getRequestClientId(req);
+  const clientId = getBrowserClientId(req);
+  const requestedClientId = getRequestClientId(req);
 
   if (!prompt || !prompt.trim()) {
     return res.status(400).json({ error: 'prompt is required' });
@@ -328,13 +351,13 @@ app.post('/run-prompt', async (req, res) => {
   runningClients.add(clientId);
   try {
     const result = await runPromptOnAllLLMs(prompt, (type, partial) => {
-      send({ type, ...partial });
+      send({ type, requestedClientId, sharedBrowser: Boolean(sharedBrowserClientId), ...partial });
     }, selectedModels, deepResearch, clientId);
 
-    send({ type: 'complete', clientId, ...result });
+    send({ type: 'complete', ...browserClientMeta(req, clientId), ...result });
   } catch (e) {
     console.error('Playwright error:', e);
-    send({ type: 'error', clientId, message: e.message });
+    send({ type: 'error', ...browserClientMeta(req, clientId), message: e.message });
   } finally {
     runningClients.delete(clientId);
     res.end();
@@ -343,7 +366,7 @@ app.post('/run-prompt', async (req, res) => {
 
 app.post('/follow-up', async (req, res) => {
   const { originalPrompt, previousAnswer, followUpQuestion, selectedModels } = req.body;
-  const clientId = getRequestClientId(req);
+  const clientId = getBrowserClientId(req);
 
   if (!followUpQuestion || !followUpQuestion.trim()) {
     return res.status(400).json({ error: 'followUpQuestion is required' });
@@ -364,7 +387,7 @@ app.post('/follow-up', async (req, res) => {
       selectedModels: selectedModels || ['openai', 'gemini', 'claude'],
       clientId,
     });
-    res.json({ clientId, ...result });
+    res.json({ ...browserClientMeta(req, clientId), ...result });
   } catch (e) {
     console.error('Follow-up error:', e);
     res.status(500).json({ error: e.message });

@@ -4,6 +4,7 @@
 // Usage:  node login.js client_123
 
 const { chromium } = require('playwright');
+const fs = require('fs');
 const readline = require('readline');
 const { getProfilePath, sanitizeClientId } = require('./session-manager');
 
@@ -13,12 +14,31 @@ const PROFILE_DIR = getProfilePath(CLIENT_ID);
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 const pause = (msg) => new Promise(res => rl.question(msg, res));
 
+function getExecutablePath() {
+  const candidates = [
+    process.env.CHROME_EXE,
+    process.platform === 'win32' ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe' : '',
+    process.platform === 'linux' ? '/usr/bin/google-chrome' : '',
+    process.platform === 'linux' ? '/usr/bin/google-chrome-stable' : '',
+    process.platform === 'linux' ? '/usr/bin/chromium-browser' : '',
+    process.platform === 'linux' ? '/usr/bin/chromium' : '',
+    process.platform === 'darwin' ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' : '',
+  ].filter(Boolean);
+
+  return candidates.find(candidate => fs.existsSync(candidate));
+}
+
 async function main() {
   console.log(`\n Opening Chrome for first-time login: ${CLIENT_ID}\n`);
 
+  const executablePath = getExecutablePath();
+  if (!executablePath) {
+    console.log('No system Chrome path found. Falling back to Playwright bundled Chromium.');
+  }
+
   const browser = await chromium.launchPersistentContext(PROFILE_DIR, {
     headless: false,
-    executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+    ...(executablePath ? { executablePath } : {}),
     args: [
       '--disable-blink-features=AutomationControlled',
       '--no-sandbox',

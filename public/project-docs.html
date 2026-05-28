@@ -3,1440 +3,1096 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kleza Excelliq AI — Project Documentation</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Lora:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <title>Kleza Excelliq AI - Project documentation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Source+Serif+4:wght@600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg:        #f5f4f0;
-      --bg2:       #eceae4;
-      --white:     #ffffff;
-      --accent:    #d97757;
-      --accent2:   #c4603d;
-      --text:      #1c1c1c;
-      --muted:     #78716c;
-      --border:    rgba(0,0,0,0.08);
-      --gpt:       #10a37f;
-      --claude:    #d97757;
-      --gemini:    #4285f4;
-      --purple:    #7c3aed;
-      --radius:    14px;
-      --shadow:    0 2px 16px rgba(0,0,0,0.07);
-      --shadow-sm: 0 1px 4px rgba(0,0,0,0.05);
+      --bg: #f6f3ed;
+      --surface: #ffffff;
+      --surface-2: #fbfaf7;
+      --ink: #111827;
+      --muted: #667085;
+      --soft: #e7e1d7;
+      --line: #ded7cd;
+      --brand: #df795b;
+      --brand-dark: #bd5f43;
+      --blue: #3b82f6;
+      --green: #10a37f;
+      --violet: #6d4df2;
+      --amber: #f59e0b;
+      --red: #dc2626;
+      --shadow: 0 22px 70px rgba(17, 24, 39, 0.08);
+      --radius: 18px;
+      --mono: "JetBrains Mono", monospace;
     }
+
+    * { box-sizing: border-box; }
 
     html { scroll-behavior: smooth; }
 
     body {
-      font-family: 'Inter', sans-serif;
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: var(--bg);
-      color: var(--text);
-      line-height: 1.75;
-      font-size: 15px;
+      color: var(--ink);
+      line-height: 1.65;
     }
 
-    /* ── NAV ── */
-    nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      background: rgba(245,244,240,0.92);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-      padding: 0 2.5rem;
-      height: 58px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .nav-brand {
-      display: flex; align-items: center; gap: 10px;
-      font-family: 'Lora', serif; font-weight: 700; font-size: 1.1rem; color: var(--text);
-      text-decoration: none;
-    }
-    .nav-logo {
-      width: 30px; height: 30px; border-radius: 8px;
-      background: linear-gradient(135deg, var(--accent), #e8956a);
-      display: flex; align-items: center; justify-content: center;
-      color: #fff; font-weight: 800; font-size: 0.85rem; letter-spacing: -0.5px;
-    }
-    .nav-links {
-      display: flex; gap: 6px; list-style: none;
-    }
-    .nav-links a {
-      font-size: 0.78rem; font-weight: 600; color: var(--muted);
-      text-decoration: none; padding: 5px 12px; border-radius: 8px;
-      transition: all 0.15s;
-    }
-    .nav-links a:hover { background: var(--bg2); color: var(--text); }
-    .nav-badge {
-      font-size: 0.72rem; font-weight: 700; color: var(--accent);
-      background: rgba(217,119,87,0.1); border: 1px solid rgba(217,119,87,0.25);
-      padding: 3px 10px; border-radius: 20px;
-    }
+    a { color: inherit; }
 
-    /* ── LAYOUT ── */
-    .page-wrap {
-      max-width: 1060px;
+    .topbar {
+      max-width: 1180px;
       margin: 0 auto;
-      padding: 100px 2rem 6rem;
+      padding: 30px 30px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
     }
 
-    /* ── HERO ── */
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+    }
+
+    .logo {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      background: linear-gradient(135deg, var(--violet), #2563eb);
+      color: white;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+    }
+
+    .doc-meta {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+      color: #667085;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .print-btn {
+      border: 0;
+      background: #171412;
+      color: #fff;
+      font-weight: 800;
+      border-radius: 999px;
+      padding: 9px 14px;
+      cursor: pointer;
+    }
+
     .hero {
-      text-align: center;
-      padding: 3.5rem 2rem 4rem;
-      background: var(--white);
-      border-radius: 22px;
-      border: 1px solid var(--border);
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 56px 30px 38px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(330px, 0.85fr);
+      gap: 44px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      color: var(--brand-dark);
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin: 0 0 13px;
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      letter-spacing: -0.03em;
+      line-height: 1.08;
+    }
+
+    h1 {
+      font-family: "Source Serif 4", Georgia, serif;
+      font-size: clamp(44px, 6vw, 78px);
+      max-width: 800px;
+    }
+
+    .hero-text {
+      color: #5f6b7a;
+      font-size: 20px;
+      max-width: 720px;
+      margin: 24px 0 0;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      font-weight: 800;
+      color: #374151;
+      box-shadow: 0 8px 25px rgba(17, 24, 39, 0.05);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--brand);
+      display: inline-block;
+    }
+
+    .hero-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 26px;
       box-shadow: var(--shadow);
-      margin-bottom: 3rem;
+      padding: 24px;
+    }
+
+    .toc {
+      max-width: 1180px;
+      margin: 0 auto 10px;
+      padding: 0 30px;
+    }
+
+    .toc-inner {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .toc a {
+      text-decoration: none;
+      color: #475467;
+      background: #f7f3ed;
+      border: 1px solid #e8dfd3;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .toc a:hover {
+      color: var(--ink);
+      background: #efe7db;
+    }
+
+    .browser-bar {
+      height: 34px;
+      border-radius: 12px;
+      background: #f3f0ea;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 0 12px;
+      margin-bottom: 16px;
+    }
+
+    .traffic { width: 10px; height: 10px; border-radius: 50%; }
+    .red { background: #ef4444; }
+    .yellow { background: #f59e0b; }
+    .green { background: #22c55e; }
+
+    .answer-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .mini-card {
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      padding: 12px;
+      background: #fff;
+      min-height: 110px;
+    }
+
+    .mini-card b {
+      display: block;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .mini-card p {
+      margin: 0;
+      font-size: 12px;
+      color: #5f6b7a;
+      line-height: 1.5;
+    }
+
+    .synthesis-box {
+      border: 1px solid #f0c9bc;
+      background: #fff8f4;
+      border-radius: 16px;
+      padding: 16px;
+    }
+
+    .synthesis-box b {
+      color: var(--brand-dark);
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 30px 80px;
+    }
+
+    section {
+      scroll-margin-top: 90px;
+      margin-top: 34px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 18px;
+    }
+
+    h2 {
+      font-size: clamp(30px, 3vw, 44px);
+      font-family: "Source Serif 4", Georgia, serif;
+    }
+
+    h3 {
+      font-size: 20px;
+      margin-bottom: 9px;
+    }
+
+    .section-note {
+      max-width: 560px;
+      color: var(--muted);
+      margin: 8px 0 0;
+    }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: 0 6px 25px rgba(17, 24, 39, 0.04);
+    }
+
+    .card p { margin: 0 0 11px; color: #526070; }
+    .card p:last-child { margin-bottom: 0; }
+
+    .icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 13px;
+      display: grid;
+      place-items: center;
+      background: #fff3ed;
+      color: var(--brand-dark);
+      font-weight: 900;
+      margin-bottom: 14px;
+    }
+
+    .callout {
+      border-radius: 18px;
+      padding: 20px 22px;
+      border: 1px solid #f2d5c7;
+      background: #fff8f4;
+      color: #5f493f;
+    }
+
+    .callout strong { color: #7c2d12; }
+
+    .success {
+      border-color: #b7e7d8;
+      background: #effaf6;
+      color: #155e4b;
+    }
+
+    .warning {
+      border-color: #f8d28b;
+      background: #fffbeb;
+      color: #68460b;
+    }
+
+    .risk {
+      border-color: #fecaca;
+      background: #fff1f2;
+      color: #7f1d1d;
+    }
+
+    .flow {
+      display: grid;
+      gap: 14px;
+      counter-reset: step;
+    }
+
+    .flow-step {
       position: relative;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px 20px 18px 74px;
+      min-height: 70px;
+    }
+
+    .flow-step::before {
+      counter-increment: step;
+      content: counter(step);
+      position: absolute;
+      left: 20px;
+      top: 20px;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #171412;
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+    }
+
+    .flow-step h3 {
+      font-size: 17px;
+      margin: 0 0 5px;
+      letter-spacing: -0.01em;
+    }
+
+    .flow-step p {
+      margin: 0;
+      color: #5f6b7a;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .diagram {
+      background: #171412;
+      color: #fff;
+      border-radius: 22px;
+      padding: 24px;
       overflow: hidden;
     }
-    .hero::before {
-      content: '';
-      position: absolute; top: 0; left: 0; right: 0; height: 4px;
-      background: linear-gradient(90deg, var(--gpt), var(--claude), var(--gemini));
-    }
-    .hero-tag {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
-      color: var(--accent); background: rgba(217,119,87,0.08);
-      border: 1px solid rgba(217,119,87,0.2); border-radius: 20px;
-      padding: 4px 14px; margin-bottom: 1.25rem;
-    }
-    .hero h1 {
-      font-family: 'Lora', serif; font-size: 2.6rem; font-weight: 700;
-      line-height: 1.2; color: var(--text); margin-bottom: 1rem;
-    }
-    .hero h1 span { color: var(--accent); }
-    .hero p {
-      font-size: 1.05rem; color: var(--muted); max-width: 620px; margin: 0 auto 2rem;
-      line-height: 1.8;
-    }
-    .model-pills {
-      display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;
-    }
-    .pill {
-      display: flex; align-items: center; gap: 7px;
-      padding: 7px 16px; border-radius: 22px; border: 1.5px solid;
-      font-size: 0.82rem; font-weight: 600;
-    }
-    .pill-dot { width: 8px; height: 8px; border-radius: 50%; }
 
-    /* ── SECTION ── */
-    .section { margin-bottom: 3.5rem; }
-    .section-header {
-      display: flex; align-items: center; gap: 12px;
-      margin-bottom: 1.5rem;
-    }
-    .section-num {
-      width: 32px; height: 32px; border-radius: 10px;
-      background: var(--accent); color: #fff;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.75rem; font-weight: 800; flex-shrink: 0;
-    }
-    .section-header h2 {
-      font-family: 'Lora', serif; font-size: 1.45rem; font-weight: 700; color: var(--text);
-    }
-    .section-divider {
-      height: 1px; background: var(--border); margin-bottom: 1.5rem;
+    .diagram-node {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 14px;
+      padding: 13px 15px;
+      margin: 10px 0;
+      font-weight: 800;
     }
 
-    /* ── CARD ── */
-    .card {
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow-sm);
-      padding: 1.75rem;
-      margin-bottom: 1.25rem;
-    }
-    .card h3 {
-      font-size: 0.95rem; font-weight: 700; color: var(--text);
-      margin-bottom: 0.65rem;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .card p { color: var(--muted); font-size: 0.92rem; line-height: 1.8; }
-
-    /* ── GRID ── */
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; }
-    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; }
-    @media(max-width: 680px) {
-      .grid-2, .grid-3 { grid-template-columns: 1fr; }
-      .hero h1 { font-size: 1.85rem; }
+    .arrow {
+      color: #f0b89e;
+      font-family: var(--mono);
+      font-size: 13px;
+      padding-left: 14px;
     }
 
-    /* ── TABLE ── */
-    .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
-    table { width: 100%; border-collapse: collapse; background: var(--white); font-size: 0.88rem; }
-    thead { background: var(--bg2); }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+
     th {
-      padding: 11px 16px; text-align: left; font-size: 0.75rem;
-      font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
-      color: var(--muted); border-bottom: 1px solid var(--border);
-    }
-    td {
-      padding: 11px 16px; border-bottom: 1px solid rgba(0,0,0,0.04);
-      color: var(--text); vertical-align: top; line-height: 1.65;
-    }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: rgba(0,0,0,0.015); }
-    td code, th code { font-family: 'JetBrains Mono', monospace; font-size: 0.82em; background: rgba(0,0,0,0.05); padding: 1px 6px; border-radius: 4px; }
-
-    /* ── CODE BLOCK ── */
-    .code-block {
-      background: #1c1c1c; color: #e5e7eb;
-      border-radius: var(--radius); padding: 1.4rem 1.6rem;
-      font-family: 'JetBrains Mono', monospace; font-size: 0.82rem;
-      line-height: 1.75; overflow-x: auto; margin: 0.5rem 0 1rem;
-      position: relative;
-    }
-    .code-block .comment { color: #6b7280; }
-    .code-block .key { color: #93c5fd; }
-    .code-block .val { color: #86efac; }
-    .code-block .str { color: #fcd34d; }
-    .code-block .fn  { color: #c084fc; }
-    .code-label {
-      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
-      color: var(--muted); margin-bottom: 0.4rem; display: block;
+      background: #f2ede5;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #5d5248;
     }
 
-    /* ── ARCH DIAGRAM ── */
-    .arch {
-      background: var(--white); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 2rem; margin-bottom: 1.25rem;
-    }
-    .arch-row {
-      display: flex; align-items: stretch; gap: 0; justify-content: center;
-    }
-    .arch-box {
-      flex: 1; padding: 1.2rem 1rem; border: 1.5px solid var(--border);
-      border-radius: 12px; text-align: center; background: var(--bg);
-    }
-    .arch-box.accent { border-color: rgba(217,119,87,0.35); background: rgba(217,119,87,0.04); }
-    .arch-box h4 { font-size: 0.82rem; font-weight: 700; margin-bottom: 0.35rem; }
-    .arch-box p  { font-size: 0.75rem; color: var(--muted); line-height: 1.5; }
-    .arch-arrow {
-      display: flex; align-items: center; padding: 0 0.5rem; color: var(--muted);
-      font-size: 1.3rem; flex-shrink: 0;
-    }
-    .arch-down {
-      display: flex; flex-direction: column; align-items: center;
-      gap: 0.6rem; margin: 0.75rem 0;
-    }
-    .arch-down-arrow { color: var(--muted); font-size: 1.1rem; }
-    .arch-branch {
-      display: flex; gap: 1.25rem; align-items: flex-start; margin: 0.75rem 0;
-    }
-    .arch-branch-box {
-      flex: 1; padding: 1rem; border-radius: 12px;
-      border: 1.5px dashed;
-    }
-    .arch-branch-box h4 { font-size: 0.8rem; font-weight: 700; margin-bottom: 0.3rem; }
-    .arch-branch-box p  { font-size: 0.73rem; color: var(--muted); line-height: 1.55; }
+    tr:last-child td { border-bottom: 0; }
+    td { color: #4b5563; }
+    td strong { color: var(--ink); }
 
-    /* ── FLOW STEPS ── */
-    .flow { display: flex; flex-direction: column; gap: 0; }
-    .flow-step {
-      display: flex; gap: 1.2rem; align-items: flex-start;
-      padding: 1.1rem 1.4rem;
-      background: var(--white); border: 1px solid var(--border);
-      transition: box-shadow 0.15s;
+    code, pre {
+      font-family: var(--mono);
     }
-    .flow-step:first-child { border-radius: var(--radius) var(--radius) 0 0; }
-    .flow-step:last-child  { border-radius: 0 0 var(--radius) var(--radius); border-top: none; }
-    .flow-step:not(:first-child):not(:last-child) { border-top: none; }
-    .flow-step:hover { box-shadow: 0 0 0 2px rgba(217,119,87,0.18); z-index: 1; position: relative; }
-    .flow-num {
-      width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
-      background: var(--accent); color: #fff;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.72rem; font-weight: 800; margin-top: 2px;
-    }
-    .flow-content h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.2rem; }
-    .flow-content p  { font-size: 0.85rem; color: var(--muted); line-height: 1.65; }
 
-    /* ── BADGE / TAG ── */
-    .badge {
-      display: inline-block; font-size: 0.68rem; font-weight: 700;
-      padding: 2px 9px; border-radius: 20px; vertical-align: middle;
-      letter-spacing: 0.02em;
+    code {
+      background: #f1ede7;
+      border: 1px solid #e3ddd3;
+      border-radius: 7px;
+      padding: 2px 6px;
+      font-size: 0.88em;
     }
-    .badge-green  { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
-    .badge-blue   { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
-    .badge-orange { background: rgba(217,119,87,0.1); color: var(--accent); border: 1px solid rgba(217,119,87,0.25); }
-    .badge-purple { background: #f5f3ff; color: var(--purple); border: 1px solid #ddd6fe; }
-    .badge-gray   { background: #f3f4f6; color: #6b7280; border: 1px solid #e5e7eb; }
 
-    /* ── MODEL CARDS ── */
-    .model-card {
-      border-radius: var(--radius); border: 1.5px solid;
-      padding: 1.4rem; background: var(--white);
+    pre {
+      background: #171412;
+      color: #f8f5ef;
+      border-radius: 16px;
+      padding: 18px;
+      overflow-x: auto;
+      line-height: 1.6;
+      font-size: 13px;
     }
-    .model-card-head {
-      display: flex; align-items: center; gap: 10px; margin-bottom: 1rem;
-    }
-    .model-avatar {
-      width: 36px; height: 36px; border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 800; font-size: 0.85rem; color: #fff; flex-shrink: 0;
-    }
-    .model-card h3 { font-size: 0.93rem; font-weight: 700; }
-    .model-card .sub { font-size: 0.75rem; color: var(--muted); }
-    .model-card ul  { list-style: none; padding: 0; }
-    .model-card li  {
-      font-size: 0.83rem; color: var(--muted); padding: 5px 0;
-      border-bottom: 1px solid rgba(0,0,0,0.04);
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    .model-card li:last-child { border-bottom: none; }
-    .model-card li strong { color: var(--text); font-weight: 600; }
 
-    /* ── STORAGE SCHEMA ── */
-    .schema-key {
-      font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
-      background: var(--bg2); border: 1px solid var(--border);
-      border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 0.5rem;
+    ul, ol {
+      margin: 10px 0 0 20px;
+      color: #526070;
     }
-    .schema-key .k { color: #2563eb; font-weight: 600; }
-    .schema-key .v { color: #16a34a; }
-    .schema-key .t { color: var(--muted); font-size: 0.72rem; }
 
-    /* ── COLOUR SWATCHES ── */
-    .swatches { display: flex; gap: 10px; flex-wrap: wrap; }
-    .swatch { text-align: center; }
-    .swatch-box {
-      width: 56px; height: 56px; border-radius: 12px;
-      border: 1px solid rgba(0,0,0,0.08); margin-bottom: 6px;
+    li { margin: 5px 0; }
+
+    .tag-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
     }
-    .swatch p { font-size: 0.68rem; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
-    .swatch strong { display: block; font-size: 0.72rem; color: var(--text); }
 
-    /* ── NOTE ── */
-    .note {
-      display: flex; gap: 10px; align-items: flex-start;
-      padding: 12px 16px; border-radius: 10px; font-size: 0.85rem;
-      line-height: 1.65; margin: 0.75rem 0;
+    .tag {
+      border-radius: 999px;
+      background: #f4efe8;
+      border: 1px solid #e8dfd3;
+      color: #55483e;
+      padding: 6px 10px;
+      font-size: 12px;
+      font-weight: 800;
     }
-    .note-info   { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
-    .note-warn   { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
-    .note-danger { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
-    .note-icon   { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
 
-    /* ── ENDPOINT TABLE ── */
-    .endpoint { display: flex; align-items: center; gap: 8px; }
-    .method {
-      font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700;
-      padding: 2px 8px; border-radius: 5px; flex-shrink: 0;
+    .checklist {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
     }
-    .method-post { background: #fef3c7; color: #92400e; }
-    .method-get  { background: #d1fae5; color: #065f46; }
 
-    /* ── TOC ── */
-    .toc {
-      background: var(--white); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 1.5rem 1.75rem; margin-bottom: 3rem;
+    .check {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      padding: 12px 14px;
+      color: #344054;
+      font-weight: 700;
     }
-    .toc h3 { font-size: 0.85rem; font-weight: 700; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 1rem; }
-    .toc ol  { padding-left: 1.25rem; }
-    .toc li  { margin-bottom: 0.45rem; }
-    .toc a   { color: var(--text); text-decoration: none; font-size: 0.88rem; font-weight: 500; }
-    .toc a:hover { color: var(--accent); }
 
-    /* ── FOOTER ── */
+    .check::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      display: inline-block;
+      margin-right: 9px;
+    }
+
     footer {
-      text-align: center; padding: 3rem 1rem;
-      border-top: 1px solid var(--border); color: var(--muted);
-      font-size: 0.82rem;
+      margin-top: 50px;
+      padding: 28px;
+      background: #171412;
+      color: #efe8dd;
+      border-radius: 24px;
     }
-    footer strong { color: var(--text); }
+
+    @media (max-width: 900px) {
+      .topbar { padding: 18px; align-items: flex-start; flex-direction: column; }
+      .doc-meta { justify-content: flex-start; }
+      .hero { grid-template-columns: 1fr; padding-top: 46px; }
+      .toc-inner { grid-template-columns: 1fr 1fr; }
+      .grid-2, .grid-3, .grid-4, .split, .checklist { grid-template-columns: 1fr; }
+      .answer-grid { grid-template-columns: 1fr; }
+      .page { padding-inline: 18px; }
+    }
+
+    @media print {
+      .topbar, .print-btn { display: none; }
+      body { background: #fff; }
+      .hero, .page { max-width: 100%; padding: 20px; }
+      .card, .hero-card, table, .flow-step { box-shadow: none; break-inside: avoid; }
+      section { break-inside: avoid; }
+    }
   </style>
 </head>
 <body>
-
-<!-- NAV -->
-<nav>
-  <a class="nav-brand" href="#">
-    <div class="nav-logo">KT</div>
-    Kleza Excelliq AI
-  </a>
-  <ul class="nav-links">
-    <li><a href="#overview">Overview</a></li>
-    <li><a href="#architecture">Architecture</a></li>
-    <li><a href="#pages">Pages</a></li>
-    <li><a href="#components">Components</a></li>
-    <li><a href="#backend">Backend</a></li>
-    <li><a href="#data">Data</a></li>
-    <li><a href="#design">Design</a></li>
-    <li><a href="#running">Running</a></li>
-  </ul>
-  <span class="nav-badge">v1.0 · Internal Docs</span>
-</nav>
-
-<div class="page-wrap">
-
-  <!-- HERO -->
-  <div class="hero">
-    <div class="hero-tag">📄 Project Documentation</div>
-    <h1>Kleza <span>Excelliq</span> AI</h1>
-    <p>
-      A multi-LLM comparison and synthesis platform that sends your prompt to three leading AI models
-      simultaneously — ChatGPT, Claude, and Gemini — displays their answers side by side,
-      and delivers a synthesized final answer from Claude.
-    </p>
-    <div class="model-pills">
-      <div class="pill" style="color:#10a37f;border-color:#10a37f30;background:rgba(16,163,127,0.05);">
-        <div class="pill-dot" style="background:#10a37f;"></div> OpenAI ChatGPT
-      </div>
-      <div class="pill" style="color:#d97757;border-color:#d9775730;background:rgba(217,119,87,0.05);">
-        <div class="pill-dot" style="background:#d97757;"></div> Anthropic Claude
-      </div>
-      <div class="pill" style="color:#4285f4;border-color:#4285f430;background:rgba(66,133,244,0.05);">
-        <div class="pill-dot" style="background:#4285f4;"></div> Google Gemini
-      </div>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">K</div>
+      <span>Kleza Excelliq AI</span>
     </div>
-  </div>
-
-  <!-- TOC -->
-  <div class="toc">
-    <h3>Table of Contents</h3>
-    <ol>
-      <li><a href="#overview">Project Overview & Purpose</a></li>
-      <li><a href="#techstack">Technology Stack</a></li>
-      <li><a href="#architecture">System Architecture & Data Flow</a></li>
-      <li><a href="#structure">Directory Structure</a></li>
-      <li><a href="#pages">Pages — Detailed Breakdown</a></li>
-      <li><a href="#components">Core Components</a></li>
-      <li><a href="#backend">Backend — Playwright Server</a></li>
-      <li><a href="#data">State Management & Data Storage</a></li>
-      <li><a href="#design">UI Design System</a></li>
-      <li><a href="#running">Running the Project</a></li>
-      <li><a href="#security">Security Notes</a></li>
-      <li><a href="#limitations">Known Limitations</a></li>
-    </ol>
-  </div>
-
-  <!-- ─── 1. OVERVIEW ─── -->
-  <div class="section" id="overview">
-    <div class="section-header">
-      <div class="section-num">1</div>
-      <h2>Project Overview & Purpose</h2>
+    <div class="doc-meta">
+      <span>Executive product and technical briefing</span>
+      <button class="print-btn" onclick="window.print()">Print / save PDF</button>
     </div>
-    <div class="section-divider"></div>
+  </header>
 
-    <div class="card">
-      <h3>🎯 What is Kleza Excelliq AI?</h3>
-      <p>
-        Kleza Excelliq AI is a productivity and research tool built by <strong>Kleza Solutions Pvt Ltd</strong>.
-        It solves a common problem faced by AI power-users: different language models give meaningfully different answers
-        to the same question, and manually switching between ChatGPT, Claude, and Gemini is slow and tedious.
-      </p>
-      <br />
-      <p>
-        Excelliq lets you type a prompt once and instantly see all three responses in a clean, side-by-side comparison
-        view — then Claude synthesizes the best elements of all three into a single high-quality final answer.
-        The platform also tracks your token usage and estimated cost per run.
-      </p>
-    </div>
+  <main>
+    <section class="hero" id="overview">
+      <div>
+        <p class="eyebrow">Presentation document</p>
+        <h1>One question. Three AI models. One stronger answer.</h1>
+        <p class="hero-text">
+          Kleza Excelliq AI lets users ask one prompt, collect responses from ChatGPT, Claude, and Gemini, then receive a final answer synthesized by Claude.
+        </p>
+        <div class="hero-actions">
+          <span class="pill"><span class="dot"></span> Browser Mode without API keys</span>
+          <span class="pill"><span class="dot" style="background: var(--blue)"></span> Supabase user accounts</span>
+          <span class="pill"><span class="dot" style="background: var(--green)"></span> Playwright automation</span>
+        </div>
+      </div>
 
-    <div class="grid-3">
-      <div class="card" style="border-top:3px solid #10a37f;">
-        <h3>⚡ Speed</h3>
-        <p>All three models are queried in parallel — you get three answers in roughly the same time it takes to get one.</p>
+      <div class="hero-card">
+        <div class="browser-bar">
+          <span class="traffic red"></span>
+          <span class="traffic yellow"></span>
+          <span class="traffic green"></span>
+        </div>
+        <div class="answer-grid">
+          <div class="mini-card">
+            <b style="color: var(--green)">ChatGPT</b>
+            <p>Produces an independent answer from the user's connected account.</p>
+          </div>
+          <div class="mini-card">
+            <b style="color: var(--blue)">Gemini</b>
+            <p>Produces another independent answer for comparison.</p>
+          </div>
+          <div class="mini-card">
+            <b style="color: var(--brand)">Claude</b>
+            <p>Answers directly and then creates the final synthesis.</p>
+          </div>
+        </div>
+        <div class="synthesis-box">
+          <b>Final synthesis</b>
+          <p style="margin:0;color:#684236">Claude compares the responses, removes weak points, resolves conflicts, and writes one clean final answer.</p>
+        </div>
       </div>
-      <div class="card" style="border-top:3px solid #d97757;">
-        <h3>🧠 Synthesis</h3>
-        <p>Claude reads all three stage-1 responses and synthesizes the most complete, accurate answer from the combined output.</p>
-      </div>
-      <div class="card" style="border-top:3px solid #4285f4;">
-        <h3>📊 Tracking</h3>
-        <p>Every run logs token counts, estimated costs, response times, and the full conversation — all stored locally in the browser.</p>
+    </section>
+
+    <div class="toc" aria-label="Document contents">
+      <div class="toc-inner">
+        <a href="#summary">Executive overview</a>
+        <a href="#features">Capabilities</a>
+        <a href="#flow">User journey</a>
+        <a href="#architecture">Architecture</a>
+        <a href="#deployment">Deployment</a>
+        <a href="#risks">Risks</a>
       </div>
     </div>
 
-    <div class="card">
-      <h3>🔀 Two Operating Modes</h3>
-      <div class="grid-2" style="margin-top:0.75rem;">
-        <div style="padding:1rem;background:rgba(217,119,87,0.04);border:1.5px solid rgba(217,119,87,0.2);border-radius:10px;">
-          <strong style="font-size:0.88rem;">API Mode (default)</strong>
-          <p style="font-size:0.83rem;color:var(--muted);margin-top:0.4rem;line-height:1.65;">
-            Prompts are sent through an <strong>n8n automation workflow</strong> hosted at n8n.kleza.io.
-            n8n calls each model's API endpoint in parallel and returns structured JSON with each model's response
-            plus a Claude synthesis. No local server required.
-          </p>
+    <div class="page">
+      <section id="summary">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Executive overview</p>
+            <h2>Product purpose</h2>
+            <p class="section-note">A business-level view of what the product does and why it matters.</p>
+          </div>
         </div>
-        <div style="padding:1rem;background:rgba(124,58,237,0.04);border:1.5px solid rgba(124,58,237,0.2);border-radius:10px;">
-          <strong style="font-size:0.88rem;">Browser Mode</strong>
-          <p style="font-size:0.83rem;color:var(--muted);margin-top:0.4rem;line-height:1.65;">
-            A local <strong>Playwright server</strong> (Node.js + Express) drives a real Chromium browser in the background,
-            navigating to the actual chat interfaces of ChatGPT, Claude.ai, and Gemini.com.
-            This requires a one-time login but uses no API keys and has no per-token costs.
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- ─── 2. TECH STACK ─── -->
-  <div class="section" id="techstack">
-    <div class="section-header">
-      <div class="section-num">2</div>
-      <h2>Technology Stack</h2>
-    </div>
-    <div class="section-divider"></div>
+        <div class="grid grid-3">
+          <article class="card">
+            <div class="icon">1</div>
+            <h3>Ask once</h3>
+            <p>The user types one question into Excelliq instead of asking the same question separately in different AI tools.</p>
+          </article>
+          <article class="card">
+            <div class="icon">2</div>
+            <h3>Run multiple models</h3>
+            <p>The system sends that question to the selected models, such as ChatGPT, Gemini, and Claude.</p>
+          </article>
+          <article class="card">
+            <div class="icon">3</div>
+            <h3>Receive one final answer</h3>
+            <p>Claude reads the model responses and creates one polished final response for the user.</p>
+          </article>
+        </div>
 
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Layer</th>
-            <th>Technology</th>
-            <th>Version</th>
-            <th>Purpose</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><span class="badge badge-blue">Frontend</span></td>
-            <td><strong>React</strong></td>
-            <td>19.2.5</td>
-            <td>UI framework — component-based rendering and state management</td>
-          </tr>
-          <tr>
-            <td><span class="badge badge-blue">Frontend</span></td>
-            <td><strong>Vite</strong></td>
-            <td>8.x</td>
-            <td>Build tool and dev server — fast HMR with Oxc compiler</td>
-          </tr>
-          <tr>
-            <td><span class="badge badge-blue">Frontend</span></td>
-            <td><strong>Framer Motion</strong></td>
-            <td>latest</td>
-            <td>Landing page animations and transitions</td>
-          </tr>
-          <tr>
-            <td><span class="badge badge-blue">Frontend</span></td>
-            <td><strong>Recharts</strong></td>
-            <td>latest</td>
-            <td>Usage analytics charts (bar, pie)</td>
-          </tr>
-          <tr>
-            <td><span class="badge badge-blue">Frontend</span></td>
-            <td><strong>Lucide React</strong></td>
-            <td>latest</td>
-            <td>Icon library</td>
-          </tr>
-          <tr>
-            <td><span class="badge badge-blue">Frontend</span></td>
-            <td><strong>@react-oauth/google</strong></td>
-            <td>latest</td>
-            <td>Google Sign-In for onboarding</td>
-          </tr>
-          <tr>
-            <td><span class="badge badge-orange">Backend</span></td>
-            <td><strong>Node.js + Express</strong></td>
-            <td>Express 4.18</td>
-            <td>REST API server for browser-mode automation</td>
-          </tr>
-          <tr>
-            <td><span class="badge badge-orange">Backend</span></td>
-            <td><strong>Playwright</strong></td>
-            <td>1.44</td>
-            <td>Browser automation — controls real Chrome for ChatGPT/Claude/Gemini</td>
-          </tr>
-          <tr>
-            <td><span class="badge badge-purple">Workflow</span></td>
-            <td><strong>n8n</strong></td>
-            <td>self-hosted</td>
-            <td>No-code automation that orchestrates API calls to all three LLMs</td>
-          </tr>
-          <tr>
-            <td><span class="badge badge-gray">Storage</span></td>
-            <td><strong>localStorage</strong></td>
-            <td>browser native</td>
-            <td>All data persisted — no database, no backend data store</td>
-          </tr>
-          <tr>
-            <td><span class="badge badge-gray">Styling</span></td>
-            <td><strong>CSS-in-JS (inline)</strong></td>
-            <td>—</td>
-            <td>All UI styled via inline <code>style</code> props — no Tailwind, no CSS modules</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+        <div class="callout success" style="margin-top:18px">
+          <strong>Main value:</strong> the user gets a stronger answer by combining multiple AI perspectives, while still seeing the individual model responses when needed.
+        </div>
+      </section>
 
-  <!-- ─── 3. ARCHITECTURE ─── -->
-  <div class="section" id="architecture">
-    <div class="section-header">
-      <div class="section-num">3</div>
-      <h2>System Architecture & Data Flow</h2>
-    </div>
-    <div class="section-divider"></div>
+      <section id="features">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Product capabilities</p>
+            <h2>Key features</h2>
+          </div>
+        </div>
 
-    <div class="arch">
-      <p style="font-size:0.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:1.25rem;">High-Level Architecture</p>
+        <div class="grid grid-2">
+          <article class="card">
+            <h3>Browser Mode</h3>
+            <p>Users connect their own ChatGPT, Claude, and Gemini accounts by logging in through a browser controlled by the backend.</p>
+            <p>No official API keys are required for this mode.</p>
+            <div class="tag-row">
+              <span class="tag">No API keys</span>
+              <span class="tag">User-owned accounts</span>
+              <span class="tag">Saved browser sessions</span>
+            </div>
+          </article>
 
-      <!-- User -->
-      <div style="display:flex;justify-content:center;margin-bottom:0.75rem;">
-        <div class="arch-box accent" style="max-width:300px;">
-          <h4 style="color:var(--accent);">👤 User (Browser)</h4>
-          <p>React App · localStorage · Google OAuth</p>
-        </div>
-      </div>
+          <article class="card">
+            <h3>API Mode</h3>
+            <p>Users can optionally add provider API keys. This can be faster and more stable, but it requires official API access.</p>
+            <div class="tag-row">
+              <span class="tag">Faster</span>
+              <span class="tag">More reliable</span>
+              <span class="tag">Requires keys</span>
+            </div>
+          </article>
 
-      <div class="arch-down"><div class="arch-down-arrow">↕ HTTP/SSE</div></div>
+          <article class="card">
+            <h3>User accounts</h3>
+            <p>Supabase handles signup, login, Google authentication, and password reset.</p>
+          </article>
 
-      <!-- Two modes side by side -->
-      <div class="arch-branch">
-        <div class="arch-branch-box" style="border-color:#d97757;background:rgba(217,119,87,0.03);">
-          <h4 style="color:#d97757;">🔶 API Mode</h4>
-          <p>POST to <strong>n8n webhook</strong><br/>n8n.kleza.io<br/>→ Calls GPT, Gemini, Claude APIs in parallel<br/>→ Returns JSON (stage-1 + synthesis)</p>
+          <article class="card">
+            <h3>Admin portal</h3>
+            <p>A separate admin page shows user and session analytics without adding admin controls inside the chat interface.</p>
+          </article>
         </div>
-        <div style="display:flex;align-items:center;color:var(--muted);font-weight:700;padding:0 0.5rem;">OR</div>
-        <div class="arch-branch-box" style="border-color:#7c3aed;background:rgba(124,58,237,0.03);">
-          <h4 style="color:#7c3aed;">🔷 Browser Mode</h4>
-          <p>POST to <strong>localhost:3001</strong><br/>Express + Playwright server<br/>→ Drives hidden Chrome tabs<br/>→ Streams SSE in real-time</p>
-        </div>
-      </div>
+      </section>
 
-      <div class="arch-down"><div class="arch-down-arrow">↓ Responses</div></div>
+      <section id="flow">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Most important section</p>
+            <h2>Detailed user flow</h2>
+            <p class="section-note">This shows exactly what a user experiences from first visit to final AI answer.</p>
+          </div>
+        </div>
 
-      <!-- Output -->
-      <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
-        <div class="arch-box" style="flex:1;min-width:160px;border-color:#10a37f30;">
-          <h4 style="color:#10a37f;">ChatGPT</h4>
-          <p>Stage-1 response card</p>
-        </div>
-        <div class="arch-box" style="flex:1;min-width:160px;border-color:#4285f430;">
-          <h4 style="color:#4285f4;">Gemini</h4>
-          <p>Stage-1 response card</p>
-        </div>
-        <div class="arch-box" style="flex:1;min-width:160px;border-color:#d9775730;">
-          <h4 style="color:#d97757;">Claude</h4>
-          <p>Stage-1 + Final synthesis bubble</p>
-        </div>
-      </div>
-    </div>
+        <div class="split">
+          <div class="card">
+            <h3>First-time user journey</h3>
+            <p>A new user must create an account, choose a mode, connect models, and finish setup before entering the main chat screen.</p>
+            <div class="callout warning" style="margin-top:14px">
+              Browser Mode is the default because the product is designed to work without official API keys.
+            </div>
+          </div>
 
-    <div class="card">
-      <h3>📋 Step-by-Step Data Flow</h3>
-    </div>
-    <div class="flow">
-      <div class="flow-step">
-        <div class="flow-num">1</div>
-        <div class="flow-content">
-          <h4>First Visit — Landing & Onboarding</h4>
-          <p>User lands on the marketing page (<code>LandingPage.jsx</code>). On "Get Started", they are taken to a 3-step onboarding wizard where they enter their name, email, choose which models to enable, optionally enter API keys, and select API or Browser mode. Results are saved to <code>localStorage</code> under the key <code>ph_user</code>.</p>
+          <div class="flow">
+            <div class="flow-step">
+              <h3>User opens the application</h3>
+              <p>The user sees the landing page and clicks Get Started or Start for free.</p>
+            </div>
+            <div class="flow-step">
+              <h3>User creates an account</h3>
+              <p>The user signs up with email/password or Google. Supabase stores the user account and profile.</p>
+            </div>
+            <div class="flow-step">
+              <h3>User chooses Browser Mode or API Mode</h3>
+              <p>Browser Mode uses saved provider logins. API Mode uses official provider keys.</p>
+            </div>
+            <div class="flow-step">
+              <h3>User connects LLM accounts</h3>
+              <p>The user connects ChatGPT, Claude, and Gemini. Each provider is saved under the user's isolated browser profile.</p>
+            </div>
+            <div class="flow-step">
+              <h3>User clicks Finish</h3>
+              <p>The backend validates the sessions and marks each provider as connected, expired, or error.</p>
+            </div>
+            <div class="flow-step">
+              <h3>User enters the chat screen</h3>
+              <p>Onboarding is marked complete, so the user should not see setup again after future login.</p>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="flow-step">
-        <div class="flow-num">2</div>
-        <div class="flow-content">
-          <h4>Prompt Entry</h4>
-          <p>User types a prompt in the auto-growing textarea inside <code>PromptControl.jsx</code>. They can toggle mode (Battle vs Invisible), select which models to include, switch between API and Browser mode, or enable Deep Research before submitting. Enter submits, Shift+Enter adds a newline.</p>
-        </div>
-      </div>
-      <div class="flow-step">
-        <div class="flow-num">3</div>
-        <div class="flow-content">
-          <h4>Request Dispatch</h4>
-          <p>On submit, <code>handleRun()</code> saves the prompt to <code>submittedPrompt</code> state (so the input clears but the question bubble remains visible), then calls either <code>handleRunN8N()</code> or <code>handleRunPlaywright()</code> depending on the selected mode. An <code>AbortController</code> is created so the user can stop mid-run.</p>
-        </div>
-      </div>
-      <div class="flow-step">
-        <div class="flow-num">4</div>
-        <div class="flow-content">
-          <h4>API Mode — n8n Processing</h4>
-          <p>A POST is sent to the n8n webhook with the prompt, selected models, session ID, and any API keys from <code>ph_user</code>. n8n calls ChatGPT, Gemini, and Claude in parallel. The response JSON contains <code>raw.openai</code>, <code>raw.gemini</code>, <code>raw.claude</code> (stage-1), and <code>raw.output</code> (Claude's synthesis). The frontend parses these fields.</p>
-        </div>
-      </div>
-      <div class="flow-step">
-        <div class="flow-num">5</div>
-        <div class="flow-content">
-          <h4>Browser Mode — Playwright Streaming</h4>
-          <p>A POST is sent to <code>localhost:3001/run-prompt</code>. The Express server calls <code>scraper.js</code> which uses Playwright to open (or reuse) hidden Chrome tabs for all three services, pastes the prompt, waits for the response, and streams back partial results as Server-Sent Events (SSE). The frontend reads the SSE stream and updates each model card in real time as text arrives.</p>
-        </div>
-      </div>
-      <div class="flow-step">
-        <div class="flow-num">6</div>
-        <div class="flow-content">
-          <h4>Response Rendering</h4>
-          <p>Three cards (ChatGPT | Gemini | Claude) appear side by side during loading with animated dots. As content arrives, cards fill with markdown-rendered text. Once all models complete, Claude's final synthesis appears as a distinctive bubble below the three cards with its own copy button and elapsed time.</p>
-        </div>
-      </div>
-      <div class="flow-step">
-        <div class="flow-num">7</div>
-        <div class="flow-content">
-          <h4>History Persistence</h4>
-          <p>After each run, <code>App.jsx</code> calls <code>handleRunComplete()</code> which adds an entry to the <code>history</code> state array (max 100 items) with the full prompt, all three responses, token counts, cost estimates, and elapsed time. The array is synced to <code>localStorage</code> (<code>ph_history</code>) via a <code>useEffect</code>.</p>
-        </div>
-      </div>
-      <div class="flow-step">
-        <div class="flow-num">8</div>
-        <div class="flow-content">
-          <h4>Follow-Up Conversations</h4>
-          <p>After a completed run (or when viewing history), the user can type a follow-up question. The follow-up is sent to the n8n webhook with the original prompt and previous answer as context. Claude responds and the follow-up pair is appended to the conversation in both the UI and <code>localStorage</code>.</p>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- ─── 4. DIRECTORY STRUCTURE ─── -->
-  <div class="section" id="structure">
-    <div class="section-header">
-      <div class="section-num">4</div>
-      <h2>Directory Structure</h2>
-    </div>
-    <div class="section-divider"></div>
-    <div class="card">
-      <span class="code-label">Project root</span>
-      <div class="code-block">
-<span class="val">3llms-aichat-assistant/</span>
-├── <span class="key">src/</span>
-│   ├── <span class="key">pages/</span>                      <span class="comment"># Full-screen page components</span>
-│   │   ├── LandingPage.jsx             <span class="comment"># Public marketing homepage</span>
-│   │   ├── OnboardingPage.jsx          <span class="comment"># 3-step first-run setup wizard</span>
-│   │   ├── DashboardPage.jsx           <span class="comment"># Stats overview for power users</span>
-│   │   ├── PromptRunnerPage.jsx        <span class="comment"># Main chat interface shell</span>
-│   │   ├── ResultsHistoryPage.jsx      <span class="comment"># Full past-conversation viewer</span>
-│   │   ├── LLMModelsPage.jsx           <span class="comment"># Model info &amp; enable/disable</span>
-│   │   ├── SettingsPage.jsx            <span class="comment"># Profile, API keys, preferences</span>
-│   │   ├── AnalyticsPage.jsx           <span class="comment"># Usage charts and breakdowns</span>
-│   │   ├── AutomationsPage.jsx         <span class="comment"># Scheduled prompt jobs</span>
-│   │   └── IntegrationsPage.jsx        <span class="comment"># n8n &amp; output channel config</span>
-│   ├── <span class="key">components/</span>                 <span class="comment"># Reusable shared components</span>
-│   │   ├── PromptControl.jsx           <span class="comment"># Core input + response renderer (largest file)</span>
-│   │   ├── Sidebar.jsx                 <span class="comment"># Left nav with collapsible history</span>
-│   │   ├── Header.jsx                  <span class="comment"># Top bar with token/cost display</span>
-│   │   ├── HistoryTable.jsx            <span class="comment"># Tabular history with modal viewer</span>
-│   │   └── DashWidgets.jsx             <span class="comment"># Dashboard metric cards</span>
-│   ├── App.jsx                         <span class="comment"># Global state + page router</span>
-│   ├── main.jsx                        <span class="comment"># React entry point</span>
-│   ├── index.css                       <span class="comment"># Global resets and keyframe animations</span>
-│   └── App.css
-├── <span class="key">playwright-server/</span>              <span class="comment"># Standalone Node.js backend</span>
-│   ├── server.js                       <span class="comment"># Express API on port 3001</span>
-│   ├── scraper.js                      <span class="comment"># Playwright browser automation</span>
-│   ├── login.js                        <span class="comment"># One-time login helper</span>
-│   ├── browser-profile/               <span class="comment"># Persisted Chrome session (cookies)</span>
-│   └── package.json
-├── <span class="key">public/</span>
-│   ├── favicon.svg
-│   └── icons.svg
-├── index.html                          <span class="comment"># HTML shell (Google Fonts, root div)</span>
-├── vite.config.js
-├── eslint.config.js
-├── .env                                <span class="comment"># VITE_GOOGLE_CLIENT_ID</span>
-└── package.json
-      </div>
-    </div>
-  </div>
+        <div class="section-header" style="margin-top:34px">
+          <div>
+            <h2>Returning user flow</h2>
+            <p class="section-note">Existing users should go straight to chat if onboarding is already complete.</p>
+          </div>
+        </div>
 
-  <!-- ─── 5. PAGES ─── -->
-  <div class="section" id="pages">
-    <div class="section-header">
-      <div class="section-num">5</div>
-      <h2>Pages — Detailed Breakdown</h2>
-    </div>
-    <div class="section-divider"></div>
+        <div class="flow">
+          <div class="flow-step">
+            <h3>User logs in</h3>
+            <p>The user logs in using email/password or Google.</p>
+          </div>
+          <div class="flow-step">
+            <h3>App loads saved profile</h3>
+            <p>The backend retrieves the user's profile, client ID, preferences, onboarding status, and LLM session status.</p>
+          </div>
+          <div class="flow-step">
+            <h3>User asks a question</h3>
+            <p>The user types a prompt in the chat interface.</p>
+          </div>
+          <div class="flow-step">
+            <h3>App checks connected models</h3>
+            <p>If one model is expired, the system can skip it or guide the user to reconnect it.</p>
+          </div>
+          <div class="flow-step">
+            <h3>Backend sends the prompt</h3>
+            <p>Playwright opens the saved browser profile and submits the prompt to selected providers.</p>
+          </div>
+          <div class="flow-step">
+            <h3>Individual answers are collected</h3>
+            <p>ChatGPT, Gemini, and Claude responses are shown in separate cards.</p>
+          </div>
+          <div class="flow-step">
+            <h3>Claude creates final synthesis</h3>
+            <p>Claude receives the original question plus the model responses, then writes one final answer.</p>
+          </div>
+          <div class="flow-step">
+            <h3>User can ask follow-up questions</h3>
+            <p>The system can continue the conversation using the previous answer as context.</p>
+          </div>
+        </div>
+      </section>
 
-    <!-- Landing -->
-    <div class="card" style="border-left:4px solid var(--accent);">
-      <h3>🏠 LandingPage.jsx — Public Marketing Homepage</h3>
-      <p>
-        Shown on the very first visit, before the user has completed onboarding. Its purpose is to introduce the product
-        and convert visitors into users by clicking "Get Started".
-      </p>
-      <br/>
-      <p><strong>Key sections:</strong></p>
-      <ul style="list-style:none;padding:0;margin-top:0.5rem;">
-        <li style="padding:5px 0;font-size:0.85rem;color:var(--muted);">• <strong style="color:var(--text);">Hero</strong> — animated headline, subtitle, primary CTA button</li>
-        <li style="padding:5px 0;font-size:0.85rem;color:var(--muted);">• <strong style="color:var(--text);">Feature strip</strong> — three model pills with comparison teaser</li>
-        <li style="padding:5px 0;font-size:0.85rem;color:var(--muted);">• <strong style="color:var(--text);">How It Works</strong> — numbered 3-step visual flow (01, 02, 03)</li>
-        <li style="padding:5px 0;font-size:0.85rem;color:var(--muted);">• <strong style="color:var(--text);">Stats strip</strong> — white card showing models supported, avg. response time, accuracy claim</li>
-        <li style="padding:5px 0;font-size:0.85rem;color:var(--muted);">• <strong style="color:var(--text);">Footer CTA</strong> — second "Get Started" button</li>
-      </ul>
-      <br/>
-      <p>Uses Framer Motion for scroll-triggered fade-in animations. Guarded in <code>App.jsx</code> by <code>landingDone</code> state — once the user clicks Get Started, the landing never shows again.</p>
-    </div>
+      <section id="architecture">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">System architecture</p>
+            <h2>How the system works</h2>
+          </div>
+        </div>
 
-    <!-- Onboarding -->
-    <div class="card" style="border-left:4px solid #4285f4;">
-      <h3>🚀 OnboardingPage.jsx — First-Run Setup Wizard</h3>
-      <p>A 3-step guided wizard that runs exactly once per browser profile. Controlled by <code>ph_user.onboardingComplete</code> in localStorage.</p>
-      <br/>
-      <div class="table-wrap" style="margin-top:0.75rem;">
-        <table>
-          <thead><tr><th>Step</th><th>Title</th><th>Content</th><th>Validation</th></tr></thead>
+        <div class="split">
+          <div class="diagram">
+            <div class="diagram-node">User browser</div>
+            <div class="arrow">down</div>
+            <div class="diagram-node">React frontend</div>
+            <div class="arrow">down</div>
+            <div class="diagram-node">Node / Express backend</div>
+            <div class="arrow">connects to</div>
+            <div class="diagram-node">Supabase auth and database</div>
+            <div class="diagram-node">Playwright browser profiles</div>
+            <div class="arrow">opens</div>
+            <div class="diagram-node">ChatGPT, Claude, Gemini</div>
+          </div>
+
+          <div class="card">
+            <h3>Functional explanation</h3>
+            <p>The user works in the web application. The application communicates with a backend server. The backend connects to Supabase for user information and controls browser sessions for ChatGPT, Claude, and Gemini.</p>
+            <h3 style="margin-top:22px">Technical explanation</h3>
+            <p>The frontend is a React/Vite application. The backend is an Express server. Playwright controls browser sessions. Supabase stores users, preferences, and session status.</p>
+          </div>
+        </div>
+
+        <table style="margin-top:18px">
+          <thead>
+            <tr>
+              <th>Layer</th>
+              <th>Technology</th>
+              <th>Responsibility</th>
+            </tr>
+          </thead>
           <tbody>
             <tr>
-              <td><span class="badge badge-orange">1</span></td>
-              <td><strong>Welcome</strong></td>
-              <td>Display name field, email field, optional Google Sign-In button</td>
-              <td>Both fields must be non-empty</td>
+              <td><strong>Frontend</strong></td>
+              <td>React, Vite</td>
+              <td>User interface, onboarding, chat, settings, admin page</td>
             </tr>
             <tr>
-              <td><span class="badge badge-orange">2</span></td>
-              <td><strong>Configure Models</strong></td>
-              <td>Toggle cards for OpenAI, Claude, Gemini. Each card has a collapsible API key input. Mode selector: API vs Browser.</td>
-              <td>At least one model must be enabled</td>
+              <td><strong>Backend</strong></td>
+              <td>Node.js, Express</td>
+              <td>API routes, authentication handling, prompt orchestration</td>
             </tr>
             <tr>
-              <td><span class="badge badge-orange">3</span></td>
-              <td><strong>Ready</strong></td>
-              <td>Summary card showing name, mode, enabled models as coloured pills</td>
-              <td>"Start Chatting" writes <code>ph_user</code> to localStorage</td>
+              <td><strong>Automation</strong></td>
+              <td>Playwright, Chrome</td>
+              <td>Browser login, prompt sending, response reading</td>
+            </tr>
+            <tr>
+              <td><strong>Database and auth</strong></td>
+              <td>Supabase</td>
+              <td>Users, profiles, preferences, session tracking</td>
+            </tr>
+            <tr>
+              <td><strong>Storage</strong></td>
+              <td>Persistent server disk</td>
+              <td>Browser profiles and cookies</td>
             </tr>
           </tbody>
         </table>
-      </div>
-    </div>
+      </section>
 
-    <!-- Dashboard -->
-    <div class="card" style="border-left:4px solid #10a37f;">
-      <h3>📊 DashboardPage.jsx — Executive Overview</h3>
-      <p>A metrics-first page for users who want a quick summary of their Excelliq usage at a glance.</p>
-      <br/>
-      <p><strong>Widgets displayed:</strong></p>
-      <ul style="list-style:none;padding:0;margin-top:0.5rem;">
-        <li style="padding:5px 0;font-size:0.85rem;color:var(--muted);">• Total prompt runs to date</li>
-        <li style="padding:5px 0;font-size:0.85rem;color:var(--muted);">• Total tokens consumed (input + output)</li>
-        <li style="padding:5px 0;font-size:0.85rem;color:var(--muted);">• Estimated total spend (USD)</li>
-        <li style="padding:5px 0;font-size:0.85rem;color:var(--muted);">• Best-performing model (most frequently first to respond)</li>
-        <li style="padding:5px 0;font-size:0.85rem;color:var(--muted);">• Recent history table — last 5 runs with status chips and quick-view links</li>
-        <li style="padding:5px 0;font-size:0.85rem;color:var(--muted);">• Navigation shortcuts to Analytics, Models, Settings</li>
-      </ul>
-      <br/>
-      <p>All data is read from the <code>history</code> and <code>usage</code> props passed down from <code>App.jsx</code>.</p>
-    </div>
+      <section id="prompt-flow">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Prompt execution</p>
+            <h2>How an answer is generated</h2>
+          </div>
+        </div>
 
-    <!-- Prompt Runner -->
-    <div class="card" style="border-left:4px solid #d97757;">
-      <h3>💬 PromptRunnerPage.jsx — Main Chat Interface</h3>
-      <p>
-        The primary page users spend most time on. It is a thin shell that renders a greeting and mounts the
-        <code>PromptControl</code> component which contains all the real logic.
-        When the user starts a new chat from the sidebar ("+ New Chat"), <code>chatKey</code> in App.jsx increments,
-        which remounts the entire <code>PromptRunnerPage</code> with fresh state.
-      </p>
-    </div>
+        <div class="grid grid-2">
+          <div class="card">
+            <h3>Functional flow</h3>
+            <p>The user asks one question. The app sends it to multiple models. Each model answers. Claude then reads the responses and prepares the best final version.</p>
+          </div>
+          <div class="card">
+            <h3>Technical route</h3>
+            <p>The frontend calls <code>POST /run-prompt</code>. The backend streams progress events while Playwright collects responses and sends final data back to the frontend.</p>
+          </div>
+        </div>
 
-    <!-- History -->
-    <div class="card" style="border-left:4px solid #7c3aed;">
-      <h3>🕓 ResultsHistoryPage.jsx — Past Conversation Viewer</h3>
-      <p>
-        Opened when the user clicks any item in the sidebar history list. Receives the <code>selectedId</code> and
-        finds the matching history entry. Renders the full conversation in a clean chat-style layout:
-      </p>
-      <br/>
-      <ul style="list-style:none;padding:0;">
-        <li style="padding:5px 0;font-size:0.85rem;color:var(--muted);">• <strong style="color:var(--text);">User bubble</strong> (right-aligned, dark background) — the original prompt</li>
-        <li style="padding:5px 0;font-size:0.85rem;color:var(--muted);">• <strong style="color:var(--text);">Model cards</strong> — ChatGPT and Gemini side by side with markdown rendering</li>
-        <li style="padding:5px 0;font-size:0.85rem;color:var(--muted);">• <strong style="color:var(--text);">Claude synthesis bubble</strong> (orange accent border) — the final synthesized answer</li>
-        <li style="padding:5px 0;font-size:0.85rem;color:var(--muted);">• <strong style="color:var(--text);">Follow-up pairs</strong> — each follow-up question and Claude's response rendered chronologically</li>
-        <li style="padding:5px 0;font-size:0.85rem;color:var(--muted);">• <strong style="color:var(--text);">Follow-up composer</strong> — allows the user to continue the conversation with new questions</li>
-      </ul>
-    </div>
+        <pre><code>Frontend
+  -> POST /run-prompt
+  -> Backend validates client_id and selected models
+  -> Playwright opens saved browser profile
+  -> Prompt is sent to ChatGPT, Claude, and Gemini
+  -> Responses are read from each provider interface
+  -> Claude receives the synthesis prompt
+  -> Final answer is streamed back to the user</code></pre>
 
-    <!-- Other pages -->
-    <div class="grid-2">
-      <div class="card">
-        <h3>⚙️ SettingsPage.jsx</h3>
-        <p>Edit display name and email. View, add, or update API keys for each model (with show/hide masking). Toggle models on/off. Reset all usage statistics. Links to the Browser Mode login helper.</p>
-      </div>
-      <div class="card">
-        <h3>🤖 LLMModelsPage.jsx</h3>
-        <p>Reference cards for GPT-4.1 Mini, Claude Haiku 4.5, and Gemini 1.5 Flash. Shows context window, per-token pricing, key strengths, and an enable/disable toggle per model.</p>
-      </div>
-      <div class="card">
-        <h3>📈 AnalyticsPage.jsx</h3>
-        <p>Weekly bar chart of runs per day, token usage by model (bar), and cost breakdown pie chart. All data sourced live from localStorage history — no external analytics service.</p>
-      </div>
-      <div class="card">
-        <h3>⏰ AutomationsPage.jsx</h3>
-        <p>Create and manage scheduled prompt jobs with frequency templates (hourly, daily, weekly). Jobs can be enabled/disabled and deleted. UI only — scheduling logic connects to n8n.</p>
-      </div>
-      <div class="card" style="grid-column:1/-1;">
-        <h3>🔌 IntegrationsPage.jsx</h3>
-        <p>Configure the n8n webhook URL, manage API keys for integrations, and set output delivery channels: Slack (webhook URL), Email (SMTP), WhatsApp (Twilio), Google Sheets (spreadsheet ID). The page shows connection status for each channel.</p>
-      </div>
-    </div>
-  </div>
+        <div class="callout" style="margin-top:18px">
+          <strong>Final synthesis behavior:</strong> Claude is instructed to understand the user's goal, compare all responses, keep strong claims, remove weak claims, resolve conflicts, and produce one clean answer without source labels or extra commentary.
+        </div>
+      </section>
 
-  <!-- ─── 6. COMPONENTS ─── -->
-  <div class="section" id="components">
-    <div class="section-header">
-      <div class="section-num">6</div>
-      <h2>Core Components</h2>
-    </div>
-    <div class="section-divider"></div>
+      <section id="data">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Data and security</p>
+            <h2>What is stored and what is not stored</h2>
+          </div>
+        </div>
 
-    <!-- PromptControl -->
-    <div class="card" style="margin-bottom:1.5rem;">
-      <h3>🧩 PromptControl.jsx — The Heart of the App</h3>
-      <p>This is the largest and most complex file in the frontend. It handles everything from the prompt input to rendering all model responses.</p>
-
-      <br/>
-      <p><strong>State managed inside PromptControl:</strong></p>
-      <div class="table-wrap" style="margin-top:0.75rem;">
         <table>
-          <thead><tr><th>State</th><th>Type</th><th>Purpose</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Where it is stored</th>
+              <th>Why it is needed</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td><code>prompt</code></td><td>string</td><td>Current value of the textarea (cleared on submit)</td></tr>
-            <tr><td><code>submittedPrompt</code></td><td>string</td><td>Snapshot of prompt saved before clearing — used for the user bubble display</td></tr>
-            <tr><td><code>status</code></td><td>'idle' | 'running' | 'complete'</td><td>Controls which UI section is visible</td></tr>
-            <tr><td><code>content</code></td><td>{ openai, claude, gemini }</td><td>Stage-1 raw text responses from each model</td></tr>
-            <tr><td><code>synthesis</code></td><td>string</td><td>Claude's final synthesized answer (separate from stage-1)</td></tr>
-            <tr><td><code>elapsed</code></td><td>number | null</td><td>Run time in seconds, shown in the Chip below the synthesis</td></tr>
-            <tr><td><code>selectedModels</code></td><td>string[]</td><td>Which models are active for this run. Initialised from <code>ph_user.enabledModels</code></td></tr>
-            <tr><td><code>mode</code></td><td>'battle' | 'invisible'</td><td>Battle = side-by-side cards; Invisible = clean Claude-only bubble</td></tr>
-            <tr><td><code>usePlaywright</code></td><td>boolean</td><td>Whether to use the Playwright server instead of n8n</td></tr>
-            <tr><td><code>deepResearch</code></td><td>boolean</td><td>Enables web-search mode (forces Playwright, 600s timeout)</td></tr>
-            <tr><td><code>followUpQuestion</code></td><td>string</td><td>Text of the follow-up being composed</td></tr>
-            <tr><td><code>followUps</code></td><td>array</td><td>All completed follow-up pairs for this session</td></tr>
-            <tr><td><code>modelStats</code></td><td>{ openai, claude, gemini }</td><td>Per-model token count and cost estimate</td></tr>
+            <tr>
+              <td><strong>User account</strong></td>
+              <td>Supabase Auth</td>
+              <td>Login and identity</td>
+            </tr>
+            <tr>
+              <td><strong>User profile</strong></td>
+              <td><code>profiles</code> table</td>
+              <td>Name, email, client ID</td>
+            </tr>
+            <tr>
+              <td><strong>Preferences</strong></td>
+              <td><code>client_preferences</code> table</td>
+              <td>Mode and enabled models</td>
+            </tr>
+            <tr>
+              <td><strong>Session status</strong></td>
+              <td><code>client_llm_sessions</code> table</td>
+              <td>Provider connection tracking</td>
+            </tr>
+            <tr>
+              <td><strong>Browser cookies</strong></td>
+              <td>Server browser profile folder</td>
+              <td>Keeps LLM accounts logged in</td>
+            </tr>
           </tbody>
         </table>
-      </div>
 
-      <br/>
-      <p><strong>Key functions:</strong></p>
-      <div class="table-wrap" style="margin-top:0.75rem;">
+        <div class="grid grid-2" style="margin-top:18px">
+          <div class="callout success">
+            <strong>Stored safely:</strong> browser cookies, authenticated browser sessions, client profile path, and provider connection status.
+          </div>
+          <div class="callout risk">
+            <strong>Not stored:</strong> ChatGPT passwords, Claude passwords, Gemini passwords, or third-party account passwords.
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:18px">
+          <h3>Client isolation</h3>
+          <p>Each user has a unique <code>client_id</code>. Each client gets a separate Playwright browser profile so accounts do not mix.</p>
+          <pre><code>playwright-server/profiles/client_123/
+playwright-server/profiles/client_456/</code></pre>
+        </div>
+      </section>
+
+      <section id="deployment">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Deployment</p>
+            <h2>Production setup</h2>
+          </div>
+        </div>
+
         <table>
-          <thead><tr><th>Function</th><th>What it does</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Part</th>
+              <th>Recommended hosting</th>
+              <th>Important requirement</th>
+            </tr>
+          </thead>
           <tbody>
-            <tr><td><code>handleRun()</code></td><td>Saves <code>submittedPrompt</code>, clears textarea, dispatches to N8N or Playwright handler</td></tr>
-            <tr><td><code>handleRunN8N()</code></td><td>POSTs to n8n webhook, parses response JSON into openai/claude/gemini/synthesis fields</td></tr>
-            <tr><td><code>handleRunPlaywright()</code></td><td>POSTs to localhost:3001, reads SSE stream, updates content state incrementally</td></tr>
-            <tr><td><code>handleStop()</code></td><td>Calls <code>abortControllerRef.current.abort()</code> to cancel in-flight request; resets status to 'idle'</td></tr>
-            <tr><td><code>handleFollowUp()</code></td><td>Sends follow-up question with full context (original prompt + previous answer) to n8n</td></tr>
-            <tr><td><code>extractClaudeOutput()</code></td><td>Strips UI artifacts from Playwright-scraped Claude responses</td></tr>
-            <tr><td><code>parseError()</code></td><td>Classifies error strings into typed error objects (rate limit, auth, timeout, etc.) for friendly display</td></tr>
+            <tr>
+              <td><strong>Frontend</strong></td>
+              <td>Vercel, Netlify, Cloudflare Pages</td>
+              <td>Build and serve the <code>dist</code> folder</td>
+            </tr>
+            <tr>
+              <td><strong>Backend</strong></td>
+              <td>VPS, Render, Railway, Fly.io, Docker host</td>
+              <td>Must run continuously</td>
+            </tr>
+            <tr>
+              <td><strong>Database</strong></td>
+              <td>Supabase</td>
+              <td>Run schema and configure auth redirects</td>
+            </tr>
+            <tr>
+              <td><strong>Browser profiles</strong></td>
+              <td>Persistent server disk</td>
+              <td>Must survive backend restart</td>
+            </tr>
           </tbody>
         </table>
-      </div>
 
-      <br/>
-      <p><strong>Response field mapping (n8n API mode):</strong></p>
-      <div class="code-block" style="margin-top:0.75rem;">
-<span class="comment">// Stage-1 individual answers</span>
-<span class="key">const</span> openaiRes    = raw.openai || raw.gpt        <span class="comment">// ChatGPT stage-1</span>
-<span class="key">const</span> geminiRes    = raw.gemini || raw.google      <span class="comment">// Gemini stage-1</span>
-<span class="key">const</span> claudeRes    = raw.claude || raw.anthropic   <span class="comment">// Claude stage-1</span>
-
-<span class="comment">// Stage-2 synthesis (Claude reads all 3 and synthesizes)</span>
-<span class="key">const</span> synthesisText = raw.output || raw.synthesis  <span class="comment">// Claude final answer</span>
-      </div>
-
-      <br/>
-      <p><strong>Pricing constants (per 1M tokens):</strong></p>
-      <div class="code-block" style="margin-top:0.75rem;">
-<span class="key">const</span> PRICING = {
-  openai: { input: <span class="str">0.40</span>,  output: <span class="str">1.60</span>  },  <span class="comment">// GPT-4.1 Mini</span>
-  claude: { input: <span class="str">0.80</span>,  output: <span class="str">4.00</span>  },  <span class="comment">// Claude Haiku 4.5</span>
-  gemini: { input: <span class="str">0.075</span>, output: <span class="str">0.30</span>  },  <span class="comment">// Gemini 1.5 Flash</span>
-}
-      </div>
-
-      <br/>
-      <p><strong>Custom Markdown renderer</strong> — no external library. Supports: H1–H6, bold (<code>**text**</code>), italic (<code>*text*</code>), inline code, fenced code blocks, ordered lists, unordered lists, blockquotes, tables (with header separator detection), horizontal rules, and hyperlinks.</p>
-    </div>
-
-    <!-- Sidebar -->
-    <div class="card">
-      <h3>📋 Sidebar.jsx — Navigation & History</h3>
-      <p>A fixed-left collapsible sidebar (240px wide, collapses to 0 with CSS transition). Key sections:</p>
-      <br/>
-      <ul style="list-style:none;padding:0;">
-        <li style="padding:5px 0;font-size:0.85rem;color:var(--muted);">• <strong style="color:var(--text);">Logo + "Kleza Excelliq AI"</strong> wordmark at top, with collapse button</li>
-        <li style="padding:5px 0;font-size:0.85rem;color:var(--muted);">• <strong style="color:var(--text);">"+ New Chat" button</strong> — calls <code>onNewChat()</code> in App.jsx which increments <code>chatKey</code></li>
-        <li style="padding:5px 0;font-size:0.85rem;color:var(--muted);">• <strong style="color:var(--text);">Navigation links</strong> — Dashboard, Prompt Runner, Models, History, Automations, Analytics, Integrations, Settings</li>
-        <li style="padding:5px 0;font-size:0.85rem;color:var(--muted);">• <strong style="color:var(--text);">Real-time search</strong> — filters history items as the user types</li>
-        <li style="padding:5px 0;font-size:0.85rem;color:var(--muted);">• <strong style="color:var(--text);">Chat history list</strong> — grouped by Today / Yesterday / This Week / Older; clicking any item calls <code>onHistorySelect(id)</code></li>
-        <li style="padding:5px 0;font-size:0.85rem;color:var(--muted);">• <strong style="color:var(--text);">User profile chip</strong> at bottom — shows name and email from <code>ph_user</code>, with dropdown for Settings, Help, Logout</li>
-      </ul>
-    </div>
-  </div>
-
-  <!-- ─── 7. BACKEND ─── -->
-  <div class="section" id="backend">
-    <div class="section-header">
-      <div class="section-num">7</div>
-      <h2>Backend — Playwright Server</h2>
-    </div>
-    <div class="section-divider"></div>
-
-    <div class="note note-info">
-      <span class="note-icon">ℹ️</span>
-      The Playwright server is only required for <strong>Browser Mode</strong>. In API Mode, all traffic goes directly from the browser to the n8n webhook — no local server is involved.
-    </div>
-
-    <div class="card" style="margin-top:1rem;">
-      <h3>🖥️ server.js — Express API (port 3001)</h3>
-      <p>A lightweight Node.js/Express server that acts as the bridge between the React frontend and the Playwright browser automation layer.</p>
-    </div>
-
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Method</th><th>Route</th><th>Purpose</th><th>Response</th></tr></thead>
-        <tbody>
-          <tr>
-            <td><div class="endpoint"><span class="method method-post">POST</span></div></td>
-            <td><code>/run-prompt</code></td>
-            <td>Send prompt to all 3 LLMs in parallel. Accepts <code>{ prompt, selectedModels, deepResearch }</code></td>
-            <td>Server-Sent Events (SSE) stream — emits <code>partial</code> events and a final <code>complete</code> event</td>
-          </tr>
-          <tr>
-            <td><div class="endpoint"><span class="method method-post">POST</span></div></td>
-            <td><code>/follow-up</code></td>
-            <td>Follow-up question with context. Accepts <code>{ question, originalPrompt, previousAnswer }</code></td>
-            <td>SSE stream — same format as <code>/run-prompt</code></td>
-          </tr>
-          <tr>
-            <td><div class="endpoint"><span class="method method-post">POST</span></div></td>
-            <td><code>/show-chrome</code></td>
-            <td>Move the hidden Chrome window back onto the screen so the user can log in</td>
-            <td>JSON <code>{ ok: true }</code></td>
-          </tr>
-          <tr>
-            <td><div class="endpoint"><span class="method method-post">POST</span></div></td>
-            <td><code>/hide-chrome</code></td>
-            <td>Move Chrome window off-screen to <code>-32000, -32000</code> after login</td>
-            <td>JSON <code>{ ok: true }</code></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="card" style="margin-top:1.25rem;">
-      <h3>🎭 scraper.js — Playwright Automation Logic</h3>
-      <p>The core automation file. It maintains a single persistent Chromium browser instance (using a saved profile) and controls hidden Chrome tabs for each LLM service.</p>
-      <br/>
-      <p><strong>How browser mode works step by step:</strong></p>
-      <div class="flow" style="margin-top:0.75rem;">
-        <div class="flow-step">
-          <div class="flow-num" style="background:#7c3aed;">1</div>
-          <div class="flow-content">
-            <h4>Persistent Browser Launch</h4>
-            <p>On startup, Playwright launches Chrome using the <code>browser-profile/</code> directory as the user data directory. This preserves all cookies and sessions between server restarts. The window is positioned at <code>(-32000, -32000)</code> and minimized — invisible to the user.</p>
+        <div class="grid grid-2" style="margin-top:18px">
+          <div class="card">
+            <h3>Frontend environment</h3>
+            <pre><code>VITE_PLAYWRIGHT_SERVER_URL=https://your-backend-domain.com
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=your_publishable_key
+VITE_GOOGLE_CLIENT_ID=your_google_client_id
+VITE_REMOTE_LOGIN_MODE=preview</code></pre>
+          </div>
+          <div class="card">
+            <h3>Backend environment</h3>
+            <pre><code>PORT=3001
+APP_URL=https://your-frontend-domain.com
+ALLOWED_ORIGINS=https://your-frontend-domain.com
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+PLAYWRIGHT_HEADLESS=true</code></pre>
           </div>
         </div>
-        <div class="flow-step">
-          <div class="flow-num" style="background:#7c3aed;">2</div>
-          <div class="flow-content">
-            <h4>Parallel Prompt Dispatch</h4>
-            <p><code>runPromptOnAllLLMs()</code> opens (or reuses) tabs for <code>chat.openai.com</code>, <code>claude.ai</code>, and <code>gemini.google.com</code>. It uses <code>Promise.all()</code> to send the prompt to all three simultaneously.</p>
+
+        <div class="callout warning" style="margin-top:18px">
+          <strong>Critical production point:</strong> the app cannot be deployed as a frontend-only site. Browser Mode requires the Playwright backend to run continuously with persistent storage.
+        </div>
+      </section>
+
+      <section id="admin">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Administration</p>
+            <h2>Admin portal flow</h2>
           </div>
         </div>
-        <div class="flow-step">
-          <div class="flow-num" style="background:#7c3aed;">3</div>
-          <div class="flow-content">
-            <h4>Prompt Injection</h4>
-            <p>Each service's textarea/contenteditable is located with Playwright selectors. The prompt is pasted using <code>page.evaluate()</code> to set the value and dispatch input events — mimicking real typing to avoid bot detection.</p>
+
+        <div class="flow">
+          <div class="flow-step">
+            <h3>Admin opens <code>/admin</code></h3>
+            <p>The admin portal is independent from the normal chat interface.</p>
+          </div>
+          <div class="flow-step">
+            <h3>Admin logs in</h3>
+            <p>The backend validates the configured admin email and password.</p>
+          </div>
+          <div class="flow-step">
+            <h3>Admin views analytics</h3>
+            <p>The portal shows signed-in users, Browser Mode users, connected sessions, provider status, and profile information.</p>
           </div>
         </div>
-        <div class="flow-step">
-          <div class="flow-num" style="background:#7c3aed;">4</div>
-          <div class="flow-content">
-            <h4>Response Extraction</h4>
-            <p>Each model's response area is polled until the "stop generating" button disappears (or a timeout is hit). The full response text is then extracted. Claude responses are cleaned by <code>extractClaudeOutput()</code> to remove UI text that leaks into the DOM.</p>
+      </section>
+
+      <section id="risks">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Production risks</p>
+            <h2>What can go wrong after deployment</h2>
           </div>
         </div>
-        <div class="flow-step">
-          <div class="flow-num" style="background:#7c3aed;">5</div>
-          <div class="flow-content">
-            <h4>SSE Streaming</h4>
-            <p>Partial results are emitted as SSE events as each model finishes. The frontend updates the corresponding model card in real time. Once all three are done, a final <code>complete</code> event with all results and timing is sent.</p>
+
+        <div class="grid grid-2">
+          <div class="callout risk">
+            <strong>Third-party interface changes:</strong> ChatGPT, Claude, or Gemini can change their product interfaces, which may break selectors or response-reading behavior.
+          </div>
+          <div class="callout risk">
+            <strong>Captchas and bot checks:</strong> Providers may ask users to complete additional login verification.
+          </div>
+          <div class="callout warning">
+            <strong>Session expiry:</strong> Browser cookies can expire, so users may need to reconnect accounts.
+          </div>
+          <div class="callout warning">
+            <strong>Remote browser smoothness:</strong> The deployed preview is screenshot-based. For a smoother experience, use noVNC, WebRTC, or a managed remote browser service.
+          </div>
+          <div class="callout warning">
+            <strong>Server resources:</strong> Browser automation uses more CPU and memory than a normal API server.
+          </div>
+          <div class="callout warning">
+            <strong>Persistent storage:</strong> If browser profiles are not stored on persistent disk, users will lose login sessions after restart.
           </div>
         </div>
-      </div>
-    </div>
+      </section>
 
-    <div class="note note-warn" style="margin-top:1rem;">
-      <span class="note-icon">⚠️</span>
-      <span>The Playwright server uses an <code>isRunning</code> flag to prevent concurrent prompt executions — only one prompt can run at a time in Browser Mode.</span>
-    </div>
-
-    <div class="card" style="margin-top:1rem;">
-      <h3>🔐 login.js — First-Time Browser Login</h3>
-      <p>
-        Run <strong>once</strong> with <code>node login.js</code>. This opens Chrome visibly and navigates to ChatGPT, Claude, and Gemini. The user logs in manually to each service. Session cookies are automatically saved to the <code>browser-profile/</code> directory and reused on every subsequent server start — no re-login needed.
-      </p>
-    </div>
-  </div>
-
-  <!-- ─── 8. DATA ─── -->
-  <div class="section" id="data">
-    <div class="section-header">
-      <div class="section-num">8</div>
-      <h2>State Management & Data Storage</h2>
-    </div>
-    <div class="section-divider"></div>
-
-    <div class="card">
-      <h3>🗄️ localStorage Schema</h3>
-      <p>All user data is stored in the browser's localStorage. There is no backend database. Three keys are used:</p>
-      <br/>
-
-      <span class="code-label">ph_user — User profile & configuration</span>
-      <div class="code-block">
-{
-  <span class="key">"name"</span>:               <span class="str">"Navadeep"</span>,
-  <span class="key">"email"</span>:              <span class="str">"dm@kleza.io"</span>,
-  <span class="key">"onboardingComplete"</span>: <span class="val">true</span>,
-  <span class="key">"mode"</span>:               <span class="str">"api"</span>,        <span class="comment">// "api" | "browser"</span>
-  <span class="key">"apiKeys"</span>: {
-    <span class="key">"openai"</span>:    <span class="str">"sk-..."</span>,
-    <span class="key">"anthropic"</span>: <span class="str">"sk-ant-..."</span>,
-    <span class="key">"google"</span>:    <span class="str">"AIza..."</span>
-  },
-  <span class="key">"enabledModels"</span>: [<span class="str">"openai"</span>, <span class="str">"claude"</span>, <span class="str">"gemini"</span>]
-}
-      </div>
-
-      <span class="code-label">ph_usage — Cumulative token & cost totals</span>
-      <div class="code-block">
-{
-  <span class="key">"totalInputTokens"</span>:  <span class="val">142850</span>,
-  <span class="key">"totalOutputTokens"</span>: <span class="val">38200</span>,
-  <span class="key">"totalTokens"</span>:       <span class="val">181050</span>,
-  <span class="key">"totalCost"</span>:         <span class="val">0.0312</span>   <span class="comment">// USD</span>
-}
-      </div>
-
-      <span class="code-label">ph_history — Array of up to 100 past runs</span>
-      <div class="code-block">
-[
-  {
-    <span class="key">"id"</span>:        <span class="val">1716220800000</span>,       <span class="comment">// Date.now() as unique ID</span>
-    <span class="key">"prompt"</span>:    <span class="str">"What is quantum entanglement?"</span>,
-    <span class="key">"date"</span>:      <span class="str">"20 May 2026, 10:30 am"</span>,
-    <span class="key">"best"</span>:      <span class="str">"Gemini 1.5"</span>,
-    <span class="key">"status"</span>:    <span class="str">"Complete"</span>,
-    <span class="key">"responses"</span>: {
-      <span class="key">"openai"</span>: <span class="str">"..."</span>, <span class="key">"claude"</span>: <span class="str">"..."</span>, <span class="key">"gemini"</span>: <span class="str">"..."</span>
-    },
-    <span class="key">"tokenData"</span>: { <span class="key">"totalTokens"</span>: <span class="val">3200</span>, <span class="key">"runCost"</span>: <span class="val">0.0008</span> },
-    <span class="key">"elapsed"</span>:   <span class="str">"4.32"</span>,
-    <span class="key">"followUps"</span>: [
-      { <span class="key">"question"</span>: <span class="str">"Can you explain that simpler?"</span>, <span class="key">"answer"</span>: <span class="str">"..."</span> }
-    ]
-  }
-]
-      </div>
-    </div>
-
-    <div class="card" style="margin-top:1.25rem;">
-      <h3>🔁 Global State in App.jsx</h3>
-      <p>
-        <code>App.jsx</code> is the single source of truth for application-level state. It manages the router
-        logic, user session, history array, and usage totals. Page-specific state (like individual response content)
-        lives inside the relevant component. All state is initialised from localStorage using lazy initializer functions.
-      </p>
-      <br/>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>State variable</th><th>Purpose</th></tr></thead>
-          <tbody>
-            <tr><td><code>onboardingDone</code></td><td>Guards the app — shows <code>OnboardingPage</code> if false</td></tr>
-            <tr><td><code>landingDone</code></td><td>Shows <code>LandingPage</code> on very first visit, then never again</td></tr>
-            <tr><td><code>activePage</code></td><td>Which page component is currently rendered (string key)</td></tr>
-            <tr><td><code>sidebarOpen</code></td><td>Whether sidebar is expanded (240px) or hidden (0px)</td></tr>
-            <tr><td><code>chatKey</code></td><td>Incremented on "New Chat" to remount PromptRunnerPage with fresh state</td></tr>
-            <tr><td><code>activeHistoryId</code></td><td>ID of the history entry to show in ResultsHistoryPage</td></tr>
-            <tr><td><code>history</code></td><td>Array of all past runs, synced to <code>ph_history</code></td></tr>
-            <tr><td><code>usage</code></td><td>Cumulative token & cost totals, synced to <code>ph_usage</code></td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- ─── 9. DESIGN ─── -->
-  <div class="section" id="design">
-    <div class="section-header">
-      <div class="section-num">9</div>
-      <h2>UI Design System</h2>
-    </div>
-    <div class="section-divider"></div>
-
-    <div class="card">
-      <h3>🎨 Colour Palette</h3>
-      <div class="swatches" style="margin-top:1rem;">
-        <div class="swatch">
-          <div class="swatch-box" style="background:#f5f4f0;"></div>
-          <strong>#f5f4f0</strong>
-          <p>App BG</p>
-        </div>
-        <div class="swatch">
-          <div class="swatch-box" style="background:#eceae4;border:1px solid #ddd;"></div>
-          <strong>#eceae4</strong>
-          <p>Sidebar</p>
-        </div>
-        <div class="swatch">
-          <div class="swatch-box" style="background:#d97757;"></div>
-          <strong>#d97757</strong>
-          <p>Accent</p>
-        </div>
-        <div class="swatch">
-          <div class="swatch-box" style="background:#1c1c1c;"></div>
-          <strong>#1c1c1c</strong>
-          <p>Text Dark</p>
-        </div>
-        <div class="swatch">
-          <div class="swatch-box" style="background:#78716c;"></div>
-          <strong>#78716c</strong>
-          <p>Text Muted</p>
-        </div>
-        <div class="swatch">
-          <div class="swatch-box" style="background:#10a37f;"></div>
-          <strong>#10a37f</strong>
-          <p>OpenAI</p>
-        </div>
-        <div class="swatch">
-          <div class="swatch-box" style="background:#d97757;"></div>
-          <strong>#d97757</strong>
-          <p>Claude</p>
-        </div>
-        <div class="swatch">
-          <div class="swatch-box" style="background:#4285f4;"></div>
-          <strong>#4285f4</strong>
-          <p>Gemini</p>
-        </div>
-        <div class="swatch">
-          <div class="swatch-box" style="background:#7c3aed;"></div>
-          <strong>#7c3aed</strong>
-          <p>Deep Research</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="grid-2" style="margin-top:1.25rem;">
-      <div class="card">
-        <h3>🔤 Typography</h3>
-        <ul style="list-style:none;padding:0;">
-          <li style="padding:6px 0;border-bottom:1px solid var(--border);font-size:0.85rem;color:var(--muted);">
-            <strong style="font-family:'Lora',serif;color:var(--text);">Lora (serif)</strong> — Page headings, hero titles, section headers
-          </li>
-          <li style="padding:6px 0;border-bottom:1px solid var(--border);font-size:0.85rem;color:var(--muted);">
-            <strong style="color:var(--text);">Inter (sans-serif)</strong> — All body text, labels, UI elements
-          </li>
-          <li style="padding:6px 0;font-size:0.85rem;color:var(--muted);">
-            <strong style="font-family:'JetBrains Mono',monospace;color:var(--text);">JetBrains Mono</strong> — Code blocks, API keys, technical values
-          </li>
-        </ul>
-      </div>
-      <div class="card">
-        <h3>📐 Spacing & Shape</h3>
-        <ul style="list-style:none;padding:0;">
-          <li style="padding:6px 0;border-bottom:1px solid var(--border);font-size:0.85rem;color:var(--muted);"><strong style="color:var(--text);">Border radius</strong> — 14–18px for cards, 50% for avatars, 10px for chips</li>
-          <li style="padding:6px 0;border-bottom:1px solid var(--border);font-size:0.85rem;color:var(--muted);"><strong style="color:var(--text);">Shadow</strong> — <code>0 1px 4px rgba(0,0,0,0.04)</code> for cards</li>
-          <li style="padding:6px 0;font-size:0.85rem;color:var(--muted);"><strong style="color:var(--text);">No external UI library</strong> — Every element is hand-coded with inline <code>style</code> props</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="card" style="margin-top:1.25rem;">
-      <h3>✨ Animations</h3>
-      <div class="grid-3" style="margin-top:0.75rem;">
-        <div style="text-align:center;padding:1rem;background:var(--bg);border-radius:10px;">
-          <div style="font-size:1.5rem;margin-bottom:0.5rem;animation:spin 2s linear infinite;display:inline-block;">◌</div>
-          <p style="font-size:0.78rem;color:var(--muted);"><strong style="color:var(--text);">spin</strong><br/>Button loading state</p>
-        </div>
-        <div style="text-align:center;padding:1rem;background:var(--bg);border-radius:10px;">
-          <div style="display:flex;gap:4px;justify-content:center;margin-bottom:0.5rem;">
-            <span style="width:8px;height:8px;border-radius:50%;background:#d97757;display:inline-block;animation:blink 1s ease infinite;"></span>
-            <span style="width:8px;height:8px;border-radius:50%;background:#d97757;display:inline-block;animation:blink 1s ease infinite;animation-delay:0.25s;"></span>
-            <span style="width:8px;height:8px;border-radius:50%;background:#d97757;display:inline-block;animation:blink 1s ease infinite;animation-delay:0.5s;"></span>
-          </div>
-          <p style="font-size:0.78rem;color:var(--muted);"><strong style="color:var(--text);">blink</strong><br/>Model loading dots</p>
-        </div>
-        <div style="text-align:center;padding:1rem;background:var(--bg);border-radius:10px;">
-          <div style="font-size:1.4rem;margin-bottom:0.5rem;animation:float 2s ease-in-out infinite;display:inline-block;">🔍</div>
-          <p style="font-size:0.78rem;color:var(--muted);"><strong style="color:var(--text);">float</strong><br/>Deep Research icon</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="card" style="margin-top:1.25rem;">
-      <h3>🤖 Three Model Cards — Visual Design</h3>
-      <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:0.75rem;">
-        <div style="flex:1;min-width:180px;border:1.5px solid #10a37f30;border-radius:12px;overflow:hidden;background:#fff;">
-          <div style="padding:9px 14px;background:#10a37f0a;border-bottom:1px solid #10a37f18;display:flex;align-items:center;gap:8px;">
-            <div style="width:7px;height:7px;border-radius:50%;background:#10a37f;"></div>
-            <span style="font-weight:600;font-size:0.83rem;">ChatGPT</span>
-            <span style="margin-left:auto;font-size:0.65rem;padding:2px 8px;border-radius:10px;font-weight:600;background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;">Done</span>
-          </div>
-          <div style="padding:12px 14px;font-size:0.8rem;color:var(--muted);">Stage-1 response text rendered here in markdown…</div>
-        </div>
-        <div style="flex:1;min-width:180px;border:1.5px solid #4285f430;border-radius:12px;overflow:hidden;background:#fff;">
-          <div style="padding:9px 14px;background:#4285f40a;border-bottom:1px solid #4285f418;display:flex;align-items:center;gap:8px;">
-            <div style="width:7px;height:7px;border-radius:50%;background:#4285f4;"></div>
-            <span style="font-weight:600;font-size:0.83rem;">Gemini</span>
-            <span style="margin-left:auto;font-size:0.65rem;padding:2px 8px;border-radius:10px;font-weight:600;background:#4285f412;color:#4285f4;border:1px solid #4285f430;display:inline-flex;align-items:center;gap:4px;"><span style="animation:spin 1s linear infinite;display:inline-block;">◌</span> Running</span>
-          </div>
-          <div style="padding:12px 14px;display:flex;gap:5px;">
-            <span style="width:7px;height:7px;border-radius:50%;background:#4285f4;opacity:0.4;"></span>
-            <span style="width:7px;height:7px;border-radius:50%;background:#4285f4;opacity:0.4;"></span>
-            <span style="width:7px;height:7px;border-radius:50%;background:#4285f4;opacity:0.4;"></span>
+      <section id="checklist">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Launch readiness</p>
+            <h2>Final checklist</h2>
           </div>
         </div>
-        <div style="flex:1;min-width:180px;border:1.5px solid #d9775730;border-radius:12px;overflow:hidden;background:#fff;">
-          <div style="padding:9px 14px;background:#d977570a;border-bottom:1px solid #d9775718;display:flex;align-items:center;gap:8px;">
-            <div style="width:7px;height:7px;border-radius:50%;background:#d97757;"></div>
-            <span style="font-weight:600;font-size:0.83rem;">Claude</span>
-            <span style="margin-left:auto;font-size:0.65rem;padding:2px 8px;border-radius:10px;font-weight:600;background:#d9775712;color:#d97757;border:1px solid #d9775730;display:inline-flex;align-items:center;gap:4px;"><span style="animation:spin 1s linear infinite;display:inline-block;">◌</span> Running</span>
-          </div>
-          <div style="padding:12px 14px;display:flex;gap:5px;">
-            <span style="width:7px;height:7px;border-radius:50%;background:#d97757;opacity:0.4;"></span>
-            <span style="width:7px;height:7px;border-radius:50%;background:#d97757;opacity:0.4;"></span>
-            <span style="width:7px;height:7px;border-radius:50%;background:#d97757;opacity:0.4;"></span>
-          </div>
+
+        <div class="checklist">
+          <div class="check">Signup works</div>
+          <div class="check">Login works</div>
+          <div class="check">Google login works</div>
+          <div class="check">Forgot password works</div>
+          <div class="check">Existing users skip setup</div>
+          <div class="check">ChatGPT connects</div>
+          <div class="check">Claude connects</div>
+          <div class="check">Gemini connects</div>
+          <div class="check">Prompt run returns responses</div>
+          <div class="check">Claude synthesis appears</div>
+          <div class="check">Follow-up questions work</div>
+          <div class="check">Admin portal works</div>
+          <div class="check"><code>/health</code> returns ok</div>
+          <div class="check">Persistent storage is mounted</div>
+          <div class="check">Supabase redirects are configured</div>
+          <div class="check">Service role key is backend-only</div>
         </div>
-      </div>
+      </section>
+
+      <footer>
+        <h2 style="color:#fff;font-size:34px">Final summary</h2>
+        <p style="max-width:850px;color:#d8d0c5;margin:14px 0 0">
+          Kleza Excelliq AI is a multi-model answer engine. It lets users connect ChatGPT, Claude, and Gemini, ask one question, and receive one stronger final answer synthesized by Claude. The most important production requirement is a continuously running Playwright backend with persistent browser-profile storage.
+        </p>
+      </footer>
     </div>
-  </div>
-
-  <!-- ─── 10. RUNNING ─── -->
-  <div class="section" id="running">
-    <div class="section-header">
-      <div class="section-num">10</div>
-      <h2>Running the Project</h2>
-    </div>
-    <div class="section-divider"></div>
-
-    <div class="card">
-      <h3>⚡ Frontend (always required)</h3>
-      <span class="code-label">Install dependencies and start dev server</span>
-      <div class="code-block">
-<span class="comment"># Navigate to the project folder</span>
-<span class="fn">cd</span> <span class="str">"3llms-aichat-assistant"</span>
-
-<span class="comment"># Install npm packages</span>
-<span class="fn">npm</span> install
-
-<span class="comment"># Start Vite dev server — opens at http://localhost:5173</span>
-<span class="fn">npm</span> run dev
-
-<span class="comment"># Build for production</span>
-<span class="fn">npm</span> run build
-      </div>
-    </div>
-
-    <div class="card" style="margin-top:1.25rem;">
-      <h3>🎭 Playwright Server (Browser Mode only)</h3>
-      <div class="note note-info" style="margin-bottom:1rem;">
-        <span class="note-icon">ℹ️</span>
-        Skip this if you are using API Mode — the Playwright server is only required when the user toggles "Browser Mode" in the app.
-      </div>
-      <span class="code-label">Step 1 — Install server dependencies</span>
-      <div class="code-block">
-<span class="fn">cd</span> playwright-server
-<span class="fn">npm</span> install
-<span class="fn">npx</span> playwright install chromium
-      </div>
-
-      <span class="code-label">Step 2 — First-time login (run once)</span>
-      <div class="code-block">
-<span class="fn">node</span> login.js
-<span class="comment"># Chrome opens visibly — log in to ChatGPT, Claude, and Gemini</span>
-<span class="comment"># Close the script once all three are logged in</span>
-<span class="comment"># Sessions are saved to browser-profile/ and persist forever</span>
-      </div>
-
-      <span class="code-label">Step 3 — Start the server</span>
-      <div class="code-block">
-<span class="fn">node</span> server.js
-<span class="comment"># Server starts on http://localhost:3001</span>
-<span class="comment"># Keep this running while using Browser Mode</span>
-      </div>
-    </div>
-
-    <div class="card" style="margin-top:1.25rem;">
-      <h3>🔧 Environment Variables</h3>
-      <span class="code-label">.env (in project root)</span>
-      <div class="code-block">
-<span class="key">VITE_GOOGLE_CLIENT_ID</span>=<span class="str">358308177821-6br29ha1cr7eohcjd55g7p2klacsoato.apps.googleusercontent.com</span>
-      </div>
-      <p style="font-size:0.85rem;color:var(--muted);margin-top:0.5rem;">This enables the "Sign in with Google" button in the onboarding wizard. Vite exposes <code>VITE_*</code> variables to the frontend at build time.</p>
-    </div>
-  </div>
-
-  <!-- ─── 11. SECURITY ─── -->
-  <div class="section" id="security">
-    <div class="section-header">
-      <div class="section-num">11</div>
-      <h2>Security Notes</h2>
-    </div>
-    <div class="section-divider"></div>
-
-    <div class="note note-danger">
-      <span class="note-icon">🔒</span>
-      <strong>API keys are stored in browser localStorage</strong> — they are not encrypted. Anyone with access to the user's browser DevTools can read them. This is acceptable for a personal/team internal tool but not for a public deployment. Consider storing keys server-side for production use.
-    </div>
-    <div class="note note-warn" style="margin-top:0.75rem;">
-      <span class="note-icon">⚠️</span>
-      The <strong>Playwright server has no authentication</strong>. It should only ever be run on localhost — never exposed to a public network or the internet.
-    </div>
-    <div class="note note-warn" style="margin-top:0.75rem;">
-      <span class="note-icon">⚠️</span>
-      The <strong>browser-profile/ directory</strong> contains logged-in sessions for ChatGPT, Claude, and Gemini (cookies/tokens). Treat it like a password file — do not commit it to git, share it, or store it insecurely.
-    </div>
-    <div class="note note-info" style="margin-top:0.75rem;">
-      <span class="note-icon">✅</span>
-      API keys are <strong>never sent to any Kleza server</strong>. In API Mode, only the prompt text and selected models are sent to the n8n webhook. API keys are included in the request body when the n8n workflow is configured to accept them, but never logged or stored externally.
-    </div>
-  </div>
-
-  <!-- ─── 12. LIMITATIONS ─── -->
-  <div class="section" id="limitations">
-    <div class="section-header">
-      <div class="section-num">12</div>
-      <h2>Known Limitations</h2>
-    </div>
-    <div class="section-divider"></div>
-
-    <div class="grid-2">
-      <div class="card">
-        <h3>💾 Storage cap — 100 history items</h3>
-        <p>localStorage has a ~5MB size limit per origin. History is capped at 100 entries. Older entries are silently dropped when the limit is reached. For larger history needs, an export feature or IndexedDB migration would be required.</p>
-      </div>
-      <div class="card">
-        <h3>🖥️ Browser Mode requires local server</h3>
-        <p>The Playwright server must be running on the same machine as the browser. It cannot be deployed to a remote host in its current form, as it needs a display and logged-in browser sessions.</p>
-      </div>
-      <div class="card">
-        <h3>🌐 Deep Research — Browser Mode only</h3>
-        <p>Deep Research uses Playwright to leverage each model's built-in web-search feature (ChatGPT Browse, Gemini with Google Search, Claude with web tool). It is not available in API Mode and has a 600-second timeout.</p>
-      </div>
-      <div class="card">
-        <h3>👤 Single-user, single-device</h3>
-        <p>All data (history, usage, API keys, profile) is scoped to the browser's localStorage. Data does not sync across devices or browsers, and there is no multi-user or account system.</p>
-      </div>
-      <div class="card">
-        <h3>📊 Analytics uses estimates</h3>
-        <p>When n8n does not return actual token usage data, the app estimates token counts from character length (chars ÷ 4). Real token counts may differ, especially for non-English content or code-heavy prompts.</p>
-      </div>
-      <div class="card">
-        <h3>🔄 No real-time sync</h3>
-        <p>If the user has multiple tabs open, state changes in one tab (e.g., a completed run) are not reflected in other tabs until the page is refreshed. This is a limitation of localStorage-based state.</p>
-      </div>
-    </div>
-  </div>
-
-</div><!-- end page-wrap -->
-
-<footer>
-  <p>Built by <strong>Kleza Solutions Pvt Ltd</strong> · Powered by <strong>OpenAI</strong>, <strong>Anthropic</strong>, and <strong>Google AI</strong></p>
-  <p style="margin-top:6px;">Kleza Excelliq AI · Internal Project Documentation · 2026</p>
-</footer>
-
-<style>
-  @keyframes spin  { to { transform: rotate(360deg); } }
-  @keyframes blink { 0%,100%{opacity:.2} 50%{opacity:1} }
-  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
-</style>
-
+  </main>
 </body>
 </html>
