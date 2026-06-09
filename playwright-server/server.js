@@ -30,6 +30,8 @@ const {
 } = require('./session-manager');
 
 const app = express();
+const DEFAULT_N8N_WEBHOOK_URL = 'https://n8n.kleza.io/webhook/bf39cd7e-9f1b-4b3e-98eb-8b746cd2b510/chat';
+const N8N_WEBHOOK_URL = process.env.N8N_WEBHOOK_URL || DEFAULT_N8N_WEBHOOK_URL;
 const allowedOrigins = String(process.env.ALLOWED_ORIGINS || process.env.APP_URL || '')
   .split(',')
   .map(origin => origin.trim().replace(/\/+$/, ''))
@@ -327,6 +329,39 @@ app.post('/admin/login', (req, res) => {
     res.json({ ok: true, ...createAdminPortalSession(req.body || {}) });
   } catch (e) {
     res.status(e.status || 401).json({ error: e.message });
+  }
+});
+
+app.post('/api/n8n-chat', async (req, res) => {
+  try {
+    const n8nRes = await fetch(N8N_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req.body || {}),
+    });
+
+    const text = await n8nRes.text();
+    let payload = null;
+    if (text.trim()) {
+      try {
+        payload = JSON.parse(text);
+      } catch {
+        payload = { output: text };
+      }
+    } else {
+      payload = {};
+    }
+
+    if (!n8nRes.ok) {
+      return res.status(n8nRes.status).json({
+        error: payload?.error || payload?.message || n8nRes.statusText || 'n8n workflow failed.',
+        details: payload,
+      });
+    }
+
+    res.json(payload);
+  } catch (e) {
+    res.status(502).json({ error: `Unable to reach n8n workflow: ${e.message}` });
   }
 });
 

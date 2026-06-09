@@ -610,7 +610,7 @@ const BattleCard = ({ name, color, content, isRunning, minimized, onToggleMinimi
 
 const PLAYWRIGHT_URL = `${PLAYWRIGHT_SERVER}/run-prompt`;
 const FOLLOWUP_URL   = `${PLAYWRIGHT_SERVER}/follow-up`;
-const N8N_URL        = 'https://n8n.kleza.io/webhook/bf39cd7e-9f1b-4b3e-98eb-8b746cd2b510/chat';
+const N8N_URL        = `${PLAYWRIGHT_SERVER}/api/n8n-chat`;
 
 /* ─── Main Control ────────────────────────────────────────────────── */
 const PromptControl = ({ onRunComplete, onFollowUpComplete }) => {
@@ -840,7 +840,8 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete }) => {
         signal: abortControllerRef.current?.signal,
       });
       const elapsedVal = ((Date.now() - t0) / 1000).toFixed(2);
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || data.message || res.statusText || 'n8n workflow failed.');
       const raw  = Array.isArray(data) && data.length > 0 ? data[0] : data;
 
       // Stage 1: individual model answers (never fall back to the synthesis field)
@@ -892,8 +893,19 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete }) => {
     } catch (e) {
       if (e.name === 'AbortError') { setStatus('idle'); return; }
       console.error(e);
+      const message = e.message || 'Unknown error';
+      if (/gateway|time-?out|timeout|504/i.test(message)) {
+        setContent({
+          openai: 'n8n took too long to return the API response. Retrying this prompt through Browser Mode...',
+          claude: 'n8n took too long to return the API response. Retrying this prompt through Browser Mode...',
+          gemini: 'n8n took too long to return the API response. Retrying this prompt through Browser Mode...',
+        });
+        setSynthesis('n8n timed out while returning the workflow response, so Excelliq is retrying through the connected browser sessions.');
+        await handleRunPlaywright();
+        return;
+      }
       setStatus('idle');
-      alert('Failed to reach n8n workflow.');
+      alert(`Failed to reach n8n workflow: ${message}`);
     }
   };
 

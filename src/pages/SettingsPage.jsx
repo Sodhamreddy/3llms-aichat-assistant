@@ -497,17 +497,17 @@ const SettingsPage = () => {
                   </div>
                   <button
                     onClick={() => openPreferredLogin(m.key)}
-                    disabled={chromeStatus === 'loading' || USE_SHARED_BROWSER}
+                    disabled={chromeStatus === 'loading'}
                     style={{
                       padding: '0.48rem 0.8rem', borderRadius: '9px', border: 'none',
                       background: connected ? '#ffffff' : m.color,
                       color: connected ? m.color : '#ffffff',
                       boxShadow: connected ? 'inset 0 0 0 1px rgba(0,0,0,0.08)' : 'none',
-                      cursor: chromeStatus === 'loading' || USE_SHARED_BROWSER ? 'not-allowed' : 'pointer',
+                      cursor: chromeStatus === 'loading' ? 'not-allowed' : 'pointer',
                       fontWeight: 700, fontSize: '0.74rem', whiteSpace: 'nowrap',
                     }}
                   >
-                    {USE_SHARED_BROWSER ? 'Server managed' : connected ? 'Reconnect' : 'Connect'}
+                    {USE_SHARED_BROWSER ? (connected ? 'Reconnect shared' : 'Connect shared') : connected ? 'Reconnect' : 'Connect'}
                   </button>
                 </div>
               );
