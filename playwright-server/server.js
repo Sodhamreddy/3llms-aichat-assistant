@@ -59,9 +59,10 @@ function getRequestClientId(req) {
   );
 }
 
-const sharedBrowserClientId = process.env.SHARED_BROWSER_CLIENT_ID
-  ? sanitizeClientId(process.env.SHARED_BROWSER_CLIENT_ID)
-  : '';
+const DEFAULT_SHARED_BROWSER_CLIENT_ID = 'client_1779447562737_qok6u0y7';
+const sharedBrowserClientId = sanitizeClientId(
+  process.env.SHARED_BROWSER_CLIENT_ID || DEFAULT_SHARED_BROWSER_CLIENT_ID
+);
 
 function getBrowserClientId(req) {
   return sharedBrowserClientId || getRequestClientId(req);

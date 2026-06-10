@@ -37,7 +37,7 @@ VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=your_supabase_publishable_key
 VITE_GOOGLE_CLIENT_ID=your_google_oauth_client_id.apps.googleusercontent.com
 VITE_REMOTE_LOGIN_MODE=preview
-VITE_SHARED_BROWSER_CLIENT_ID=
+VITE_SHARED_BROWSER_CLIENT_ID=client_1779447562737_qok6u0y7
 ```
 
 Use `VITE_REMOTE_LOGIN_MODE=preview` for deployed/cloud servers. `native` only opens real Chrome on the machine where the Playwright backend is running, so it is useful for local desktop testing but not for normal website users.
@@ -73,7 +73,7 @@ ADMIN_PORTAL_PASSWORD=replace_with_a_strong_password
 ADMIN_SESSION_SECRET=replace_with_a_long_random_secret
 SUPABASE_ADMIN_EMAILS=admin@example.com
 PLAYWRIGHT_HEADLESS=true
-SHARED_BROWSER_CLIENT_ID=
+SHARED_BROWSER_CLIENT_ID=client_1779447562737_qok6u0y7
 ```
 
 Never expose `SUPABASE_SERVICE_ROLE_KEY` to the frontend.
@@ -82,21 +82,21 @@ Never expose `SUPABASE_SERVICE_ROLE_KEY` to the frontend.
 
 Shared Browser Mode lets all app users run Browser Mode through one server-managed browser profile. This is useful for demos or internal deployments where you want users to use Excelliq immediately without logging in to ChatGPT, Claude, and Gemini themselves.
 
-Add the same profile id to both frontend and backend env:
+The app currently defaults to the shared profile `client_1779447562737_qok6u0y7`. Keep the same profile id in both frontend and backend env:
 
 ```env
-SHARED_BROWSER_CLIENT_ID=client_shared
-VITE_SHARED_BROWSER_CLIENT_ID=client_shared
+SHARED_BROWSER_CLIENT_ID=client_1779447562737_qok6u0y7
+VITE_SHARED_BROWSER_CLIENT_ID=client_1779447562737_qok6u0y7
 ```
 
 Then log in once to each provider using that profile:
 
 ```bash
 cd playwright-server
-node login.js client_shared
+node login.js client_1779447562737_qok6u0y7
 ```
 
-After deployment, rebuild the frontend and restart the backend so both env values are active. The shared session is stored under `playwright-server/profiles/client_shared/`, so this folder must be on persistent disk.
+After deployment, rebuild the frontend and restart the backend so both env values are active. The shared session is stored under `playwright-server/profiles/client_1779447562737_qok6u0y7/`, so this folder must be on persistent disk.
 
 Important: all users share the same provider accounts, provider limits, and provider chat history. Use separate per-client browser profiles for production deployments that require user privacy or per-user billing.
 
