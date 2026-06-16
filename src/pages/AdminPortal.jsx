@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-import { PLAYWRIGHT_SERVER } from '../config/api';
+import { API_SERVER } from '../config/api';
 
 const providerLabels = { openai: 'ChatGPT', claude: 'Claude', gemini: 'Gemini' };
-const providerColors = { openai: '#10a37f', claude: '#d97757', gemini: '#4285f4' };
 
 const formatDate = (value) => {
   if (!value) return 'Never';
@@ -13,26 +12,15 @@ const formatDate = (value) => {
 
 const statusColor = (status) => {
   const clean = String(status || '').toLowerCase();
-  if (clean.includes('connected') || clean === 'complete') return { bg: '#ecfdf5', color: '#047857', border: '#a7f3d0' };
-  if (clean.includes('expired') || clean === 'pending') return { bg: '#fffbeb', color: '#b45309', border: '#fde68a' };
-  if (clean.includes('error')) return { bg: '#fef2f2', color: '#dc2626', border: '#fecaca' };
+  if (clean.includes('complete') || clean === 'api') return { bg: '#ecfdf5', color: '#047857', border: '#a7f3d0' };
+  if (clean.includes('pending')) return { bg: '#fffbeb', color: '#b45309', border: '#fde68a' };
   return { bg: '#f8fafc', color: '#64748b', border: '#e2e8f0' };
 };
 
 const Pill = ({ children, status }) => {
   const s = statusColor(status || children);
   return (
-    <span style={{
-      display: 'inline-flex',
-      border: `1px solid ${s.border}`,
-      background: s.bg,
-      color: s.color,
-      borderRadius: 999,
-      padding: '0.22rem 0.55rem',
-      fontSize: '0.68rem',
-      fontWeight: 900,
-      whiteSpace: 'nowrap',
-    }}>
+    <span style={{ display: 'inline-flex', border: `1px solid ${s.border}`, background: s.bg, color: s.color, borderRadius: 999, padding: '0.22rem 0.55rem', fontSize: '0.68rem', fontWeight: 900, whiteSpace: 'nowrap' }}>
       {children}
     </span>
   );
@@ -60,7 +48,7 @@ const AdminPortal = () => {
     setBusy(true);
     setError('');
     try {
-      const res = await fetch(`${PLAYWRIGHT_SERVER}/admin/analytics`, {
+      const res = await fetch(`${API_SERVER}/admin/analytics`, {
         headers: { Authorization: `Bearer ${authToken}` },
       });
       const payload = await res.json().catch(() => ({}));
@@ -88,7 +76,7 @@ const AdminPortal = () => {
     setBusy(true);
     setError('');
     try {
-      const res = await fetch(`${PLAYWRIGHT_SERVER}/admin/login`, {
+      const res = await fetch(`${API_SERVER}/admin/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -122,7 +110,7 @@ const AdminPortal = () => {
               <div style={{ color: '#fed7aa', fontSize: '0.74rem', fontWeight: 900, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Admin portal</div>
               <h1 style={{ fontSize: '2rem', lineHeight: 1.1, margin: '0.7rem 0 0' }}>Kleza Excelliq AI operations</h1>
               <p style={{ color: '#cbd5e1', lineHeight: 1.6, marginTop: '1rem' }}>
-                A separate admin page for user analytics, account setup state, and browser LLM session health.
+                A separate admin page for API-mode user analytics, onboarding state, and model preferences.
               </p>
             </div>
             <div style={{ display: 'grid', gap: '0.65rem', color: '#e5e7eb', fontSize: '0.88rem' }}>
@@ -148,7 +136,6 @@ const AdminPortal = () => {
   }
 
   const totals = data?.totals || {};
-  const providers = data?.providers || {};
   const users = data?.users || [];
 
   return (
@@ -158,7 +145,7 @@ const AdminPortal = () => {
           <div>
             <div style={{ color: '#d97757', fontSize: '0.74rem', fontWeight: 900, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 6 }}>Admin portal</div>
             <h1 style={{ margin: 0, color: '#0f172a', fontSize: '1.85rem', fontWeight: 900 }}>User Analytics</h1>
-            <p style={{ margin: '0.4rem 0 0', color: '#64748b' }}>Signed-in users, setup status, preferences, and browser LLM session health.</p>
+            <p style={{ margin: '0.4rem 0 0', color: '#64748b' }}>Signed-in users, API setup status, and model preferences.</p>
           </div>
           <div style={{ display: 'flex', gap: '0.7rem' }}>
             <button onClick={() => loadAnalytics()} disabled={busy} style={{ border: '1px solid #dbe3ef', background: '#ffffff', borderRadius: 10, padding: '0.65rem 1rem', fontWeight: 900, cursor: busy ? 'not-allowed' : 'pointer' }}>{busy ? 'Refreshing...' : 'Refresh'}</button>
@@ -168,50 +155,22 @@ const AdminPortal = () => {
 
         {error && <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', color: '#9a3412', borderRadius: 12, padding: '1rem', marginBottom: '1rem', fontWeight: 800 }}>{error}</div>}
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(160px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(160px, 1fr))', gap: '1rem', marginBottom: '1rem' }}>
           <Metric label="Signed-in Users" value={totals.users ?? 0} note="Supabase auth accounts" color="#2563eb" />
           <Metric label="Completed Setup" value={totals.onboardingComplete ?? 0} note="Finished onboarding" color="#059669" />
-          <Metric label="Browser Mode Users" value={totals.browserMode ?? 0} note="Saved browser profiles" color="#7c3aed" />
-          <Metric label="Connected Sessions" value={totals.connectedSessions ?? 0} note="Provider accounts" color="#d97757" />
-        </div>
-
-        <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: 14, padding: '1.2rem', marginBottom: '1rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '1rem', marginBottom: '1rem' }}>
-            <div>
-              <h2 style={{ margin: 0, color: '#0f172a', fontSize: '1rem' }}>LLM Account Health</h2>
-              <p style={{ margin: '0.25rem 0 0', color: '#94a3b8', fontSize: '0.78rem' }}>Updated {formatDate(data?.generatedAt)}</p>
-            </div>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(180px, 1fr))', gap: '0.85rem' }}>
-            {Object.keys(providerLabels).map(provider => {
-              const item = providers[provider] || {};
-              return (
-                <div key={provider} style={{ border: '1px solid #edf2f7', borderRadius: 12, padding: '1rem', background: '#fbfdff' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#0f172a', fontWeight: 900, marginBottom: '0.75rem' }}>
-                    <span style={{ width: 9, height: 9, borderRadius: '50%', background: providerColors[provider] }} />
-                    {providerLabels[provider]}
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem', color: '#64748b', fontSize: '0.76rem' }}>
-                    <span>Connected: <strong style={{ color: '#047857' }}>{item.connected || 0}</strong></span>
-                    <span>Expired: <strong style={{ color: '#b45309' }}>{item.expired || 0}</strong></span>
-                    <span>Error: <strong style={{ color: '#dc2626' }}>{item.error || 0}</strong></span>
-                    <span>Total: <strong style={{ color: '#0f172a' }}>{item.total || 0}</strong></span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          <Metric label="API Mode Users" value={totals.apiMode ?? 0} note="n8n workflow users" color="#d97757" />
         </div>
 
         <div style={{ background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: 14, overflow: 'hidden' }}>
           <div style={{ padding: '1rem 1.2rem', borderBottom: '1px solid #edf2f7' }}>
             <h2 style={{ margin: 0, color: '#0f172a', fontSize: '1rem' }}>Signed-in Users</h2>
+            <p style={{ margin: '0.25rem 0 0', color: '#94a3b8', fontSize: '0.78rem' }}>Updated {formatDate(data?.generatedAt)}</p>
           </div>
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 1040 }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 900 }}>
               <thead>
                 <tr style={{ background: '#f8fafc', color: '#64748b', textAlign: 'left', fontSize: '0.72rem' }}>
-                  {['User', 'Client ID', 'Mode', 'Enabled Models', 'LLM Sessions', 'Last Sign-in', 'Setup'].map(header => (
+                  {['User', 'Client ID', 'Mode', 'Enabled Models', 'Last Sign-in', 'Setup'].map(header => (
                     <th key={header} style={{ padding: '0.75rem 1rem', fontWeight: 900 }}>{header}</th>
                   ))}
                 </tr>
@@ -226,19 +185,12 @@ const AdminPortal = () => {
                     <td style={{ padding: '0.9rem 1rem', color: '#334155', fontSize: '0.78rem', verticalAlign: 'top' }}>{user.clientId || 'Missing'}</td>
                     <td style={{ padding: '0.9rem 1rem', verticalAlign: 'top' }}><Pill>{user.mode}</Pill></td>
                     <td style={{ padding: '0.9rem 1rem', color: '#334155', fontSize: '0.78rem', verticalAlign: 'top' }}>{user.enabledModels?.length ? user.enabledModels.map(model => providerLabels[model] || model).join(', ') : 'None'}</td>
-                    <td style={{ padding: '0.9rem 1rem', verticalAlign: 'top' }}>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem' }}>
-                        {Object.keys(providerLabels).map(provider => (
-                          <Pill key={provider} status={user.sessions?.[provider]?.status}>{providerLabels[provider]}: {user.sessions?.[provider]?.status || 'unknown'}</Pill>
-                        ))}
-                      </div>
-                    </td>
                     <td style={{ padding: '0.9rem 1rem', color: '#334155', fontSize: '0.78rem', verticalAlign: 'top' }}>{formatDate(user.lastSignInAt)}</td>
                     <td style={{ padding: '0.9rem 1rem', verticalAlign: 'top' }}><Pill status={user.onboardingComplete ? 'complete' : 'pending'}>{user.onboardingComplete ? 'complete' : 'pending'}</Pill></td>
                   </tr>
                 ))}
                 {!users.length && !busy && (
-                  <tr><td colSpan="7" style={{ color: '#94a3b8', padding: '2rem', textAlign: 'center' }}>No users found yet.</td></tr>
+                  <tr><td colSpan="6" style={{ color: '#94a3b8', padding: '2rem', textAlign: 'center' }}>No users found yet.</td></tr>
                 )}
               </tbody>
             </table>

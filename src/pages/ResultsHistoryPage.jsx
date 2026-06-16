@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
+import { API_SERVER } from '../config/api';
 
-const N8N_URL = 'https://n8n.kleza.io/webhook/bf39cd7e-9f1b-4b3e-98eb-8b746cd2b510/chat';
+const N8N_URL = `${API_SERVER}/api/n8n-chat`;
 
 /* ── Inline markdown ──────────────────────────────────────────────────── */
 const renderInline = (text, kp = 'i') =>

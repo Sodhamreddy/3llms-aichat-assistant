@@ -3,8 +3,6 @@ const path = require('path');
 const crypto = require('crypto');
 const { createClient } = require('@supabase/supabase-js');
 
-const PROVIDERS = ['openai', 'claude', 'gemini'];
-
 function loadRootEnv() {
   const envPath = path.join(__dirname, '..', '.env');
   try {
@@ -157,39 +155,6 @@ function byKey(rows, key) {
   return new Map((rows || []).map(row => [row[key], row]));
 }
 
-function makeSessionMap(sessions) {
-  const map = new Map();
-  (sessions || []).forEach(session => {
-    const userId = session.user_id;
-    if (!userId) return;
-    const provider = session.provider;
-    if (!PROVIDERS.includes(provider)) return;
-    const existing = map.get(userId) || {};
-    existing[provider] = session;
-    map.set(userId, existing);
-  });
-  return map;
-}
-
-function summarizeProviderStatuses(sessions) {
-  const summary = Object.fromEntries(PROVIDERS.map(provider => [
-    provider,
-    { connected: 0, expired: 0, error: 0, unknown: 0, total: 0 },
-  ]));
-
-  (sessions || []).forEach(session => {
-    const provider = session.provider;
-    if (!summary[provider]) return;
-    const status = ['connected', 'expired', 'error'].includes(session.status)
-      ? session.status
-      : 'unknown';
-    summary[provider][status] += 1;
-    summary[provider].total += 1;
-  });
-
-  return summary;
-}
-
 function countBy(users, predicate) {
   return users.reduce((total, user) => total + (predicate(user) ? 1 : 0), 0);
 }
@@ -197,26 +162,22 @@ function countBy(users, predicate) {
 async function getAdminAnalytics(req) {
   const adminUser = await requireAdmin(req);
 
-  const [authUsers, profilesResult, preferencesResult, sessionsResult] = await Promise.all([
+  const [authUsers, profilesResult, preferencesResult] = await Promise.all([
     listAllAuthUsers(),
     supabaseAdmin.from('profiles').select('*'),
     supabaseAdmin.from('client_preferences').select('*'),
-    supabaseAdmin.from('client_llm_sessions').select('*'),
   ]);
 
   if (profilesResult.error) throw profilesResult.error;
   if (preferencesResult.error) throw preferencesResult.error;
-  if (sessionsResult.error) throw sessionsResult.error;
 
   const profilesById = byKey(profilesResult.data, 'id');
   const preferencesByUserId = byKey(preferencesResult.data, 'user_id');
-  const sessionsByUserId = makeSessionMap(sessionsResult.data);
 
   const users = authUsers
     .map(user => {
       const profile = profilesById.get(user.id) || {};
       const preferences = preferencesByUserId.get(user.id) || {};
-      const sessions = sessionsByUserId.get(user.id) || {};
 
       return {
         id: user.id,
@@ -226,23 +187,11 @@ async function getAdminAnalytics(req) {
         createdAt: user.created_at,
         lastSignInAt: user.last_sign_in_at,
         onboardingComplete: Boolean(profile.onboarding_complete),
-        mode: preferences.mode || 'not set',
+        mode: preferences.mode || 'api',
         enabledModels: Array.isArray(preferences.enabled_models) ? preferences.enabled_models : [],
-        sessions: Object.fromEntries(PROVIDERS.map(provider => [
-          provider,
-          sessions[provider]
-            ? {
-                status: sessions[provider].status || 'unknown',
-                lastCheckedAt: sessions[provider].last_checked_at || sessions[provider].updated_at || null,
-                error: sessions[provider].error || null,
-              }
-            : { status: 'not connected', lastCheckedAt: null, error: null },
-        ])),
       };
     })
     .sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
-
-  const connectedSessions = (sessionsResult.data || []).filter(s => s.status === 'connected').length;
 
   return {
     ok: true,
@@ -255,10 +204,7 @@ async function getAdminAnalytics(req) {
       users: users.length,
       onboardingComplete: countBy(users, user => user.onboardingComplete),
       apiMode: countBy(users, user => user.mode === 'api'),
-      browserMode: countBy(users, user => user.mode === 'browser'),
-      connectedSessions,
     },
-    providers: summarizeProviderStatuses(sessionsResult.data),
     users,
   };
 }

@@ -2,14 +2,13 @@ const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
-const { getProfilePath, sanitizeClientId } = require('./session-manager');
 
-const PROFILE_ROOT = path.join(__dirname, 'profiles');
-const ACCOUNT_STORE = path.join(PROFILE_ROOT, 'client_accounts.json');
+const DATA_ROOT = path.join(__dirname, 'data');
+const ACCOUNT_STORE = path.join(DATA_ROOT, 'client_accounts.json');
 const HASH_ITERATIONS = 120_000;
 const HASH_LENGTH = 64;
 const HASH_DIGEST = 'sha512';
-const DEFAULT_MODE = 'browser';
+const DEFAULT_MODE = 'api';
 const DEFAULT_MODELS = ['openai', 'claude', 'gemini'];
 
 function loadRootEnv() {
@@ -56,6 +55,12 @@ function ensureDir(dir) {
   fs.mkdirSync(dir, { recursive: true });
 }
 
+function sanitizeClientId(value) {
+  const raw = String(value || 'client_default').trim();
+  const safe = raw.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 80);
+  return safe || 'client_default';
+}
+
 function readStore() {
   try {
     return JSON.parse(fs.readFileSync(ACCOUNT_STORE, 'utf8'));
@@ -65,7 +70,7 @@ function readStore() {
 }
 
 function writeStore(store) {
-  ensureDir(PROFILE_ROOT);
+  ensureDir(DATA_ROOT);
   fs.writeFileSync(ACCOUNT_STORE, JSON.stringify(store, null, 2));
 }
 
@@ -125,7 +130,7 @@ async function getAvailableSupabaseClientId(preferredClientId, userId) {
     candidate = sanitizeClientId(createClientId());
   }
 
-  throw new Error('Could not allocate a unique browser profile for this account.');
+  throw new Error('Could not allocate a unique client ID for this account.');
 }
 
 function publicClient(record) {
@@ -138,7 +143,6 @@ function publicClient(record) {
     mode: record.mode || DEFAULT_MODE,
     enabledModels: record.enabled_models || DEFAULT_MODELS,
     onboardingComplete: Boolean(record.onboarding_complete),
-    profilePath: getProfilePath(record.client_id),
   };
 }
 
@@ -154,7 +158,6 @@ function publicSupabaseClient({ user, profile, preferences, session }) {
     mode: preferences?.mode || DEFAULT_MODE,
     enabledModels: preferences?.enabled_models || DEFAULT_MODELS,
     onboardingComplete: Boolean(profile.onboarding_complete),
-    profilePath: getProfilePath(clientId),
     accessToken: session?.access_token,
     refreshToken: session?.refresh_token,
   };
@@ -238,7 +241,6 @@ async function signupClientSupabase({ name, email, password, clientId }) {
     .single();
   if (preferencesResult.error) throw new Error(preferencesResult.error.message);
 
-  getProfilePath(safeClientId);
   return publicSupabaseClient({
     user,
     profile: profileResult.data,
@@ -311,7 +313,6 @@ async function verifySignupSupabase({ name, email, password, clientId, code }) {
     .single();
   if (preferencesResult.error) throw new Error(preferencesResult.error.message);
 
-  getProfilePath(safeClientId);
   return publicSupabaseClient({
     user: updateResult.data.user || user,
     session,
@@ -477,7 +478,6 @@ async function googleClientSupabase({ accessToken, clientId }) {
     if (preferencesResult.error) throw new Error(preferencesResult.error.message);
   }
 
-  getProfilePath(profileResult.data.client_id);
   return publicSupabaseClient({
     user,
     profile: profileResult.data,
@@ -583,7 +583,6 @@ function signupClientLocal({ name, email, password, clientId }) {
   store.byEmail[cleanEmail] = safeClientId;
   store.clients[safeClientId] = record;
   writeStore(store);
-  getProfilePath(safeClientId);
   return publicClient(record);
 }
 
@@ -657,7 +656,6 @@ async function googleClientLocal({ accessToken, email, name, clientId }) {
   store.byEmail[cleanEmail] = safeClientId;
   store.clients[safeClientId] = record;
   writeStore(store);
-  getProfilePath(safeClientId);
   return publicClient(record);
 }
 

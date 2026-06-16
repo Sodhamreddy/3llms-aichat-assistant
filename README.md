@@ -1,6 +1,8 @@
 # Kleza Excelliq AI
 
-React/Vite frontend plus a Node/Express Playwright backend for running prompts through browser sessions for ChatGPT, Claude, and Gemini.
+React/Vite frontend plus a Node/Express API backend for running prompts through an n8n workflow connected to ChatGPT/OpenAI, Claude/Anthropic, and Gemini/Google provider APIs.
+
+This branch is API-only. It does not include provider website login, saved provider sessions, or web-automation prompt execution.
 
 ## Local Development
 
@@ -16,16 +18,11 @@ Backend:
 ```bash
 cd playwright-server
 npm install
-npm run install:browser
 npm start
 ```
 
-Copy `.env.example` to `.env` and fill in the Supabase, Google OAuth, and backend URL values.
-
-## Deployment
-
-See [DEPLOYMENT.md](./DEPLOYMENT.md) for the full production checklist.
+Copy `.env.example` to `.env` and fill in the Supabase, Google OAuth, backend URL, and `N8N_WEBHOOK_URL` values.
 
 ## Full project documentation
 
-See [PROJECT_DOCUMENTATION.md](./PROJECT_DOCUMENTATION.md) for a detailed non-technical and technical explanation of the product, architecture, deployment model, and user flows.
+See [PROJECT_DOCUMENTATION.md](./PROJECT_DOCUMENTATION.md) for the API-only architecture, deployment model, and user flows.

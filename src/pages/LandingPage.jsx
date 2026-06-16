@@ -43,7 +43,7 @@ const FEATURES = [
   { icon: '🔍', title: 'Side-by-Side Compare',   desc: 'Toggle any model\'s raw response to see exactly what each AI said and why it differs.' },
   { icon: '📚', title: 'Full History',            desc: 'Every prompt, every answer, every follow-up — searchable and organised by date automatically.' },
   { icon: '🔑', title: 'Your Own API Keys',       desc: 'Bring your own keys. Responses come from your account — no middleman, no data sharing.' },
-  { icon: '🌐', title: 'Browser Mode',            desc: 'No API keys at all? Use your logged-in browser sessions and get responses for free.' },
+  { icon: '⚡', title: 'API Mode',                desc: 'Route prompts through n8n with provider API keys for stable automated runs.' },
 ];
 
 const STEPS = [
@@ -140,11 +140,10 @@ const HeroMockup = () => {
 
 /* ── Main component ──────────────────────────────────────────────────── */
 const LandingPage = ({ onGetStarted }) => {
-  const [scrollY, setScrollY] = useState(0);
   const [navSolid, setNavSolid] = useState(false);
 
   useEffect(() => {
-    const fn = () => { setScrollY(window.scrollY); setNavSolid(window.scrollY > 40); };
+    const fn = () => { setNavSolid(window.scrollY > 40); };
     window.addEventListener('scroll', fn, { passive: true });
     return () => window.removeEventListener('scroll', fn);
   }, []);

@@ -1,21 +1,17 @@
 {
-  "name": "llm-playwright-server",
+  "name": "excelliq-api-server",
   "version": "1.0.0",
-  "description": "Playwright server to automate ChatGPT, Claude, and Gemini",
+  "description": "API-mode backend for Excelliq auth, admin analytics, and n8n prompt proxying",
   "main": "server.js",
   "engines": {
     "node": ">=20"
   },
   "scripts": {
-    "start": "node server.js",
-    "login": "node login.js",
-    "install:browser": "playwright install chromium",
-    "install:browser:with-deps": "playwright install --with-deps chromium"
+    "start": "node server.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.106.2",
     "cors": "^2.8.5",
-    "express": "^4.18.2",
-    "playwright": "^1.44.0"
+    "express": "^4.18.2"
   }
 }
