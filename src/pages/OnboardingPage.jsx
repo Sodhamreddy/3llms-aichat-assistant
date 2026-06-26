@@ -1,72 +1,139 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGoogleLogin } from '@react-oauth/google';
-import { API_SERVER } from '../config/api';
-import { attachClientId, ensureClientId, saveStoredUser } from '../utils/clientIdentity';
+import { supabase } from '../utils/supabase';
+import { attachClientId, ensureClientId, loadStoredUser, saveStoredUser } from '../utils/clientIdentity';
+
+// ── Two-colour brand system (matches the landing page) ──────────────────
+const PRIMARY   = '#1e63d6';   // brand blue
+const SECONDARY = '#0a1f4d';   // deep navy
+const BRAND_GRAD = `linear-gradient(135deg, ${PRIMARY}, ${SECONDARY})`;
 
 const MODEL_DEFS = [
-  { key: 'openai', name: 'ChatGPT', color: '#10a37f', apiLabel: 'OpenAI API key', apiPlaceholder: 'sk-...', apiField: 'openai' },
-  { key: 'claude', name: 'Claude', color: '#d97757', apiLabel: 'Anthropic API key', apiPlaceholder: 'sk-ant-...', apiField: 'anthropic' },
-  { key: 'gemini', name: 'Gemini', color: '#4285f4', apiLabel: 'Google API key', apiPlaceholder: 'AIza...', apiField: 'google' },
+  { key: 'openai', name: 'ChatGPT', color: SECONDARY, apiLabel: 'OpenAI API key', apiPlaceholder: 'sk-...', apiField: 'openai' },
+  { key: 'claude', name: 'Claude', color: PRIMARY, apiLabel: 'Anthropic API key', apiPlaceholder: 'sk-ant-...', apiField: 'anthropic' },
+  { key: 'gemini', name: 'Gemini', color: SECONDARY, apiLabel: 'Google API key', apiPlaceholder: 'AIza...', apiField: 'google' },
 ];
 
-const MotionDiv = motion.div;
+const inputStyle = {
+  width: '100%',
+  border: '1px solid #dbe3ef',
+  borderRadius: 10,
+  padding: '0.82rem 0.95rem',
+  fontSize: '0.92rem',
+  outline: 'none',
+  color: '#0f172a',
+  fontFamily: 'inherit',
+  boxSizing: 'border-box',
+  background: '#ffffff',
+};
+
+const ghostButton = {
+  border: '1px solid #dbe3ef',
+  borderRadius: 12,
+  background: '#ffffff',
+  color: '#334155',
+  padding: '0.85rem 1.05rem',
+  fontWeight: 900,
+  cursor: 'pointer',
+  fontFamily: 'inherit',
+};
+
+// ── Official multicolour Google "G" ───────────────────────────────────────
+const GoogleIcon = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden style={{ flexShrink: 0 }}>
+    <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+    <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+    <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+    <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+  </svg>
+);
+
+// ── Shell lives OUTSIDE the component so its reference never changes ──────
+const Shell = ({ step, eyebrow, title, subtitle, children, actions, error, notice }) => (
+  <motion.div
+    key={step}
+    initial={{ opacity: 0, y: 18 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: -12 }}
+    transition={{ duration: 0.24 }}
+    style={{ width: 'min(1060px, calc(100vw - 2rem))', background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: 22, boxShadow: '0 24px 70px rgba(15,23,42,0.11)', overflow: 'hidden' }}
+  >
+    <div style={{ display: 'grid', gridTemplateColumns: '0.9fr 1.1fr', minHeight: 560 }}>
+      <aside style={{ position: 'relative', background: `linear-gradient(150deg, ${SECONDARY}, #12286b)`, color: '#fff', padding: '2rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', overflow: 'hidden' }}>
+        {/* animated background accents */}
+        <motion.div
+          animate={{ scale: [1, 1.12, 1], opacity: [0.5, 0.75, 0.5] }}
+          transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
+          style={{ position: 'absolute', top: -90, right: -70, width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle, rgba(30,99,214,0.5), transparent 70%)', pointerEvents: 'none' }}
+        />
+        <motion.div
+          animate={{ scale: [1, 1.18, 1], opacity: [0.35, 0.55, 0.35] }}
+          transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+          style={{ position: 'absolute', bottom: -100, left: -80, width: 280, height: 280, borderRadius: '50%', background: 'radial-gradient(circle, rgba(30,99,214,0.32), transparent 70%)', pointerEvents: 'none' }}
+        />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{ background: '#fff', borderRadius: 16, padding: '12px 18px', display: 'inline-flex', marginBottom: '1.5rem', boxShadow: '0 10px 30px rgba(0,0,0,0.22)' }}>
+            <img src="/logo.png" alt="Excelliq" style={{ height: 46, objectFit: 'contain', display: 'block' }} />
+          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.14)', borderRadius: 100, padding: '5px 13px', fontSize: '0.72rem', fontWeight: 700, color: '#cfe0fb', marginBottom: '1.5rem' }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#6ea4f5' }} />
+            Powered by ChatGPT · Claude · Gemini
+          </motion.div>
+          <div style={{ color: '#9fc1f5', fontSize: '0.74rem', fontWeight: 900, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{eyebrow}</div>
+          <h1 style={{ fontSize: '2rem', lineHeight: 1.1, margin: '0.65rem 0 0' }}>{title}</h1>
+          <p style={{ color: '#cbd5e1', lineHeight: 1.65, marginTop: '1rem' }}>{subtitle}</p>
+        </div>
+      </aside>
+      <section style={{ padding: '2rem', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ flex: 1 }}>{children}</div>
+        {(error || notice) && (
+          <div style={{ marginTop: '1rem' }}>
+            {error  && <div style={{ color: '#b91c1c', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 10, padding: '0.7rem 0.85rem', fontSize: '0.82rem', fontWeight: 800 }}>{error}</div>}
+            {notice && <div style={{ color: PRIMARY, background: '#eef4ff', border: '1px solid #cfe0fb', borderRadius: 10, padding: '0.7rem 0.85rem', fontSize: '0.82rem', fontWeight: 800 }}>{notice}</div>}
+          </div>
+        )}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.35rem' }}>{actions}</div>
+      </section>
+    </div>
+  </motion.div>
+);
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 const OnboardingPage = ({ onComplete }) => {
-  const [step, setStep] = useState(1);
-  const [authMode, setAuthMode] = useState('signup');
-  const [clientId, setClientId] = useState(() => ensureClientId());
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+  const [step,          setStep]          = useState(1);
+  const [authMode,      setAuthMode]      = useState('signup');
+  const [clientId,      setClientId]      = useState(() => ensureClientId());
+  const [name,          setName]          = useState('');
+  const [email,         setEmail]         = useState('');
+  const [password,      setPassword]      = useState('');
+  const [showPassword,  setShowPassword]  = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
-  const [models, setModels] = useState({
+  const [models,        setModels]        = useState({
     openai: { enabled: true, apiKey: '' },
     claude: { enabled: true, apiKey: '' },
     gemini: { enabled: true, apiKey: '' },
   });
   const [showKey, setShowKey] = useState({ openai: false, claude: false, gemini: false });
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
-  const [notice, setNotice] = useState('');
+  const [busy,    setBusy]    = useState(false);
+  const [error,   setError]   = useState('');
+  const [notice,  setNotice]  = useState('');
 
   const enabledModels = Object.keys(models).filter(key => models[key].enabled);
-
-  const inputStyle = {
-    width: '100%',
-    border: '1px solid #dbe3ef',
-    borderRadius: 10,
-    padding: '0.82rem 0.95rem',
-    fontSize: '0.92rem',
-    outline: 'none',
-    color: '#0f172a',
-    fontFamily: 'inherit',
-    boxSizing: 'border-box',
-    background: '#ffffff',
-  };
 
   const primaryButton = {
     border: 'none',
     borderRadius: 12,
-    background: 'linear-gradient(135deg, #d97757, #e8896a)',
+    background: BRAND_GRAD,
     color: '#ffffff',
     padding: '0.85rem 1.15rem',
     fontWeight: 900,
     cursor: busy ? 'not-allowed' : 'pointer',
     fontFamily: 'inherit',
-    boxShadow: '0 8px 24px rgba(217,119,87,0.22)',
-  };
-
-  const ghostButton = {
-    border: '1px solid #dbe3ef',
-    borderRadius: 12,
-    background: '#ffffff',
-    color: '#334155',
-    padding: '0.85rem 1.05rem',
-    fontWeight: 900,
-    cursor: 'pointer',
-    fontFamily: 'inherit',
+    boxShadow: '0 8px 24px rgba(30,99,214,0.28)',
   };
 
   const saveClient = (client = {}) => {
@@ -84,26 +151,47 @@ const OnboardingPage = ({ onComplete }) => {
     return saved;
   };
 
+  // Finalise onboarding straight after auth — keys are added later in Settings.
+  const completeOnboarding = (client = {}) => {
+    const completedUser = attachClientId({
+      ...client,
+      clientId: client.clientId || clientId,
+      mode: 'api',
+      enabledModels: Array.isArray(client.enabledModels) && client.enabledModels.length ? client.enabledModels : ['openai', 'claude', 'gemini'],
+      onboardingComplete: true,
+    });
+    saveStoredUser(completedUser);
+    onComplete(completedUser);
+  };
+
+  // ── Google OAuth — get profile directly from Google, no backend needed ──
   const completeGoogleAuth = async (tokenResponse) => {
     setError('');
     setNotice('');
     setBusy(true);
     try {
-      const res = await fetch(`${API_SERVER}/auth/google`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ accessToken: tokenResponse.access_token, clientId }),
+      // Fetch user profile from Google userinfo endpoint
+      const profileRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+        headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
       });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || 'Google sign-in failed.');
-      const saved = saveClient(data.client);
-      if (saved.onboardingComplete) {
-        onComplete({ ...saved, onboardingComplete: true });
-        return;
-      }
-      setStep(2);
+      if (!profileRes.ok) throw new Error('Failed to get Google profile.');
+      const profile = await profileRes.json();
+
+      const googleUser = {
+        name:  profile.name  || profile.given_name || '',
+        email: profile.email || '',
+        googleId: profile.sub,
+        picture:  profile.picture || '',
+        clientId,
+      };
+
+      const saved = saveClient(googleUser);
+      setName(googleUser.name);
+      setEmail(googleUser.email);
+
+      completeOnboarding(saved);
     } catch (e) {
-      setError(e.message);
+      setError(e.message || 'Google sign-in failed.');
     } finally {
       setBusy(false);
     }
@@ -118,29 +206,45 @@ const OnboardingPage = ({ onComplete }) => {
   const submitAuth = async () => {
     setError('');
     setNotice('');
-    const cleanName = name.trim();
+    const cleanName  = name.trim();
     const cleanEmail = email.trim();
-    if (authMode === 'signup' && !cleanName) return setError('Enter your display name.');
-    if (!cleanEmail) return setError('Enter your email address.');
-    if (password.length < 6) return setError('Password must be at least 6 characters.');
+    if (authMode === 'signup' && !cleanName)   return setError('Enter your display name.');
+    if (!cleanEmail)                            return setError('Enter your email address.');
+    if (password.length < 6)                   return setError('Password must be at least 6 characters.');
     if (authMode === 'signup' && !agreedToTerms) return setError('Please agree to the Terms of use and Privacy Policy.');
+
+    if (!supabase) return setError('Authentication is not configured. Please contact support.');
 
     setBusy(true);
     try {
-      const endpoint = authMode === 'login' ? '/auth/login' : '/auth/signup/start';
-      const res = await fetch(`${API_SERVER}${endpoint}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ clientId, name: cleanName, email: cleanEmail, password }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || 'Authentication failed.');
-      const saved = saveClient(data.client);
-      if (authMode === 'login' && saved.onboardingComplete) {
-        onComplete({ ...saved, onboardingComplete: true });
+      if (authMode === 'login') {
+        const { data, error: authError } = await supabase.auth.signInWithPassword({
+          email: cleanEmail,
+          password,
+        });
+        if (authError) throw new Error(authError.message);
+
+        const stored = loadStoredUser();
+        const saved = saveClient({
+          ...stored,
+          clientId,
+          name:  data.user?.user_metadata?.name || stored.name || cleanName,
+          email: data.user?.email || cleanEmail,
+        });
+        completeOnboarding(saved);
         return;
       }
-      setStep(2);
+
+      // signup
+      const { error: authError } = await supabase.auth.signUp({
+        email: cleanEmail,
+        password,
+        options: { data: { name: cleanName } },
+      });
+      if (authError) throw new Error(authError.message);
+
+      const saved = saveClient({ clientId, name: cleanName, email: cleanEmail });
+      completeOnboarding(saved);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -152,15 +256,13 @@ const OnboardingPage = ({ onComplete }) => {
     setError('');
     setNotice('');
     if (!email.trim()) return setError('Enter your email first.');
+    if (!supabase) return setError('Authentication is not configured. Please contact support.');
     setBusy(true);
     try {
-      const res = await fetch(`${API_SERVER}/auth/forgot-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim() }),
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: `${window.location.origin}/reset-password`,
       });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || 'Unable to send reset email.');
+      if (resetError) throw new Error(resetError.message);
       setNotice('Password reset email sent. Check your inbox.');
     } catch (e) {
       setError(e.message);
@@ -172,7 +274,7 @@ const OnboardingPage = ({ onComplete }) => {
   const toggleModel = (key) => {
     setModels(prev => {
       const next = { ...prev, [key]: { ...prev[key], enabled: !prev[key].enabled } };
-      return Object.values(next).some(model => model.enabled) ? next : prev;
+      return Object.values(next).some(m => m.enabled) ? next : prev;
     });
   };
 
@@ -188,78 +290,75 @@ const OnboardingPage = ({ onComplete }) => {
 
     const completedUser = attachClientId({
       clientId,
-      name: name.trim(),
+      name:  name.trim(),
       email: email.trim(),
-      mode: 'api',
+      mode:  'api',
       apiKeys,
       enabledModels,
       onboardingComplete: true,
     });
 
-    await fetch(`${API_SERVER}/auth/preferences`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ clientId, name: name.trim(), email: email.trim(), mode: 'api', enabledModels }),
-    }).catch(() => {});
-
     saveStoredUser(completedUser);
     onComplete(completedUser);
   };
-
-  const Shell = ({ eyebrow, title, subtitle, children, actions }) => (
-    <MotionDiv
-      key={step}
-      initial={{ opacity: 0, y: 18 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -12 }}
-      transition={{ duration: 0.24 }}
-      style={{ width: 'min(1060px, calc(100vw - 2rem))', background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: 22, boxShadow: '0 24px 70px rgba(15,23,42,0.11)', overflow: 'hidden' }}
-    >
-      <div style={{ display: 'grid', gridTemplateColumns: '0.9fr 1.1fr', minHeight: 560 }}>
-        <aside style={{ background: 'linear-gradient(135deg, #111827, #2f3545)', color: '#fff', padding: '2rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-          <div>
-            <div style={{ width: 44, height: 44, borderRadius: 12, background: 'linear-gradient(135deg, #d97757, #e8896a)', display: 'grid', placeItems: 'center', fontWeight: 900, marginBottom: '1.35rem' }}>K</div>
-            <div style={{ color: '#fed7aa', fontSize: '0.74rem', fontWeight: 900, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{eyebrow}</div>
-            <h1 style={{ fontSize: '2rem', lineHeight: 1.1, margin: '0.65rem 0 0' }}>{title}</h1>
-            <p style={{ color: '#cbd5e1', lineHeight: 1.65, marginTop: '1rem' }}>{subtitle}</p>
-          </div>
-          <div style={{ display: 'grid', gap: 9, fontSize: '0.86rem', color: '#e5e7eb' }}>
-            <span>API Mode only</span>
-            <span>n8n workflow orchestration</span>
-            <span>Claude final synthesis</span>
-          </div>
-        </aside>
-        <section style={{ padding: '2rem', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ flex: 1 }}>{children}</div>
-          {(error || notice) && (
-            <div style={{ marginTop: '1rem' }}>
-              {error && <div style={{ color: '#b91c1c', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 10, padding: '0.7rem 0.85rem', fontSize: '0.82rem', fontWeight: 800 }}>{error}</div>}
-              {notice && <div style={{ color: '#047857', background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: 10, padding: '0.7rem 0.85rem', fontSize: '0.82rem', fontWeight: 800 }}>{notice}</div>}
-            </div>
-          )}
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1.35rem' }}>{actions}</div>
-        </section>
-      </div>
-    </MotionDiv>
-  );
 
   const renderStep = () => {
     if (step === 1) {
       const isLogin = authMode === 'login';
       return (
         <Shell
+          step={step}
           eyebrow="Welcome"
           title={isLogin ? 'Log in to Excelliq' : 'Create your account'}
-          subtitle="Use Excelliq with provider API keys routed through the configured n8n workflow."
+          subtitle="Use Excelliq with your own provider API keys — three models, one synthesised answer."
+          error={error}
+          notice={notice}
           actions={<button onClick={submitAuth} disabled={busy} style={primaryButton}>{busy ? 'Please wait...' : isLogin ? 'Log in' : 'Sign up'}</button>}
         >
           <div style={{ display: 'grid', gap: '0.85rem', maxWidth: 430 }}>
-            <button onClick={() => googleLogin()} disabled={busy} style={{ ...ghostButton, width: '100%' }}>Continue with Google</button>
-            {!isLogin && <input value={name} onChange={e => setName(e.target.value)} placeholder="Display name" style={inputStyle} />}
-            <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email address" style={inputStyle} />
+            <button
+              onClick={() => googleLogin()}
+              disabled={busy}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = '#9ab4e0'; e.currentTarget.style.boxShadow = '0 6px 18px rgba(15,23,42,0.08)'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = '#dbe3ef'; e.currentTarget.style.boxShadow = '0 1px 2px rgba(15,23,42,0.04)'; }}
+              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 11, border: '1px solid #dbe3ef', borderRadius: 12, background: '#ffffff', color: '#1f2937', padding: '0.9rem 1.05rem', fontWeight: 800, fontSize: '0.95rem', cursor: busy ? 'not-allowed' : 'pointer', fontFamily: 'inherit', boxShadow: '0 1px 2px rgba(15,23,42,0.04)', transition: 'border-color 0.15s, box-shadow 0.15s' }}
+            >
+              <GoogleIcon /> Continue with Google
+            </button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, color: '#94a3b8', fontSize: '0.74rem', fontWeight: 800, margin: '0.15rem 0' }}>
+              <span style={{ flex: 1, height: 1, background: '#e5e7eb' }} />
+              OR
+              <span style={{ flex: 1, height: 1, background: '#e5e7eb' }} />
+            </div>
+            {!isLogin && (
+              <input
+                value={name}
+                onChange={e => setName(e.target.value)}
+                placeholder="Display name"
+                style={inputStyle}
+              />
+            )}
+            <input
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="Email address"
+              style={inputStyle}
+            />
             <div style={{ position: 'relative' }}>
-              <input type={showPassword ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" style={{ ...inputStyle, paddingRight: 72 }} />
-              <button type="button" onClick={() => setShowPassword(value => !value)} style={{ position: 'absolute', right: 8, top: 8, border: 'none', background: '#f8fafc', color: '#64748b', borderRadius: 8, padding: '0.42rem 0.6rem', fontWeight: 800, cursor: 'pointer' }}>{showPassword ? 'Hide' : 'Show'}</button>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder="Password"
+                style={{ ...inputStyle, paddingRight: 72 }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(v => !v)}
+                style={{ position: 'absolute', right: 8, top: 8, border: 'none', background: '#f8fafc', color: '#64748b', borderRadius: 8, padding: '0.42rem 0.6rem', fontWeight: 800, cursor: 'pointer' }}
+              >
+                {showPassword ? 'Hide' : 'Show'}
+              </button>
             </div>
             {!isLogin && (
               <label style={{ display: 'flex', gap: 9, color: '#64748b', fontSize: '0.82rem', lineHeight: 1.5 }}>
@@ -267,10 +366,18 @@ const OnboardingPage = ({ onComplete }) => {
                 I agree to the Terms of use and Privacy Policy.
               </label>
             )}
-            {isLogin && <button type="button" onClick={sendPasswordReset} style={{ border: 'none', background: 'none', color: '#2563eb', fontWeight: 800, textAlign: 'left', cursor: 'pointer' }}>Forgot password?</button>}
+            {isLogin && (
+              <button type="button" onClick={sendPasswordReset} style={{ border: 'none', background: 'none', color: PRIMARY, fontWeight: 800, textAlign: 'left', cursor: 'pointer' }}>
+                Forgot password?
+              </button>
+            )}
             <p style={{ margin: 0, color: '#64748b', fontSize: '0.85rem' }}>
               {isLogin ? "Don't have an account? " : 'Already have an account? '}
-              <button type="button" onClick={() => { setAuthMode(isLogin ? 'signup' : 'login'); setError(''); setNotice(''); }} style={{ border: 'none', background: 'none', color: '#2563eb', fontWeight: 800, cursor: 'pointer', padding: 0 }}>
+              <button
+                type="button"
+                onClick={() => { setAuthMode(isLogin ? 'signup' : 'login'); setError(''); setNotice(''); }}
+                style={{ border: 'none', background: 'none', color: PRIMARY, fontWeight: 800, cursor: 'pointer', padding: 0 }}
+              >
                 {isLogin ? 'Sign up' : 'Log in'}
               </button>
             </p>
@@ -282,10 +389,18 @@ const OnboardingPage = ({ onComplete }) => {
     if (step === 2) {
       return (
         <Shell
+          step={step}
           eyebrow="API setup"
           title="Add provider keys"
-          subtitle="Keys are stored in this browser and sent to the n8n workflow with each request."
-          actions={<><button onClick={() => setStep(1)} style={ghostButton}>Back</button><button onClick={() => setStep(3)} style={primaryButton}>Review setup</button></>}
+          subtitle="Keys are stored in this browser and sent directly to each provider with every request."
+          error={error}
+          notice={notice}
+          actions={
+            <>
+              <button onClick={() => setStep(1)} style={ghostButton}>Back</button>
+              <button onClick={() => setStep(3)} style={primaryButton}>Review setup</button>
+            </>
+          }
         >
           <div style={{ display: 'grid', gap: '0.8rem' }}>
             {MODEL_DEFS.map(model => {
@@ -308,7 +423,9 @@ const OnboardingPage = ({ onComplete }) => {
                       placeholder={model.apiPlaceholder}
                       style={{ ...inputStyle, fontFamily: 'monospace', opacity: state.enabled ? 1 : 0.55 }}
                     />
-                    <button onClick={() => setShowKey(prev => ({ ...prev, [model.key]: !prev[model.key] }))} style={ghostButton}>{showKey[model.key] ? 'Hide' : 'Show'}</button>
+                    <button onClick={() => setShowKey(prev => ({ ...prev, [model.key]: !prev[model.key] }))} style={ghostButton}>
+                      {showKey[model.key] ? 'Hide' : 'Show'}
+                    </button>
                   </div>
                 </div>
               );
@@ -320,10 +437,18 @@ const OnboardingPage = ({ onComplete }) => {
 
     return (
       <Shell
+        step={step}
         eyebrow="Review"
         title="You're all set"
         subtitle="Your workspace is configured for API Mode. You can update keys later from Integrations or Settings."
-        actions={<><button onClick={() => setStep(2)} style={ghostButton}>Back</button><button onClick={finishSetup} style={primaryButton}>Start chatting</button></>}
+        error={error}
+        notice={notice}
+        actions={
+          <>
+            <button onClick={() => setStep(2)} style={ghostButton}>Back</button>
+            <button onClick={finishSetup} style={primaryButton}>Start chatting</button>
+          </>
+        }
       >
         <div style={{ display: 'grid', gap: '0.8rem' }}>
           <div style={{ border: '1px solid #e5e7eb', borderRadius: 14, overflow: 'hidden' }}>
@@ -337,11 +462,11 @@ const OnboardingPage = ({ onComplete }) => {
           <div style={{ border: '1px solid #e5e7eb', borderRadius: 14, overflow: 'hidden' }}>
             {MODEL_DEFS.map(model => {
               const enabled = enabledModels.includes(model.key);
-              const hasKey = Boolean(models[model.key].apiKey.trim());
+              const hasKey  = Boolean(models[model.key].apiKey.trim());
               return (
                 <div key={model.key} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.75rem 1rem', borderBottom: '1px solid #f1f5f9' }}>
                   <span style={{ color: '#0f172a', fontWeight: 800 }}>{model.name}</span>
-                  <span style={{ color: enabled ? '#047857' : '#94a3b8', fontWeight: 900 }}>{enabled ? (hasKey ? 'Key added' : 'Enabled') : 'Disabled'}</span>
+                  <span style={{ color: enabled ? PRIMARY : '#94a3b8', fontWeight: 900 }}>{enabled ? (hasKey ? 'Key added' : 'Enabled') : 'Disabled'}</span>
                 </div>
               );
             })}

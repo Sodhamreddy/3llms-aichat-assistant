@@ -3,9 +3,9 @@ import { useState } from 'react';
 const ResponseModal = ({ row, onClose }) => {
   const responses = row.responses || {};
   const tabs = [
-    { key: 'gemini', label: 'Gemini 1.5', color: '#4285f4', bg: '#eef2ff', text: responses.gemini },
-    { key: 'claude', label: 'Claude-3', color: '#d97757', bg: '#fff7ed', text: responses.claude },
-    { key: 'openai', label: 'GPT-4o', color: '#10a37f', bg: '#f0fdf4', text: responses.openai },
+    { key: 'gemini', label: 'Gemini 3.1 Pro', color: '#4285f4', bg: '#eef2ff', text: responses.gemini },
+    { key: 'claude', label: 'Claude Opus 4.6', color: '#d97757', bg: '#fff7ed', text: responses.claude },
+    { key: 'openai', label: 'GPT-5.2', color: '#10a37f', bg: '#f0fdf4', text: responses.openai },
   ].filter(t => t.text);
 
   const [activeTab, setActiveTab] = useState(tabs[0]?.key || 'gemini');

@@ -1,5 +1,10 @@
 html { scroll-behavior: smooth; }
 
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
 :root {
   font-family: 'Inter', ui-sans-serif, -apple-system, system-ui, sans-serif;
   --bg-main:    #f5f4f0;

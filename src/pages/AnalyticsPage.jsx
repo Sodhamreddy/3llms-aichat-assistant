@@ -24,13 +24,13 @@ const AnalyticsPage = ({ history = [], usage = {} }) => {
     { label: 'Total Runs',    value: runs,                          icon: '🚀', color: '#2563eb', sub: 'all time' },
     { label: 'Input Tokens',  value: totalInputTokens.toLocaleString(), icon: '📥', color: '#7c3aed', sub: '$0.075 per 1M tokens' },
     { label: 'Output Tokens', value: totalOutputTokens.toLocaleString(), icon: '📤', color: '#059669', sub: '$0.30 per 1M tokens' },
-    { label: 'Total API Cost',value: `$${totalCost.toFixed(6)}`,   icon: '💵', color: '#f59e0b', sub: 'Gemini 1.5 Flash actual' },
+    { label: 'Total API Cost',value: `$${totalCost.toFixed(6)}`,   icon: '💵', color: '#f59e0b', sub: 'Gemini 3.1 Pro actual' },
   ];
 
   const modelBreakdown = [
-    { name: 'Gemini 1.5', count: gemini, color: '#4285f4' },
-    { name: 'Claude-3', count: claude, color: '#d97757' },
-    { name: 'GPT-4o', count: openai, color: '#10a37f' },
+    { name: 'Gemini 3.1 Pro', count: gemini, color: '#4285f4' },
+    { name: 'Claude Opus 4.6', count: claude, color: '#d97757' },
+    { name: 'GPT-5.2', count: openai, color: '#10a37f' },
   ];
 
   return (
@@ -120,7 +120,7 @@ const AnalyticsPage = ({ history = [], usage = {} }) => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
           <div>
             <h3 style={{ fontWeight: '700', color: '#0f172a', margin: '0 0 4px' }}>Gemini API Cost Breakdown</h3>
-            <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: 0 }}>Gemini 1.5 Flash pricing · actual usage</p>
+            <p style={{ fontSize: '0.8rem', color: '#94a3b8', margin: 0 }}>Gemini 3.1 Pro pricing · actual usage</p>
           </div>
           <span style={{ fontSize: '1.5rem', fontWeight: '800', color: '#059669' }}>${totalCost.toFixed(6)}</span>
         </div>

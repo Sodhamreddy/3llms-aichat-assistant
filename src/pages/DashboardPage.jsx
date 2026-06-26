@@ -8,13 +8,13 @@ const DashboardPage = ({ history = [], usage = {}, onNavigate }) => {
   const claudeRuns = history.filter(h => h.best?.includes('Claude')).length;
   const gptRuns    = history.filter(h => h.best?.includes('GPT')).length;
   const topModel   = runs === 0 ? '—'
-    : geminiRuns >= claudeRuns && geminiRuns >= gptRuns ? 'Gemini 1.5'
-    : claudeRuns >= gptRuns ? 'Claude-3' : 'GPT-4o';
+    : geminiRuns >= claudeRuns && geminiRuns >= gptRuns ? 'Gemini 3.1 Pro'
+    : claudeRuns >= gptRuns ? 'Claude Opus 4.6' : 'GPT-5.2';
 
   const statCards = [
     { icon: '🚀', label: 'Total Runs',    value: runs,                         sub: 'all time',                       color: '#2563eb' },
     { icon: '🪙', label: 'Total Tokens',  value: totalTokens.toLocaleString(), sub: `${totalInputTokens.toLocaleString()} in · ${totalOutputTokens.toLocaleString()} out`, color: '#7c3aed' },
-    { icon: '💵', label: 'Total API Cost',value: `$${totalCost.toFixed(6)}`,   sub: 'Gemini 1.5 Flash actual',        color: '#059669' },
+    { icon: '💵', label: 'Total API Cost',value: `$${totalCost.toFixed(6)}`,   sub: 'Gemini 3.1 Pro actual',        color: '#059669' },
     { icon: '🏆', label: 'Top Model',     value: topModel,                     sub: runs > 0 ? 'most used' : 'run a prompt first', color: '#f59e0b' },
   ];
 
@@ -53,7 +53,7 @@ const DashboardPage = ({ history = [], usage = {}, onNavigate }) => {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
             <div>
               <h3 style={{ fontWeight: '700', color: '#0f172a', margin: '0 0 3px', fontSize: '0.95rem' }}>Gemini API Usage</h3>
-              <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: 0 }}>Gemini 1.5 Flash · $0.075/$0.30 per 1M tokens</p>
+              <p style={{ fontSize: '0.78rem', color: '#94a3b8', margin: 0 }}>Gemini 3.1 Pro · $0.075/$0.30 per 1M tokens</p>
             </div>
             <span style={{ fontSize: '1.3rem', fontWeight: '800', color: '#059669' }}>${totalCost.toFixed(6)}</span>
           </div>

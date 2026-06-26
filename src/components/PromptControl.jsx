@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
-import { API_SERVER } from '../config/api';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { ensureClientId, loadStoredUser } from '../utils/clientIdentity';
 
-const N8N_URL = `${API_SERVER}/api/n8n-chat`;
+const N8N_URL = import.meta.env.VITE_N8N_URL || '/n8n-proxy/webhook/bf39cd7e-9f1b-4b3e-98eb-8b746cd2b510/chat';
 
 const MODEL_DEFS = [
   { key: 'openai', name: 'ChatGPT', color: '#10a37f' },
@@ -139,6 +138,12 @@ const CopyButton = ({ text }) => {
 };
 
 const ModelCards = ({ responses, selectedModels }) => {
+  const isN8nError = (text) => typeof text === 'string' && (
+    text.startsWith('Error:') || text.startsWith('error:') ||
+    text.toLowerCase().includes('service unavailable') ||
+    text.toLowerCase().includes('try again later')
+  );
+
   const cards = MODEL_DEFS.filter(model => selectedModels.includes(model.key) || model.key === 'claude')
     .map(model => ({ ...model, text: responses[model.key] || '' }))
     .filter(model => model.text);
@@ -147,32 +152,48 @@ const ModelCards = ({ responses, selectedModels }) => {
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, width: '100%' }}>
-      {cards.map(card => (
-        <div key={card.key} style={{ background: '#fff', border: `1px solid ${card.color}25`, borderRadius: 14, overflow: 'hidden', boxShadow: '0 1px 5px rgba(15,23,42,0.05)' }}>
-          <div style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 8, background: `${card.color}0a`, borderBottom: `1px solid ${card.color}18` }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: card.color }} />
-            <strong style={{ color: '#1c1c1c', fontSize: '0.84rem' }}>{card.name}</strong>
+      {cards.map(card => {
+        const hasError = isN8nError(card.text);
+        return (
+          <div key={card.key} style={{ background: hasError ? '#fffbeb' : '#fff', border: `1px solid ${hasError ? '#fde68a' : card.color + '25'}`, borderRadius: 14, overflow: 'hidden', boxShadow: '0 1px 5px rgba(15,23,42,0.05)' }}>
+            <div style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 8, background: hasError ? '#fef9c3' : `${card.color}0a`, borderBottom: `1px solid ${hasError ? '#fde68a' : card.color + '18'}` }}>
+              <span style={{ width: 8, height: 8, borderRadius: '50%', background: hasError ? '#f59e0b' : card.color }} />
+              <strong style={{ color: '#1c1c1c', fontSize: '0.84rem', flex: 1 }}>{card.name}</strong>
+              {hasError && <span style={{ fontSize: '0.68rem', background: '#fef08a', color: '#92400e', padding: '2px 7px', borderRadius: 99, fontWeight: 700 }}>Unavailable</span>}
+            </div>
+            <div style={{ padding: '14px 16px', maxHeight: 300, overflowY: 'auto', fontSize: '0.88rem' }}>
+              {hasError ? (
+                <p style={{ color: '#92400e', fontSize: '0.82rem', lineHeight: 1.6, margin: 0 }}>
+                  ⚠️ This model is currently unavailable. Check the API key or node configuration in your n8n workflow.
+                </p>
+              ) : (
+                <>
+                  <MarkdownBlock text={card.text} />
+                  <CopyButton text={card.text} />
+                </>
+              )}
+            </div>
           </div>
-          <div style={{ padding: '14px 16px', maxHeight: 300, overflowY: 'auto', fontSize: '0.88rem' }}>
-            <MarkdownBlock text={card.text} />
-            <CopyButton text={card.text} />
-          </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 };
 
-const PromptControl = ({ onRunComplete, onFollowUpComplete }) => {
+const PromptControl = ({ onRunComplete, onFollowUpComplete, mode: modeProp, onModeChange }) => {
   const initialConfig = readUserConfig();
   const [prompt, setPrompt] = useState('');
   const [submittedPrompt, setSubmittedPrompt] = useState('');
   const [selectedModels, setSelectedModels] = useState(initialConfig.enabledModels);
-  const [deepResearch, setDeepResearch] = useState(false);
+  const [modeInternal, setModeInternal] = useState('battle');
+  const mode = modeProp ?? modeInternal;
+  const setMode = onModeChange ?? setModeInternal;
+  const [modeOpen, setModeOpen] = useState(false);
   const [status, setStatus] = useState('idle');
   const [responses, setResponses] = useState({ openai: '', claude: '', gemini: '' });
   const [synthesis, setSynthesis] = useState('');
   const [elapsed, setElapsed] = useState('');
+  const [runningElapsed, setRunningElapsed] = useState(0);
   const [error, setError] = useState('');
   const [followUps, setFollowUps] = useState([]);
   const [followUpQuestion, setFollowUpQuestion] = useState('');
@@ -181,6 +202,7 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete }) => {
   const bottomRef = useRef(null);
   const historyIdRef = useRef(null);
   const sessionIdRef = useRef(`session-${Date.now()}-${Math.random().toString(36).slice(2)}`);
+  const timerRef = useRef(null);
 
   useEffect(() => {
     const el = textareaRef.current;
@@ -193,6 +215,13 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete }) => {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [synthesis, followUps.length, status, followUpStatus]);
+
+  useEffect(() => {
+    if (!modeOpen) return;
+    const close = (e) => { if (!e.target.closest('[data-mode-dropdown]')) setModeOpen(false); };
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
+  }, [modeOpen]);
 
   const toggleModel = (key) => {
     setSelectedModels(prev => {
@@ -213,22 +242,29 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete }) => {
   };
 
   const callWorkflow = async (chatInput, options = {}) => {
-    const user = loadStoredUser();
-    const res = await fetch(N8N_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        clientId: ensureClientId(),
-        chatInput,
-        selectedModels,
-        deepResearch: options.deepResearch ?? deepResearch,
-        sessionId: sessionIdRef.current,
-        apiKeys: user.apiKeys || {},
-      }),
-    });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.error || data.message || res.statusText || 'n8n workflow failed.');
-    return Array.isArray(data) && data.length > 0 ? data[0] : data;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 300000);
+    try {
+      const res = await fetch(N8N_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
+        body: JSON.stringify({
+          action: 'sendMessage',
+          sessionId: sessionIdRef.current,
+          chatInput,
+          selectedModels,
+        }),
+      });
+      const raw = await res.text();
+      if (raw.trimStart().startsWith('<')) throw new Error('n8n returned an HTML page — check the webhook URL or n8n workflow error.');
+      let data;
+      try { data = JSON.parse(raw); } catch { throw new Error(`Invalid JSON from n8n: ${raw.slice(0, 120)}`); }
+      if (!res.ok) throw new Error(data.error || data.message || `HTTP ${res.status}`);
+      return Array.isArray(data) && data.length > 0 ? data[0] : data;
+    } finally {
+      clearTimeout(timeout);
+    }
   };
 
   const runPrompt = async () => {
@@ -242,8 +278,12 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete }) => {
     setResponses({ openai: '', claude: '', gemini: '' });
     setSynthesis('');
     setElapsed('');
+    setRunningElapsed(0);
     setFollowUps([]);
     const startedAt = Date.now();
+    timerRef.current = setInterval(() => {
+      setRunningElapsed(Math.floor((Date.now() - startedAt) / 1000));
+    }, 1000);
 
     try {
       const raw = await callWorkflow(question);
@@ -280,7 +320,14 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete }) => {
       }
     } catch (e) {
       setStatus('idle');
-      setError(e.message);
+      const msg = e.name === 'AbortError'
+        ? 'Request timed out (2 min). Check n8n workflow.'
+        : e.message === 'Failed to fetch'
+        ? 'Could not reach n8n — check CORS settings in n8n (allow origin: *) or the n8n URL may be wrong.'
+        : e.message;
+      setError(msg || 'Unknown error from n8n');
+    } finally {
+      clearInterval(timerRef.current);
     }
   };
 
@@ -299,7 +346,7 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete }) => {
     ].filter(Boolean).join('\n\n');
 
     try {
-      const raw = await callWorkflow(previous, { deepResearch: false });
+      const raw = await callWorkflow(previous);
       const followUpResponses = {
         openai: raw.openai || raw.gpt || '',
         claude: raw.claude || raw.anthropic || '',
@@ -332,11 +379,13 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete }) => {
             <div style={{ alignSelf: 'flex-end', maxWidth: '72%', background: '#1c1c1c', color: '#f5f5f5', borderRadius: '16px 16px 4px 16px', padding: '11px 15px', lineHeight: 1.65, whiteSpace: 'pre-wrap' }}>{submittedPrompt}</div>
           )}
           {status === 'running' && (
-            <div style={{ color: '#78716c', fontWeight: 800, fontSize: '0.86rem' }}>
-              Running API workflow through n8n...
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#78716c', fontWeight: 700, fontSize: '0.86rem' }}>
+              <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: '#d97757', animation: 'pulse 1.2s ease-in-out infinite' }} />
+              Calling ChatGPT · Claude · Gemini...
+              <span style={{ background: '#f3f4f6', padding: '2px 8px', borderRadius: 6, fontVariantNumeric: 'tabular-nums' }}>{runningElapsed}s</span>
             </div>
           )}
-          <ModelCards responses={responses} selectedModels={selectedModels} />
+          {mode === 'battle' && <ModelCards responses={responses} selectedModels={selectedModels} />}
           {synthesis && (
             <div style={{ display: 'flex', gap: 11, alignItems: 'flex-start' }}>
               <div style={{ width: 30, height: 30, borderRadius: '50%', background: '#d97757', color: '#fff', display: 'grid', placeItems: 'center', fontWeight: 900, flexShrink: 0 }}>C</div>
@@ -352,14 +401,14 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete }) => {
           {followUps.map((item, index) => (
             <div key={index} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div style={{ alignSelf: 'flex-end', maxWidth: '72%', background: '#1c1c1c', color: '#f5f5f5', borderRadius: '14px 14px 4px 14px', padding: '10px 14px', lineHeight: 1.65 }}>{item.question}</div>
-              <ModelCards responses={item} selectedModels={selectedModels} />
+              {mode === 'battle' && <ModelCards responses={item} selectedModels={selectedModels} />}
               <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 14, padding: '14px 18px' }}>
                 <MarkdownBlock text={item.synthesis || item.answer} />
                 <CopyButton text={item.synthesis || item.answer} />
               </div>
             </div>
           ))}
-          {followUpStatus === 'running' && <div style={{ color: '#78716c', fontWeight: 800, fontSize: '0.86rem' }}>Running follow-up through n8n...</div>}
+          {followUpStatus === 'running' && <div style={{ color: '#78716c', fontWeight: 800, fontSize: '0.86rem' }}>Running your follow-up...</div>}
           <div ref={bottomRef} />
         </div>
       )}
@@ -380,7 +429,7 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete }) => {
           style={{ width: '100%', display: 'block', background: 'transparent', border: 'none', outline: 'none', resize: 'none', padding: '15px 18px 8px', color: '#1a1a1a', fontSize: '0.96rem', lineHeight: 1.55, fontFamily: 'inherit', boxSizing: 'border-box' }}
         />
         <div style={{ display: 'flex', alignItems: 'center', padding: '8px 12px 12px', gap: 10 }}>
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', flex: 1 }}>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', flex: 1, alignItems: 'center' }}>
             {MODEL_DEFS.map(model => (
               <button
                 key={model.key}
@@ -392,13 +441,6 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete }) => {
                 {model.name}
               </button>
             ))}
-            <button
-              onClick={() => setDeepResearch(value => !value)}
-              disabled={busy}
-              style={{ border: `1px solid ${deepResearch ? '#7c3aed' : '#e5e7eb'}`, background: deepResearch ? '#f5f3ff' : '#fff', color: deepResearch ? '#7c3aed' : '#78716c', borderRadius: 999, padding: '5px 10px', fontSize: '0.72rem', fontWeight: 900, cursor: busy ? 'default' : 'pointer' }}
-            >
-              Deep Research
-            </button>
           </div>
           <button
             onClick={submitComposer}

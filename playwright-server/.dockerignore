@@ -1,7 +1,0 @@
-node_modules
-npm-debug.log*
-browser-profile
-chrome-debug-profile
-profiles
-*.local
-.env

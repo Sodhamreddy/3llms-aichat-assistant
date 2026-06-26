@@ -7,10 +7,10 @@ const ComparisonPanel = () => (
     </h3>
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.25rem' }}>
       {[
-        { label: 'Quality Peak', value: 'Claude-3', sub: '9.8 Logic Rating', color: '#7c3aed' },
-        { label: 'Latency Min', value: 'Claude-3', sub: '0.8s Baseline', color: '#2563eb' },
-        { label: 'Efficiency', value: 'GPT-4o', sub: '$0.01 / 1k tkn', color: '#059669' },
-        { label: 'Creativity', value: 'Gemini 1.5', sub: '9.2 Creative', color: '#3b82f6' },
+        { label: 'Quality Peak', value: 'Claude Opus 4.6', sub: '9.8 Logic Rating', color: '#7c3aed' },
+        { label: 'Latency Min', value: 'Claude Opus 4.6', sub: '0.8s Baseline', color: '#2563eb' },
+        { label: 'Efficiency', value: 'GPT-5.2', sub: '$0.01 / 1k tkn', color: '#059669' },
+        { label: 'Creativity', value: 'Gemini 3.1 Pro', sub: '9.2 Creative', color: '#3b82f6' },
       ].map((item, i) => (
         <div key={i} style={{ 
           padding: '1.25rem', 

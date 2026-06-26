@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 const MODELS = [
   {
-    id: 'gemini', name: 'Google Gemini 1.5', provider: 'Google',
+    id: 'gemini', name: 'Google Gemini 3.1 Pro', provider: 'Google',
     color: '#4285f4', bg: '#eef2ff', active: true,
     costIn: '$0.000125 / 1k', costOut: '$0.000375 / 1k',
     context: '1M tokens', speed: '~2.1s',
@@ -10,7 +10,7 @@ const MODELS = [
     desc: "Google's most capable multimodal model. Excellent for long documents, creative tasks, and rich context."
   },
   {
-    id: 'claude', name: 'Anthropic Claude-3', provider: 'Anthropic',
+    id: 'claude', name: 'Anthropic Claude Opus 4.6', provider: 'Anthropic',
     color: '#d97757', bg: '#fff7ed', active: false,
     costIn: '$0.003 / 1k', costOut: '$0.015 / 1k',
     context: '200k tokens', speed: '~0.8s',
@@ -18,7 +18,7 @@ const MODELS = [
     desc: "Anthropic's flagship model. Best for structured analysis, code review, and nuanced reasoning tasks."
   },
   {
-    id: 'openai', name: 'OpenAI GPT-4o', provider: 'OpenAI',
+    id: 'openai', name: 'OpenAI GPT-5.2', provider: 'OpenAI',
     color: '#10a37f', bg: '#f0fdf4', active: false,
     costIn: '$0.005 / 1k', costOut: '$0.015 / 1k',
     context: '128k tokens', speed: '~1.2s',

@@ -11,6 +11,7 @@ import SettingsPage from './pages/SettingsPage';
 import AdminPortal from './pages/AdminPortal';
 import OnboardingPage from './pages/OnboardingPage';
 import LandingPage from './pages/LandingPage';
+import ArchitectureDiagram from './pages/ArchitectureDiagram';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import { attachClientId } from './utils/clientIdentity';
 
@@ -74,7 +75,7 @@ function ChatApp() {
     setHistory(prev => [{
       id, prompt,
       date: new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' }),
-      best: gemini ? 'Gemini 1.5' : claude ? 'Claude-3' : 'GPT-4o',
+      best: gemini ? 'Gemini 3.1 Pro' : claude ? 'Claude Opus 4.6' : 'GPT-5.2',
       status: 'Complete', responses:{ gemini, claude, openai, stage1Claude: stage1Claude || '' },
       tokenData: tokenData || null,
       elapsed: elapsed || null,
@@ -89,6 +90,10 @@ function ChatApp() {
         ? { ...item, followUps: [...(item.followUps || []), { question, answer, elapsed: elapsed || null }] }
         : item
     ));
+  };
+
+  const handleHistoryDelete = (id) => {
+    setHistory(prev => prev.filter(item => item.id !== id));
   };
 
   if (!landingDone) {
@@ -109,6 +114,7 @@ function ChatApp() {
       case 'analytics':       return <AnalyticsPage history={history} usage={usage} />;
       case 'integrations':    return <IntegrationsPage />;
       case 'settings':        return <SettingsPage usage={usage} onResetUsage={() => setUsage({ totalInputTokens:0, totalOutputTokens:0, totalTokens:0, totalCost:0 })} />;
+      case 'architecture':    return <ArchitectureDiagram />;
       default: return null;
     }
   };
@@ -130,6 +136,7 @@ function ChatApp() {
             onCollapse={() => setSidebarOpen(false)}
             history={history}
             onHistorySelect={handleHistorySelect}
+            onHistoryDelete={handleHistoryDelete}
           />
         )}
       </div>
