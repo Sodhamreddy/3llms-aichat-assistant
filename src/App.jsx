@@ -15,6 +15,17 @@ import ArchitectureDiagram from './pages/ArchitectureDiagram';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import { attachClientId } from './utils/clientIdentity';
 
+const useIsMobile = (bp = 768) => {
+  const [m, setM] = useState(typeof window !== 'undefined' && window.innerWidth <= bp);
+  useEffect(() => {
+    const fn = () => setM(window.innerWidth <= bp);
+    fn();
+    window.addEventListener('resize', fn);
+    return () => window.removeEventListener('resize', fn);
+  }, [bp]);
+  return m;
+};
+
 function ChatApp() {
   const [onboardingDone, setOnboardingDone] = useState(() => {
     try {
@@ -36,8 +47,9 @@ function ChatApp() {
     setOnboardingDone(true);
   };
 
+  const isMobile = useIsMobile();
   const [activePage,      setActivePage]      = useState('prompt-runner');
-  const [sidebarOpen,     setSidebarOpen]     = useState(true);
+  const [sidebarOpen,     setSidebarOpen]     = useState(() => typeof window === 'undefined' || window.innerWidth > 768);
   const [chatKey,         setChatKey]         = useState(0);
   const [activeHistoryId, setActiveHistoryId] = useState(null);
 
@@ -119,31 +131,42 @@ function ChatApp() {
     }
   };
 
+  const sidebar = (
+    <Sidebar
+      activePage={activePage}
+      onPageChange={(p) => { setActivePage(p); if (isMobile) setSidebarOpen(false); }}
+      onNewChat={() => { handleNewChat(); if (isMobile) setSidebarOpen(false); }}
+      onCollapse={() => setSidebarOpen(false)}
+      history={history}
+      onHistorySelect={(id) => { handleHistorySelect(id); if (isMobile) setSidebarOpen(false); }}
+      onHistoryDelete={handleHistoryDelete}
+    />
+  );
+
   return (
     <div style={{ display:'flex', minHeight:'100vh' }}>
-      {/* Sidebar */}
-      <div style={{
-        width: sidebarOpen ? '240px' : '0',
-        overflow: 'hidden',
-        transition: 'width 0.22s cubic-bezier(0.4,0,0.2,1)',
-        flexShrink: 0,
-      }}>
-        {sidebarOpen && (
-          <Sidebar
-            activePage={activePage}
-            onPageChange={setActivePage}
-            onNewChat={handleNewChat}
-            onCollapse={() => setSidebarOpen(false)}
-            history={history}
-            onHistorySelect={handleHistorySelect}
-            onHistoryDelete={handleHistoryDelete}
-          />
-        )}
-      </div>
+      {/* Sidebar — overlay drawer on mobile, inline column on desktop */}
+      {isMobile ? (
+        sidebarOpen && (
+          <div onClick={() => setSidebarOpen(false)}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(10,20,40,0.45)', zIndex: 95, backdropFilter: 'blur(1px)' }}>
+            <div onClick={e => e.stopPropagation()}>{sidebar}</div>
+          </div>
+        )
+      ) : (
+        <div style={{
+          width: sidebarOpen ? '240px' : '0',
+          overflow: 'hidden',
+          transition: 'width 0.22s cubic-bezier(0.4,0,0.2,1)',
+          flexShrink: 0,
+        }}>
+          {sidebarOpen && sidebar}
+        </div>
+      )}
 
       {/* Main */}
       <main style={{
-        flex: 1, background: '#f5f4f0', minHeight:'100vh',
+        flex: 1, minWidth: 0, background: '#f5f4f0', minHeight:'100vh',
         display: activePage === 'prompt-runner' ? 'flex' : 'block',
         flexDirection: 'column',
         position: 'relative',
@@ -156,13 +179,16 @@ function ChatApp() {
             title="Open sidebar"
             style={{
               position: 'fixed', top: '14px', left: '12px', zIndex: 90,
-              background: 'none', border: 'none', padding: '5px', borderRadius: '6px',
-              color: '#9ca3af', cursor: 'pointer', display: 'flex', alignItems: 'center',
+              background: isMobile ? 'rgba(255,255,255,0.9)' : 'none',
+              border: isMobile ? '1px solid rgba(0,0,0,0.1)' : 'none',
+              padding: isMobile ? '8px' : '5px', borderRadius: isMobile ? '10px' : '6px',
+              boxShadow: isMobile ? '0 4px 14px rgba(0,0,0,0.12)' : 'none',
+              color: '#475569', cursor: 'pointer', display: 'flex', alignItems: 'center',
             }}
-            onMouseEnter={e => e.currentTarget.style.background = 'rgba(0,0,0,0.06)'}
-            onMouseLeave={e => e.currentTarget.style.background = 'none'}
+            onMouseEnter={e => !isMobile && (e.currentTarget.style.background = 'rgba(0,0,0,0.06)')}
+            onMouseLeave={e => !isMobile && (e.currentTarget.style.background = 'none')}
           >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <svg width={isMobile ? 20 : 16} height={isMobile ? 20 : 16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/>
             </svg>
           </button>
@@ -172,7 +198,7 @@ function ChatApp() {
           ? renderPage()
           : activePage === 'results-history'
             ? renderPage()
-            : <div style={{ padding:'2.5rem 2.5rem 3rem', maxWidth:'1200px' }}>{renderPage()}</div>
+            : <div style={{ padding: isMobile ? '4rem 1.05rem 2rem' : '2.5rem 2.5rem 3rem', maxWidth:'1200px' }}>{renderPage()}</div>
         }
       </main>
     </div>

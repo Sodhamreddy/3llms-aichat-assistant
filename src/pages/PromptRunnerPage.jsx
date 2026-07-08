@@ -1,5 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import PromptControl from '../components/PromptControl';
+
+const useIsMobile = (bp = 768) => {
+  const [m, setM] = useState(typeof window !== 'undefined' && window.innerWidth <= bp);
+  useEffect(() => {
+    const fn = () => setM(window.innerWidth <= bp);
+    fn();
+    window.addEventListener('resize', fn);
+    return () => window.removeEventListener('resize', fn);
+  }, [bp]);
+  return m;
+};
 
 const getGreeting = () => {
   const h = new Date().getHours();
@@ -42,6 +53,7 @@ const PromptRunnerPage = ({ onRunComplete, onFollowUpComplete }) => {
   const [tagline] = useState(() => getTagline());
   const [mode, setMode] = useState('battle');
   const [modeOpen, setModeOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   const currentMode = MODES.find(m => m.key === mode);
 
@@ -50,14 +62,14 @@ const PromptRunnerPage = ({ onRunComplete, onFollowUpComplete }) => {
       flex: 1, display: 'flex', flexDirection: 'column',
       alignItems: 'center', justifyContent: 'center',
       minHeight: '100vh',
-      padding: '2rem 2rem 160px',
+      padding: isMobile ? '4.75rem 1rem 140px' : '2rem 2rem 160px',
       background: '#f5f4f0',
       width: '100%',
       position: 'relative',
     }}>
 
-      {/* Mode selector — top left of content area */}
-      <div style={{ position: 'absolute', top: '1.25rem', left: '1.5rem' }}>
+      {/* Mode selector — top-right on mobile (clears the menu button), top-left on desktop */}
+      <div style={{ position: 'absolute', top: isMobile ? '1rem' : '1.25rem', left: isMobile ? 'auto' : '1.5rem', right: isMobile ? '1rem' : 'auto' }}>
         <div style={{ position: 'relative' }}>
           <button
             onClick={() => setModeOpen(v => !v)}
@@ -78,7 +90,7 @@ const PromptRunnerPage = ({ onRunComplete, onFollowUpComplete }) => {
           {modeOpen && (
             <div
               style={{
-                position: 'absolute', top: '110%', left: 0,
+                position: 'absolute', top: '110%', left: isMobile ? 'auto' : 0, right: isMobile ? 0 : 'auto',
                 background: '#fff', border: '1px solid rgba(0,0,0,0.08)',
                 borderRadius: 14, boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
                 padding: '6px', zIndex: 50, minWidth: 220,

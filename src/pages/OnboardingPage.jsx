@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGoogleLogin } from '@react-oauth/google';
 import { supabase } from '../utils/supabase';
@@ -50,17 +50,30 @@ const GoogleIcon = ({ size = 18 }) => (
 );
 
 // ── Shell lives OUTSIDE the component so its reference never changes ──────
-const Shell = ({ step, eyebrow, title, subtitle, children, actions, error, notice }) => (
+const useIsMobile = (bp = 768) => {
+  const [m, setM] = useState(typeof window !== 'undefined' && window.innerWidth <= bp);
+  useEffect(() => {
+    const fn = () => setM(window.innerWidth <= bp);
+    fn();
+    window.addEventListener('resize', fn);
+    return () => window.removeEventListener('resize', fn);
+  }, [bp]);
+  return m;
+};
+
+const Shell = ({ step, eyebrow, title, subtitle, children, actions, error, notice }) => {
+  const isMobile = useIsMobile();
+  return (
   <motion.div
     key={step}
     initial={{ opacity: 0, y: 18 }}
     animate={{ opacity: 1, y: 0 }}
     exit={{ opacity: 0, y: -12 }}
     transition={{ duration: 0.24 }}
-    style={{ width: 'min(1060px, calc(100vw - 2rem))', background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: 22, boxShadow: '0 24px 70px rgba(15,23,42,0.11)', overflow: 'hidden' }}
+    style={{ width: 'min(1060px, calc(100vw - 1.5rem))', background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: 22, boxShadow: '0 24px 70px rgba(15,23,42,0.11)', overflow: 'hidden' }}
   >
-    <div style={{ display: 'grid', gridTemplateColumns: '0.9fr 1.1fr', minHeight: 560 }}>
-      <aside style={{ position: 'relative', background: `linear-gradient(150deg, ${SECONDARY}, #12286b)`, color: '#fff', padding: '2rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', overflow: 'hidden' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '0.9fr 1.1fr', minHeight: isMobile ? 'auto' : 560 }}>
+      <aside style={{ position: 'relative', background: `linear-gradient(150deg, ${SECONDARY}, #12286b)`, color: '#fff', padding: isMobile ? '1.6rem 1.4rem' : '2rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', overflow: 'hidden' }}>
         {/* animated background accents */}
         <motion.div
           animate={{ scale: [1, 1.12, 1], opacity: [0.5, 0.75, 0.5] }}
@@ -99,7 +112,8 @@ const Shell = ({ step, eyebrow, title, subtitle, children, actions, error, notic
       </section>
     </div>
   </motion.div>
-);
+  );
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 

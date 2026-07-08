@@ -1,5 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
 
+const useIsMobile = (bp = 768) => {
+  const [m, setM] = useState(typeof window !== 'undefined' && window.innerWidth <= bp);
+  useEffect(() => {
+    const fn = () => setM(window.innerWidth <= bp);
+    fn();
+    window.addEventListener('resize', fn);
+    return () => window.removeEventListener('resize', fn);
+  }, [bp]);
+  return m;
+};
+
 /* ── Icons ─────────────────────────────────────────────────────── */
 const Ico = (d) => (props) => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -106,18 +117,20 @@ const Sidebar = ({ activePage, onPageChange, onNewChat, onCollapse, history = []
     }
   };
 
+  const isMobile = useIsMobile();
   return (
     <div style={{
-      width: '240px', height: '100vh',
+      width: isMobile ? 'min(86vw, 320px)' : '240px', height: '100vh',
       background: '#ebe9e4',
       position: 'fixed', left: 0, top: 0, zIndex: 100,
       display: 'flex', flexDirection: 'column',
       borderRight: '1px solid rgba(0,0,0,0.06)',
+      boxShadow: isMobile ? '6px 0 34px rgba(0,0,0,0.28)' : 'none',
     }}>
 
       {/* ── Logo ── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 12px 10px' }}>
-        <img src="/logo.png" alt="Excelliq" style={{ height: 120, objectFit: 'contain' }} />
+        <img src="/logo.png" alt="Excelliq" style={{ height: isMobile ? 64 : 120, objectFit: 'contain' }} />
         <button
           onClick={onCollapse}
           title="Close sidebar"

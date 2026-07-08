@@ -46,6 +46,28 @@ const Eyebrow = ({ children, center, light }) => (
 
 const heading = (size) => ({ fontFamily: SERIF, fontWeight: 500, fontSize: size, lineHeight: 1.1, letterSpacing: '-0.01em', color: C.ink });
 
+/* ── Monochrome line icons (brand blue / navy only) ───────────────────── */
+const I = {
+  sparkle: <path d="M12 2l2.1 6L20 10l-5.9 2L12 18l-2.1-6L4 10l5.9-2z" />,
+  bolt:    <path d="M13 2 4 14h6l-1 8 9-12h-6z" />,
+  search:  <><circle cx="11" cy="11" r="7" /><line x1="20" y1="20" x2="16.5" y2="16.5" /></>,
+  key:     <><circle cx="8" cy="15" r="4" /><path d="M10.8 12.2 20 3" /><path d="M16 7l3 3" /></>,
+  book:    <><path d="M5 4h13v16H6a2 2 0 0 1-1-3.8" /><path d="M5 4a2 2 0 0 0-2 2v12" /></>,
+  refresh: <><path d="M20 11a8 8 0 1 0-1.9 5.1" /><polyline points="20 4 20 11 13 11" /></>,
+  flask:   <><path d="M9 3h6" /><path d="M10 3v6l-5 9a2 2 0 0 0 1.8 3h10.4A2 2 0 0 0 19 18l-5-9V3" /><path d="M7.5 15h9" /></>,
+  scale:   <><path d="M12 3v18" /><path d="M5 7h14" /><path d="M5 7l-3 6a3 3 0 0 0 6 0z" /><path d="M19 7l-3 6a3 3 0 0 0 6 0z" /></>,
+  wrench:  <path d="M15 4a4 4 0 0 0-5.5 5.2L3 16v5h5l6.8-6.5A4 4 0 0 0 20 9l-3 3-2-2z" />,
+  pen:     <><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" /></>,
+  lock:    <><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></>,
+  shield:  <path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z" />,
+  folder:  <path d="M3 8a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />,
+};
+const Ico = ({ name, size = 24, color = PRIMARY, strokeWidth = 1.7 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    {I[name] || I.sparkle}
+  </svg>
+);
+
 const MODELS = [
   { key: 'openai', name: 'ChatGPT', sub: 'GPT-5.2', color: C.gpt,    role: 'The precise specialist', desc: 'Structured reasoning, clean code, and meticulous step-by-step breakdowns. ChatGPT brings rigour and accuracy to every prompt.', sample: 'Fault tolerance is the primary advantage — when one node fails, the others keep serving requests with zero downtime.' },
   { key: 'claude', name: 'Claude',  sub: 'Claude Opus 4.6',    color: C.claude, role: 'The synthesiser', desc: 'Deep reasoning and nuanced writing. Claude reads all three answers and composes the single, definitive final response.', sample: 'Distributed systems win on fault tolerance, horizontal scalability, and geographic distribution — here is how each compounds.' },
@@ -53,12 +75,12 @@ const MODELS = [
 ];
 
 const FEATURES = [
-  { icon: '🧠', title: 'Claude Synthesis', desc: 'The heart of Excelliq. Claude reads every model\'s answer and distils the strongest reasoning into one definitive, polished response — so you never compare tabs again.', big: true },
-  { icon: '⚡', title: 'Parallel API Calls', desc: 'Your prompt hits all three providers at once. No queue, results in seconds.' },
-  { icon: '🔍', title: 'Side-by-Side Compare', desc: 'Open any model\'s raw answer to see exactly where they agree — and where they differ.' },
-  { icon: '🔑', title: 'Your Own API Keys', desc: 'Add OpenAI, Anthropic, and Google keys once. Stored locally — never on our servers.' },
-  { icon: '📚', title: 'Full History', desc: 'Every prompt, answer, and follow-up, organised by date and always searchable.' },
-  { icon: '🔄', title: 'Resilient Pipeline', desc: 'A resilient orchestration pipeline — reliable, scalable, enterprise-ready.' },
+  { icon: 'sparkle', title: 'Claude Synthesis', desc: 'The heart of Excelliq. Claude reads every model\'s answer and distils the strongest reasoning into one definitive, polished response — so you never compare tabs again.', big: true },
+  { icon: 'bolt', title: 'Parallel API Calls', desc: 'Your prompt hits all three providers at once. No queue, results in seconds.' },
+  { icon: 'search', title: 'Side-by-Side Compare', desc: 'Open any model\'s raw answer to see exactly where they agree — and where they differ.' },
+  { icon: 'key', title: 'Your Own API Keys', desc: 'Add OpenAI, Anthropic, and Google keys once. Stored locally — never on our servers.' },
+  { icon: 'book', title: 'Full History', desc: 'Every prompt, answer, and follow-up, organised by date and always searchable.' },
+  { icon: 'refresh', title: 'Resilient Pipeline', desc: 'A resilient orchestration pipeline — reliable, scalable, enterprise-ready.' },
 ];
 
 const STEPS = [
@@ -68,10 +90,10 @@ const STEPS = [
 ];
 
 const USE_CASES = [
-  { icon: '🔬', title: 'Researchers', desc: 'Cross-check facts and surface conflicting evidence before you cite a single source.', tags: ['Literature review', 'Fact-checking'] },
-  { icon: '⚖️', title: 'Analysts', desc: 'Pressure-test a thesis from three angles, then read the one synthesis that reconciles them.', tags: ['Due diligence', 'Risk review'] },
-  { icon: '🛠️', title: 'Engineers', desc: 'Compare three implementations, catch the edge case one model missed, ship the safe one.', tags: ['Code review', 'Architecture'] },
-  { icon: '✍️', title: 'Writers & founders', desc: 'Three drafts, three voices — Claude blends the sharpest framing into one final piece.', tags: ['Drafting', 'Strategy'] },
+  { icon: 'flask', title: 'Researchers', desc: 'Cross-check facts and surface conflicting evidence before you cite a single source.', tags: ['Literature review', 'Fact-checking'] },
+  { icon: 'scale', title: 'Analysts', desc: 'Pressure-test a thesis from three angles, then read the one synthesis that reconciles them.', tags: ['Due diligence', 'Risk review'] },
+  { icon: 'wrench', title: 'Engineers', desc: 'Compare three implementations, catch the edge case one model missed, ship the safe one.', tags: ['Code review', 'Architecture'] },
+  { icon: 'pen', title: 'Writers & founders', desc: 'Three drafts, three voices — Claude blends the sharpest framing into one final piece.', tags: ['Drafting', 'Strategy'] },
 ];
 
 const COUNCIL_MODES = [
@@ -114,14 +136,27 @@ const TESTIMONIALS = [
 ];
 
 const TRUST = [
-  { icon: '🔒', title: 'Keys stay in your browser', desc: 'Your OpenAI, Anthropic, and Google keys are stored locally and never touch our servers.' },
-  { icon: '🛡️', title: 'Never trained on your data', desc: 'Your prompts and answers are never used for training, never sold, never retained by us.' },
-  { icon: '⚡', title: 'Sent direct to each provider', desc: 'Requests go straight to the model providers you choose — no detours, no shadow copies.' },
-  { icon: '🗂️', title: 'Your history, your device', desc: 'Every prompt and answer is organised and searchable, stored locally and under your control.' },
+  { icon: 'lock', title: 'Keys stay in your browser', desc: 'Your OpenAI, Anthropic, and Google keys are stored locally and never touch our servers.' },
+  { icon: 'shield', title: 'Never trained on your data', desc: 'Your prompts and answers are never used for training, never sold, never retained by us.' },
+  { icon: 'bolt', title: 'Sent direct to each provider', desc: 'Requests go straight to the model providers you choose — no detours, no shadow copies.' },
+  { icon: 'folder', title: 'Your history, your device', desc: 'Every prompt and answer is organised and searchable, stored locally and under your control.' },
 ];
+
+/* ── Responsive helper (inline styles can't use media queries) ────────── */
+const useIsMobile = (bp = 768) => {
+  const [m, setM] = useState(typeof window !== 'undefined' && window.innerWidth <= bp);
+  useEffect(() => {
+    const fn = () => setM(window.innerWidth <= bp);
+    fn();
+    window.addEventListener('resize', fn);
+    return () => window.removeEventListener('resize', fn);
+  }, [bp]);
+  return m;
+};
 
 /* ── Hero product mock ───────────────────────────────────────────────── */
 const HeroMockup = () => {
+  const isMobile = useIsMobile();
   const cards = [
     { name: 'ChatGPT', color: C.gpt,    delay: 0.2,  text: 'Fault tolerance is the primary advantage — failures don\'t halt the system.' },
     { name: 'Claude',  color: C.claude, delay: 0.45, text: 'Scalability and resilience are key — the CAP theorem frames the trade-off.' },
@@ -143,7 +178,7 @@ const HeroMockup = () => {
             style={{ alignSelf: 'flex-end', background: C.ink, color: '#eef4ff', borderRadius: '14px 14px 4px 14px', padding: '9px 15px', fontSize: '0.78rem', maxWidth: '62%', lineHeight: 1.5 }}>
             What are the main advantages of distributed systems?
           </motion.div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '10px' }}>
             {cards.map((card) => (
               <motion.div key={card.name} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: card.delay + 0.55, duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
@@ -161,7 +196,7 @@ const HeroMockup = () => {
             <div style={{ padding: '7px 12px', borderBottom: `1px solid ${C.accent}1f`, display: 'flex', alignItems: 'center', gap: '6px' }}>
               <div style={{ width: 6, height: 6, borderRadius: '50%', background: C.accent, flexShrink: 0 }} />
               <span style={{ fontSize: '0.65rem', fontWeight: 800, color: C.accent }}>Excelliq · Final Synthesis</span>
-              <span style={{ marginLeft: 'auto', fontSize: '0.62rem', color: '#7286b0', fontWeight: 600 }}>✨ Best of all 3</span>
+              <span style={{ marginLeft: 'auto', fontSize: '0.62rem', color: '#7286b0', fontWeight: 600 }}>Best of all 3</span>
             </div>
             <div style={{ padding: '10px 12px', fontSize: '0.73rem', color: C.ink, lineHeight: 1.7, fontWeight: 500 }}>
               Distributed systems offer three core advantages: <strong>fault tolerance</strong>, <strong>horizontal scalability</strong>, and <strong>geographic distribution</strong> for low-latency global access…
@@ -171,7 +206,7 @@ const HeroMockup = () => {
       </motion.div>
       <motion.div animate={{ y: [0, -6, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
         style={{ position: 'absolute', top: -16, right: -10, background: 'white', border: '1px solid #e3ecfb', borderRadius: '11px', padding: '6px 13px', boxShadow: '0 10px 30px rgba(10,31,77,0.12)', fontSize: '0.72rem', fontWeight: 700, color: C.ink, display: 'flex', alignItems: 'center', gap: '6px' }}>
-        <span>⚡</span> 3 models answered in 4.2s
+        <Ico name="bolt" size={13} color={PRIMARY} /> 3 models answered in 4.2s
       </motion.div>
       <motion.div animate={{ y: [0, 6, 0] }} transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
         style={{ position: 'absolute', bottom: 24, left: -16, background: 'white', border: '1px solid #e3ecfb', borderRadius: '11px', padding: '6px 13px', boxShadow: '0 10px 30px rgba(10,31,77,0.12)', fontSize: '0.72rem', fontWeight: 700, color: PRIMARY, display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -299,6 +334,7 @@ const SYNTH_TEXT = 'Distributed systems win on three fronts: fault tolerance, ho
 
 const LiveChatDemo = () => {
   const ref = useRef(null);
+  const isMobile = useIsMobile();
   const inView = useInView(ref, { amount: 0.3 });
   const [typed, setTyped] = useState('');
   const [phase, setPhase] = useState(0); // 0 typing · 1 thinking · 2 replies · 3 synthesis
@@ -360,7 +396,7 @@ const LiveChatDemo = () => {
           <AnimatePresence>
             {phase >= 2 && (
               <motion.div key="models" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10, marginTop: 16 }}>
+                style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: 10, marginTop: 16 }}>
                 {DEMO_MODELS.map((m, i) => (
                   <motion.div key={m.name} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.45, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
                     style={{ background: 'white', border: `1px solid ${m.color}28`, borderRadius: 11, overflow: 'hidden' }}>
@@ -383,7 +419,7 @@ const LiveChatDemo = () => {
               <motion.div key="synth" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                 style={{ marginTop: 12, background: 'linear-gradient(135deg, #eaf3ff, #ffffff)', border: `2px solid ${PRIMARY}40`, borderRadius: 11 }}>
                 <div style={{ padding: '8px 12px', borderBottom: `1px solid ${PRIMARY}1f`, display: 'flex', alignItems: 'center', gap: 7 }}>
-                  <span style={{ fontSize: '0.8rem' }}>✨</span>
+                  <Ico name="sparkle" size={14} color={PRIMARY} />
                   <span style={{ fontSize: '0.66rem', fontWeight: 800, color: PRIMARY }}>Excelliq · Final Synthesis</span>
                   <span style={{ marginLeft: 'auto', fontSize: '0.62rem', color: '#7286b0', fontWeight: 700 }}>Best of all 3</span>
                 </div>
@@ -399,9 +435,9 @@ const LiveChatDemo = () => {
       {/* floating status chip */}
       <motion.div animate={{ y: [0, -6, 0] }} transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
         style={{ position: 'absolute', top: -14, right: -8, background: 'white', border: '1px solid #e3ecfb', borderRadius: 11, padding: '6px 13px', boxShadow: '0 10px 30px rgba(10,31,77,0.12)', fontSize: '0.72rem', fontWeight: 700, color: phase >= 3 ? PRIMARY : C.ink, display: 'flex', alignItems: 'center', gap: 7 }}>
-        {phase === 0 && <>✍️ Typing your prompt…</>}
-        {phase === 1 && <>⚡ Sending to 3 models <ThinkingDots color={PRIMARY} /></>}
-        {phase === 2 && <>🧠 Models answering <ThinkingDots color={PRIMARY} /></>}
+        {phase === 0 && <>Typing your prompt…</>}
+        {phase === 1 && <>Sending to 3 models <ThinkingDots color={PRIMARY} /></>}
+        {phase === 2 && <>Models answering <ThinkingDots color={PRIMARY} /></>}
         {phase === 3 && <>✓ Synthesis ready</>}
       </motion.div>
     </div>
@@ -420,7 +456,7 @@ const ArchitectCard = () => {
   return (
     <div ref={ref} style={{ width: '100%', maxWidth: 720, margin: '0 auto', background: 'linear-gradient(160deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))', border: '1px solid rgba(159,193,245,0.22)', borderRadius: 18, overflow: 'hidden', boxShadow: '0 30px 80px rgba(0,0,0,0.35)' }}>
       <div style={{ padding: '12px 18px', borderBottom: '1px solid rgba(159,193,245,0.16)', display: 'flex', alignItems: 'center', gap: 9 }}>
-        <span style={{ fontSize: '0.9rem' }}>✨</span>
+        <Ico name="sparkle" size={15} color="#9fc1f5" />
         <span style={{ fontSize: '0.8rem', fontWeight: 800, color: '#bcd6ff', fontFamily: 'ui-monospace, monospace' }}>Synthesis Engine → Claude</span>
         <span style={{ marginLeft: 'auto', fontSize: '0.72rem', color: '#7e95c9', fontFamily: 'ui-monospace, monospace' }}>312ms</span>
       </div>
@@ -433,9 +469,9 @@ const ArchitectCard = () => {
         ))}
       </div>
       <div style={{ padding: '10px 20px', borderTop: '1px solid rgba(159,193,245,0.16)', display: 'flex', alignItems: 'center', gap: 9 }}>
-        <span style={{ fontSize: '0.72rem', color: '#bcd6ff', fontWeight: 700 }}>✨ Synthesis</span>
+        <span style={{ fontSize: '0.72rem', color: '#bcd6ff', fontWeight: 700 }}>Synthesis</span>
         <span style={{ fontSize: '0.66rem', color: '#9fc1f5', background: 'rgba(110,164,245,0.16)', borderRadius: 6, padding: '2px 8px', fontWeight: 800, letterSpacing: '0.04em' }}>FINAL</span>
-        <motion.span animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 1.4, repeat: Infinity }} style={{ marginLeft: 'auto', width: 8, height: 8, borderRadius: '50%', background: '#42d392' }} />
+        <motion.span animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 1.4, repeat: Infinity }} style={{ marginLeft: 'auto', width: 8, height: 8, borderRadius: '50%', background: '#6ea4f5' }} />
       </div>
     </div>
   );
@@ -509,6 +545,8 @@ const CognitiveCouncil = () => {
 const LandingPage = ({ onGetStarted }) => {
   const [openFaq, setOpenFaq] = useState(0);
   const [navSolid, setNavSolid] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const isMobile = useIsMobile();
   useEffect(() => {
     const fn = () => setNavSolid(window.scrollY > 40);
     window.addEventListener('scroll', fn, { passive: true });
@@ -526,23 +564,49 @@ const LandingPage = ({ onGetStarted }) => {
         initial={{ y: -60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         style={{
           position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-          background: navSolid ? 'rgba(245,248,255,0.85)' : 'transparent',
-          backdropFilter: navSolid ? 'blur(16px)' : 'none',
-          borderBottom: navSolid ? '1px solid rgba(10,31,77,0.07)' : '1px solid transparent',
-          transition: 'background 0.3s, border 0.3s', height: '116px',
+          background: (navSolid || menuOpen) ? 'rgba(245,248,255,0.92)' : 'transparent',
+          backdropFilter: (navSolid || menuOpen) ? 'blur(16px)' : 'none',
+          borderBottom: (navSolid || menuOpen) ? '1px solid rgba(10,31,77,0.07)' : '1px solid transparent',
+          transition: 'background 0.3s, border 0.3s', height: isMobile ? '68px' : '116px',
         }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 2.5rem', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <img src="/logo.png" alt="Excelliq" style={{ height: 104, objectFit: 'contain' }} />
-          <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
-            {navLinks.map(l => (
-              <a key={l} href={`#${l.toLowerCase().replace(/ /g, '-')}`}
-                style={{ fontSize: '0.85rem', color: C.muted, fontWeight: 600, textDecoration: 'none', transition: 'color 0.15s' }}
-                onMouseEnter={e => (e.target.style.color = C.ink)} onMouseLeave={e => (e.target.style.color = C.muted)}>{l}</a>
-            ))}
-            <motion.button whileHover={{ scale: 1.03, boxShadow: '0 14px 34px rgba(30,99,214,0.3)' }} whileTap={{ scale: 0.97 }} onClick={onGetStarted}
-              style={{ padding: '0.6rem 1.35rem', background: GRAD, color: 'white', border: 'none', borderRadius: '11px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer', fontFamily: SANS, boxShadow: '0 8px 22px rgba(30,99,214,0.22)' }}>Get Started →</motion.button>
-          </div>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: isMobile ? '0 1.15rem' : '0 2.5rem', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <img src="/logo.png" alt="Excelliq" style={{ height: isMobile ? 50 : 104, objectFit: 'contain' }} />
+          {isMobile ? (
+            <button onClick={() => setMenuOpen(o => !o)} aria-label="Menu"
+              style={{ width: 42, height: 42, display: 'grid', placeItems: 'center', gap: 5, background: 'rgba(255,255,255,0.6)', border: '1px solid rgba(10,31,77,0.1)', borderRadius: 11, cursor: 'pointer' }}>
+              {[0, 1, 2].map(i => (
+                <span key={i} style={{ display: 'block', width: 18, height: 2, borderRadius: 2, background: C.navy,
+                  transform: menuOpen ? (i === 0 ? 'translateY(7px) rotate(45deg)' : i === 2 ? 'translateY(-7px) rotate(-45deg)' : 'scaleX(0)') : 'none',
+                  opacity: menuOpen && i === 1 ? 0 : 1, transition: 'transform 0.25s, opacity 0.2s' }} />
+              ))}
+            </button>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+              {navLinks.map(l => (
+                <a key={l} href={`#${l.toLowerCase().replace(/ /g, '-')}`}
+                  style={{ fontSize: '0.85rem', color: C.muted, fontWeight: 600, textDecoration: 'none', transition: 'color 0.15s' }}
+                  onMouseEnter={e => (e.target.style.color = C.ink)} onMouseLeave={e => (e.target.style.color = C.muted)}>{l}</a>
+              ))}
+              <motion.button whileHover={{ scale: 1.03, boxShadow: '0 14px 34px rgba(30,99,214,0.3)' }} whileTap={{ scale: 0.97 }} onClick={onGetStarted}
+                style={{ padding: '0.6rem 1.35rem', background: GRAD, color: 'white', border: 'none', borderRadius: '11px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer', fontFamily: SANS, boxShadow: '0 8px 22px rgba(30,99,214,0.22)' }}>Get Started →</motion.button>
+            </div>
+          )}
         </div>
+
+        {/* Mobile slide-down menu */}
+        <AnimatePresence>
+          {isMobile && menuOpen && (
+            <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.22 }}
+              style={{ background: 'rgba(245,248,255,0.98)', backdropFilter: 'blur(16px)', borderBottom: '1px solid rgba(10,31,77,0.08)', padding: '0.6rem 1.15rem 1.1rem', display: 'flex', flexDirection: 'column', gap: 2 }}>
+              {navLinks.map(l => (
+                <a key={l} href={`#${l.toLowerCase().replace(/ /g, '-')}`} onClick={() => setMenuOpen(false)}
+                  style={{ fontSize: '1rem', color: C.ink, fontWeight: 600, textDecoration: 'none', padding: '0.85rem 0.5rem', borderRadius: 10, borderBottom: '1px solid rgba(10,31,77,0.05)' }}>{l}</a>
+              ))}
+              <button onClick={() => { setMenuOpen(false); onGetStarted(); }}
+                style={{ marginTop: '0.7rem', padding: '0.95rem', background: GRAD, color: 'white', border: 'none', borderRadius: 13, fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', fontFamily: SANS, boxShadow: '0 10px 26px rgba(30,99,214,0.28)' }}>Get Started →</button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.nav>
 
       {/* ── 1 · Hero ─────────────────────────────────────────────────── */}
@@ -552,7 +616,7 @@ const LandingPage = ({ onGetStarted }) => {
           <div style={{ position: 'absolute', bottom: '-20%', left: '-10%', width: 620, height: 620, borderRadius: '50%', background: 'radial-gradient(circle, rgba(18,40,107,0.10), transparent 68%)' }} />
           <DotBurst style={{ top: 130, left: 60 }} />
         </div>
-        <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', padding: '130px 2.5rem 80px', maxWidth: '1220px', margin: '0 auto', gap: '4rem', width: '100%' }}>
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: 'center', padding: isMobile ? '92px 1.15rem 56px' : '130px 2.5rem 80px', maxWidth: '1220px', margin: '0 auto', gap: isMobile ? '2.6rem' : '4rem', width: '100%', textAlign: isMobile ? 'center' : 'left' }}>
           <div style={{ flex: 1 }}>
             <motion.div variants={fadeIn(0.1)} initial="hidden" animate="show"
               style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.75)', backdropFilter: 'blur(8px)', border: '1px solid rgba(10,31,77,0.08)', borderRadius: '100px', padding: '6px 15px', fontSize: '0.75rem', fontWeight: 600, color: C.navy, marginBottom: '1.9rem', boxShadow: '0 4px 16px rgba(10,31,77,0.05)' }}>
@@ -563,15 +627,15 @@ const LandingPage = ({ onGetStarted }) => {
               Three AI minds.<br />
               <span style={{ background: GRAD, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', fontStyle: 'italic' }}>One perfect answer.</span>
             </motion.h1>
-            <motion.p variants={fadeUp(0.25)} initial="hidden" animate="show" style={{ fontSize: '1.1rem', color: C.muted, lineHeight: 1.75, maxWidth: '500px', marginBottom: '2.3rem' }}>
+            <motion.p variants={fadeUp(0.25)} initial="hidden" animate="show" style={{ fontSize: isMobile ? '1rem' : '1.1rem', color: C.muted, lineHeight: 1.75, maxWidth: '500px', margin: isMobile ? '0 auto 2.1rem' : '0 0 2.3rem' }}>
               Ask once. ChatGPT, Claude, and Gemini respond simultaneously — then Claude reads every answer and synthesises the single best response, so you don't have to.
             </motion.p>
-            <motion.div variants={fadeUp(0.35)} initial="hidden" animate="show" style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+            <motion.div variants={fadeUp(0.35)} initial="hidden" animate="show" style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: isMobile ? 'center' : 'flex-start' }}>
               <motion.button whileHover={{ scale: 1.03, boxShadow: '0 16px 40px rgba(30,99,214,0.32)' }} whileTap={{ scale: 0.97 }} onClick={onGetStarted} style={primaryBtn}>Get Started →</motion.button>
               <motion.a href="#how-it-works" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
                 style={{ padding: '0.9rem 1.8rem', background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(8px)', color: C.navy, border: '1.5px solid rgba(10,31,77,0.1)', borderRadius: '13px', fontWeight: 600, fontSize: '0.96rem', cursor: 'pointer', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '6px' }}>▶ See how it works</motion.a>
             </motion.div>
-            <motion.div variants={fadeIn(0.5)} initial="hidden" animate="show" style={{ marginTop: '2.3rem', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.78rem', color: C.muted }}>
+            <motion.div variants={fadeIn(0.5)} initial="hidden" animate="show" style={{ marginTop: '2.3rem', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '0.78rem', color: C.muted, justifyContent: isMobile ? 'center' : 'flex-start' }}>
               <div style={{ display: 'flex' }}>
                 {[C.navy, C.accent, C.navy, C.accent].map((c, i) => (
                   <div key={i} style={{ width: 26, height: 26, borderRadius: '50%', background: c, border: '2px solid white', marginLeft: i ? -9 : 0, display: 'grid', placeItems: 'center', fontSize: '0.55rem', color: 'white', fontWeight: 800 }}>K</div>
@@ -590,7 +654,7 @@ const LandingPage = ({ onGetStarted }) => {
       <section style={{ padding: '0 2.5rem 88px', position: 'relative', zIndex: 2, marginTop: '-2.5rem' }}>
         <Section style={{ maxWidth: '1140px', margin: '0 auto' }}>
           <motion.div variants={stagger(0.1)}
-            style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', background: `linear-gradient(135deg, ${SECONDARY}, #12286b)`, borderRadius: '26px', overflow: 'hidden', boxShadow: '0 30px 80px rgba(10,31,77,0.28)', position: 'relative' }}>
+            style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', background: `linear-gradient(135deg, ${SECONDARY}, #12286b)`, borderRadius: '26px', overflow: 'hidden', boxShadow: '0 30px 80px rgba(10,31,77,0.28)', position: 'relative' }}>
             <div style={{ position: 'absolute', top: -80, right: -40, width: 320, height: 320, borderRadius: '50%', background: 'radial-gradient(circle, rgba(30,99,214,0.45), transparent 70%)' }} />
             {[
               { val: '3', label: 'AI models in parallel' },
@@ -599,8 +663,10 @@ const LandingPage = ({ onGetStarted }) => {
               { val: '100%', label: 'Private — your keys' },
             ].map((s, i) => (
               <motion.div key={i} variants={fadeUp(i * 0.08)}
-                style={{ padding: '2.6rem 1.6rem', textAlign: 'center', borderRight: i < 3 ? '1px solid rgba(255,255,255,0.1)' : 'none', position: 'relative', zIndex: 1 }}>
-                <div style={{ ...heading('2.8rem'), color: '#fff' }}><CountUp value={s.val} /></div>
+                style={{ padding: isMobile ? '1.9rem 1rem' : '2.6rem 1.6rem', textAlign: 'center', position: 'relative', zIndex: 1,
+                  borderRight: isMobile ? (i % 2 === 0 ? '1px solid rgba(255,255,255,0.1)' : 'none') : (i < 3 ? '1px solid rgba(255,255,255,0.1)' : 'none'),
+                  borderBottom: isMobile && i < 2 ? '1px solid rgba(255,255,255,0.1)' : 'none' }}>
+                <div style={{ ...heading(isMobile ? '2.1rem' : '2.8rem'), color: '#fff' }}><CountUp value={s.val} /></div>
                 <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.62)', marginTop: '10px', fontWeight: 500, lineHeight: 1.5 }}>{s.label}</div>
               </motion.div>
             ))}
@@ -631,7 +697,7 @@ const LandingPage = ({ onGetStarted }) => {
                 <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', marginBottom: 4 }}>{m.model}</div>
                 <div style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.5)', marginBottom: '1rem' }}>{m.trait}</div>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: '0.72rem', fontWeight: 700, color: '#9fc1f5', background: 'rgba(110,164,245,0.1)', borderRadius: 100, padding: '4px 11px' }}>
-                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#42d392' }} /> {m.name} · ready
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#6ea4f5' }} /> {m.name} · ready
                 </div>
               </motion.div>
             ))}
@@ -685,7 +751,7 @@ const LandingPage = ({ onGetStarted }) => {
           <motion.div variants={fadeUp(0)} style={{ textAlign: 'center', marginBottom: '3rem' }}>
             <motion.div animate={{ scale: [1, 1.06, 1] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
               style={{ width: 96, height: 96, margin: '0 auto 1.8rem', borderRadius: '50%', display: 'grid', placeItems: 'center', background: 'radial-gradient(circle, rgba(30,99,214,0.4), rgba(30,99,214,0.05) 70%)', border: '1px solid rgba(110,164,245,0.3)' }}>
-              <span style={{ fontSize: '2.2rem' }}>✨</span>
+              <Ico name="sparkle" size={36} color="#9fc1f5" strokeWidth={1.4} />
             </motion.div>
             <h2 style={{ fontFamily: SERIF, fontWeight: 500, fontSize: 'clamp(2rem, 4vw, 3rem)', color: '#fff', lineHeight: 1.12 }}>The Synthesis Engine</h2>
             <p style={{ fontSize: '1.04rem', color: 'rgba(255,255,255,0.6)', maxWidth: 480, margin: '1rem auto 0', lineHeight: 1.7 }}>
@@ -706,13 +772,13 @@ const LandingPage = ({ onGetStarted }) => {
               <Eyebrow>Why Excelliq</Eyebrow>
               <h2 style={heading('clamp(2rem, 3.6vw, 2.9rem)')}>Everything you need,<br />nothing you don't</h2>
             </motion.div>
-            <motion.div variants={stagger(0.07)} style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gridAutoRows: '1fr', gap: '1rem' }}>
+            <motion.div variants={stagger(0.07)} style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(6, 1fr)', gridAutoRows: isMobile ? 'auto' : '1fr', gap: '1rem' }}>
               {FEATURES.map((f, i) => {
-                const span = f.big ? { gridColumn: 'span 3', gridRow: 'span 2' } : i < 3 ? { gridColumn: 'span 3' } : { gridColumn: 'span 2' };
+                const span = isMobile ? {} : f.big ? { gridColumn: 'span 3', gridRow: 'span 2' } : i < 3 ? { gridColumn: 'span 3' } : { gridColumn: 'span 2' };
                 return (
                   <motion.div key={i} variants={fadeUp((i % 3) * 0.05)} whileHover={{ y: -5, boxShadow: '0 26px 60px rgba(10,31,77,0.13)' }}
                     style={{ ...span, padding: f.big ? '2.4rem' : '1.8rem', background: f.big ? GRAD : 'white', color: f.big ? '#fff' : C.ink, borderRadius: '20px', border: f.big ? 'none' : '1px solid rgba(10,31,77,0.07)', transition: 'box-shadow 0.2s, transform 0.2s', display: 'flex', flexDirection: 'column', justifyContent: f.big ? 'space-between' : 'flex-start', boxShadow: f.big ? '0 24px 60px rgba(30,99,214,0.32)' : '0 2px 10px rgba(10,31,77,0.04)' }}>
-                    <div style={{ width: 50, height: 50, borderRadius: '14px', background: f.big ? 'rgba(255,255,255,0.16)' : 'linear-gradient(135deg,#eaf3ff,#dcebff)', display: 'grid', placeItems: 'center', fontSize: '1.5rem', marginBottom: f.big ? '2rem' : '1.1rem' }}>{f.icon}</div>
+                    <div style={{ width: 50, height: 50, borderRadius: '14px', background: f.big ? 'rgba(255,255,255,0.16)' : 'linear-gradient(135deg,#eaf3ff,#dcebff)', display: 'grid', placeItems: 'center', marginBottom: f.big ? '2rem' : '1.1rem' }}><Ico name={f.icon} size={26} color={f.big ? '#fff' : PRIMARY} /></div>
                     <div>
                       <h3 style={{ fontFamily: SERIF, fontWeight: 600, fontSize: f.big ? '1.5rem' : '1.02rem', marginBottom: '0.55rem', color: f.big ? '#fff' : C.ink }}>{f.title}</h3>
                       <p style={{ fontSize: f.big ? '0.96rem' : '0.83rem', color: f.big ? 'rgba(255,255,255,0.8)' : C.muted, lineHeight: 1.7 }}>{f.desc}</p>
@@ -737,7 +803,7 @@ const LandingPage = ({ onGetStarted }) => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '5rem' }}>
             {MODELS.map((m, i) => (
               <Section key={m.key}>
-                <motion.div variants={stagger(0.12)} style={{ display: 'flex', alignItems: 'center', gap: '4rem', flexDirection: i % 2 ? 'row-reverse' : 'row' }}>
+                <motion.div variants={stagger(0.12)} style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '1.8rem' : '4rem', flexDirection: isMobile ? 'column' : (i % 2 ? 'row-reverse' : 'row') }}>
                   <motion.div variants={fadeUp(0)} style={{ flex: 1 }}>
                     <div style={{ fontFamily: SERIF, fontSize: '4rem', fontWeight: 600, lineHeight: 1, color: m.color, opacity: 0.18, marginBottom: '0.5rem' }}>0{i + 1}</div>
                     <div style={{ fontSize: '0.72rem', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: m.color, marginBottom: '0.5rem' }}>{m.sub} · {m.role}</div>
@@ -773,7 +839,7 @@ const LandingPage = ({ onGetStarted }) => {
               {USE_CASES.map((u, i) => (
                 <motion.div key={i} variants={fadeUp((i % 4) * 0.05)} whileHover={{ y: -6, boxShadow: '0 26px 60px rgba(10,31,77,0.13)' }}
                   style={{ padding: '2rem 1.7rem', background: 'white', borderRadius: '20px', border: '1px solid rgba(10,31,77,0.07)', boxShadow: '0 2px 10px rgba(10,31,77,0.04)', transition: 'box-shadow 0.2s, transform 0.2s' }}>
-                  <div style={{ width: 50, height: 50, borderRadius: '14px', background: 'linear-gradient(135deg,#eaf3ff,#dcebff)', display: 'grid', placeItems: 'center', fontSize: '1.5rem', marginBottom: '1.1rem' }}>{u.icon}</div>
+                  <div style={{ width: 50, height: 50, borderRadius: '14px', background: 'linear-gradient(135deg,#eaf3ff,#dcebff)', display: 'grid', placeItems: 'center', marginBottom: '1.1rem' }}><Ico name={u.icon} size={24} color={PRIMARY} /></div>
                   <h3 style={{ fontFamily: SERIF, fontWeight: 600, fontSize: '1.2rem', color: C.ink, marginBottom: '0.5rem' }}>{u.title}</h3>
                   <p style={{ fontSize: '0.86rem', color: C.muted, lineHeight: 1.7, marginBottom: '1.1rem' }}>{u.desc}</p>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
@@ -798,8 +864,8 @@ const LandingPage = ({ onGetStarted }) => {
             <div style={{ display: 'flex', justifyContent: 'center' }}><Eyebrow center>The difference</Eyebrow></div>
             <h2 style={heading('clamp(2rem, 3.6vw, 2.9rem)')}>Why not just open<br />three tabs?</h2>
           </motion.div>
-          <motion.div variants={fadeUp(0.1)} style={{ background: 'white', borderRadius: '22px', border: '1px solid rgba(10,31,77,0.07)', overflow: 'hidden', boxShadow: '0 20px 56px rgba(10,31,77,0.09)' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', alignItems: 'center', padding: '1.1rem 1.4rem', background: `linear-gradient(135deg, ${SECONDARY}, #12286b)` }}>
+          <motion.div variants={fadeUp(0.1)} style={{ background: 'white', borderRadius: '22px', border: '1px solid rgba(10,31,77,0.07)', overflowX: isMobile ? 'auto' : 'hidden', overflowY: 'hidden', boxShadow: '0 20px 56px rgba(10,31,77,0.09)', WebkitOverflowScrolling: 'touch' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', minWidth: isMobile ? 480 : 'auto', alignItems: 'center', padding: '1.1rem 1.4rem', background: `linear-gradient(135deg, ${SECONDARY}, #12286b)` }}>
               <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'rgba(255,255,255,0.7)' }}>Capability</div>
               {['One model', 'Three tabs', 'Excelliq'].map((h, i) => (
                 <div key={h} style={{ textAlign: 'center', fontSize: '0.8rem', fontWeight: 800, color: i === 2 ? '#bcd6ff' : 'rgba(255,255,255,0.78)' }}>{h}</div>
@@ -808,10 +874,10 @@ const LandingPage = ({ onGetStarted }) => {
             <motion.div variants={stagger(0.07)}>
               {COMPARE_ROWS.map((row, i) => (
                 <motion.div key={i} variants={fadeUp(0)}
-                  style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', alignItems: 'center', padding: '1rem 1.4rem', borderTop: '1px solid rgba(10,31,77,0.05)', background: i % 2 ? 'rgba(245,248,255,0.6)' : 'white' }}>
+                  style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', minWidth: isMobile ? 480 : 'auto', alignItems: 'center', padding: '1rem 1.4rem', borderTop: '1px solid rgba(10,31,77,0.05)', background: i % 2 ? 'rgba(245,248,255,0.6)' : 'white' }}>
                   <div style={{ fontSize: '0.88rem', color: C.ink, fontWeight: 500 }}>{row.label}</div>
                   {['single', 'tabs', 'excelliq'].map((col) => (
-                    <div key={col} style={{ textAlign: 'center', fontSize: '1.1rem', fontWeight: 800, color: row[col] ? (col === 'excelliq' ? PRIMARY : '#5b9e6a') : 'rgba(10,31,77,0.22)' }}>
+                    <div key={col} style={{ textAlign: 'center', fontSize: '1.1rem', fontWeight: 800, color: row[col] ? (col === 'excelliq' ? PRIMARY : '#7aa7ee') : 'rgba(10,31,77,0.22)' }}>
                       {row[col] ? '✓' : '—'}
                     </div>
                   ))}
@@ -864,7 +930,7 @@ const LandingPage = ({ onGetStarted }) => {
             {TRUST.map((t, i) => (
               <motion.div key={i} variants={fadeUp((i % 4) * 0.05)} whileHover={{ y: -5, boxShadow: '0 22px 50px rgba(10,31,77,0.12)' }}
                 style={{ background: 'white', border: '1px solid rgba(10,31,77,0.07)', borderRadius: 18, padding: '1.8rem 1.6rem', boxShadow: '0 2px 10px rgba(10,31,77,0.04)', transition: 'box-shadow 0.2s, transform 0.2s' }}>
-                <div style={{ width: 48, height: 48, borderRadius: 13, background: 'linear-gradient(135deg,#eaf3ff,#dcebff)', display: 'grid', placeItems: 'center', fontSize: '1.4rem', marginBottom: '1.1rem' }}>{t.icon}</div>
+                <div style={{ width: 48, height: 48, borderRadius: 13, background: 'linear-gradient(135deg,#eaf3ff,#dcebff)', display: 'grid', placeItems: 'center', marginBottom: '1.1rem' }}><Ico name={t.icon} size={23} color={PRIMARY} /></div>
                 <h3 style={{ fontFamily: SERIF, fontWeight: 600, fontSize: '1.08rem', color: C.ink, marginBottom: '0.5rem' }}>{t.title}</h3>
                 <p style={{ fontSize: '0.85rem', color: C.muted, lineHeight: 1.7 }}>{t.desc}</p>
               </motion.div>
@@ -891,7 +957,7 @@ const LandingPage = ({ onGetStarted }) => {
       {/* ── 11 · CTA (DARK) ──────────────────────────────────────────── */}
       <section style={{ padding: '0 2.5rem 100px' }}>
         <Section style={{ maxWidth: '1100px', margin: '0 auto' }}>
-          <motion.div variants={fadeUp(0)} style={{ background: `linear-gradient(135deg, ${SECONDARY}, #12286b)`, borderRadius: '30px', padding: '6rem 3rem', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+          <motion.div variants={fadeUp(0)} style={{ background: `linear-gradient(135deg, ${SECONDARY}, #12286b)`, borderRadius: isMobile ? '24px' : '30px', padding: isMobile ? '3.4rem 1.4rem' : '6rem 3rem', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
             <div style={{ position: 'absolute', top: -80, left: -60, width: 320, height: 320, borderRadius: '50%', background: 'radial-gradient(circle, rgba(30,99,214,0.45), transparent 70%)' }} />
             <div style={{ position: 'absolute', bottom: -80, right: -60, width: 320, height: 320, borderRadius: '50%', background: 'radial-gradient(circle, rgba(30,99,214,0.32), transparent 70%)' }} />
             <DotBurst style={{ top: 40, right: 60 }} />
@@ -911,7 +977,7 @@ const LandingPage = ({ onGetStarted }) => {
 
       {/* ── 8 · Footer ───────────────────────────────────────────────── */}
       <footer style={{ borderTop: '1px solid rgba(10,31,77,0.07)', background: 'white' }}>
-        <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '3.5rem 2.5rem 2rem', display: 'grid', gridTemplateColumns: '1.6fr 1fr 1fr', gap: '2rem' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '3.5rem 2.5rem 2rem', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.6fr 1fr 1fr', gap: isMobile ? '1.8rem' : '2rem' }}>
           <div>
             <img src="/logo.png" alt="Excelliq" style={{ height: 68, objectFit: 'contain', marginBottom: '1rem' }} />
             <p style={{ fontSize: '0.85rem', color: C.muted, lineHeight: 1.7, maxWidth: 320 }}>
