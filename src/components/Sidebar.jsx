@@ -17,7 +17,6 @@ const Ico = (d) => (props) => (
     strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" {...props}>{d}</svg>
 );
 
-<<<<<<< HEAD
 const IPlus     = Ico(<><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></>);
 const ISearch   = Ico(<><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></>);
 const IClock    = Ico(<><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></>);
@@ -33,34 +32,6 @@ const IChart    = Ico(<><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1=
 const ILogout   = Ico(<><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></>);
 const IHelp     = Ico(<><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></>);
 const ITrash    = Ico(<><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></>);
-=======
-const ISearch    = I(<><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></>);
-const IChat      = I(<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>);
-const IGrid      = I(<><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></>);
-const IClock     = I(<><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></>);
-const IChart     = I(<><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></>);
-const ISettings  = I(<><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></>);
-const IChevDown  = I(<polyline points="6 9 12 15 18 9"/>);
-const IChevUp    = I(<polyline points="18 15 12 9 6 15"/>);
-const IPlus      = I(<><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></>);
-const IPanel     = I(<><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></>);
-const ILink      = I(<><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></>);
-const IZap       = I(<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>);
-const IBrain     = I(<path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.46 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2"/>);
-const IApp       = I(<><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></>);
-const IPalette   = I(<><circle cx="13.5" cy="6.5" r=".5"/><circle cx="17.5" cy="10.5" r=".5"/><circle cx="8.5" cy="7.5" r=".5"/><circle cx="6.5" cy="12.5" r=".5"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></>);
-const IKeyboard  = I(<><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"/></>);
-const IHelp      = I(<><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></>);
-const ILogout    = I(<><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></>);
-const IDownload  = I(<><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></>);
-
-/* ── Nav config ────────────────────────────────────────────── */
-const MAIN_NAV = [
-  { id: 'prompt-runner',   icon: IChat,     label: 'Chats' },
-  { id: 'results-history', icon: IClock,    label: 'History' },
-  { id: 'settings',        icon: ISettings, label: 'Settings' },
-];
->>>>>>> 78b2a68a (code updated according vasudha comments)
 
 /* ── More sub-nav items ─────────────────────────────────────── */
 const MORE_NAV = [
@@ -87,7 +58,6 @@ function groupByDate(items) {
   return groups;
 }
 
-<<<<<<< HEAD
 /* ── Sidebar ─────────────────────────────────────────────────── */
 const NavItem = ({ id, icon, label, activePage, onPageChange }) => {
   const active = activePage === id;
@@ -105,10 +75,6 @@ const NavItem = ({ id, icon, label, activePage, onPageChange }) => {
 };
 
 const Sidebar = ({ activePage, onPageChange, onNewChat, onCollapse, history = [], onHistorySelect, onHistoryDelete }) => {
-=======
-/* ── Sidebar ───────────────────────────────────────────────── */
-const Sidebar = ({ activePage, onPageChange, onOpenHistory, onCollapse, history = [] }) => {
->>>>>>> 78b2a68a (code updated according vasudha comments)
   const [moreOpen,    setMoreOpen]    = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [searchOpen,  setSearchOpen]  = useState(false);
@@ -242,7 +208,6 @@ const Sidebar = ({ activePage, onPageChange, onOpenHistory, onCollapse, history 
         )}
       </div>
 
-<<<<<<< HEAD
       {/* ── Divider ── */}
       <div style={{ height: '1px', background: 'rgba(0,0,0,0.07)', margin: '6px 12px' }} />
 
@@ -294,26 +259,6 @@ const Sidebar = ({ activePage, onPageChange, onOpenHistory, onCollapse, history 
           <p style={{ fontSize: '0.8rem', color: '#a8a29e', padding: '6px 10px' }}>
             {searchQuery ? 'No results' : 'No chats yet'}
           </p>
-=======
-      {/* ── Recents ── */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '8px 8px 0' }}>
-        {recents.length > 0 && (
-          <>
-            <p style={{
-              fontSize: '0.6875rem', fontWeight: '500', color: '#9ca3af',
-              textTransform: 'uppercase', letterSpacing: '0.06em',
-              padding: '4px 10px 4px', marginTop: '4px'
-            }}>Recents</p>
-            {recents.map(h => (
-              <button
-                key={h.id}
-                className="s-recent"
-                onClick={() => onOpenHistory ? onOpenHistory(h.id) : onPageChange('results-history')}
-                title={h.prompt}
-              >{h.prompt}</button>
-            ))}
-          </>
->>>>>>> 78b2a68a (code updated according vasudha comments)
         )}
       </div>
 

@@ -4,10 +4,12 @@ import { useGoogleLogin } from '@react-oauth/google';
 import { supabase } from '../utils/supabase';
 import { attachClientId, ensureClientId, loadStoredUser, saveStoredUser } from '../utils/clientIdentity';
 
-// ── Two-colour brand system (matches the landing page) ──────────────────
-const PRIMARY   = '#1e63d6';   // brand blue
-const SECONDARY = '#0a1f4d';   // deep navy
-const BRAND_GRAD = `linear-gradient(135deg, ${PRIMARY}, ${SECONDARY})`;
+// ── Brand system (matches the landing page design tokens) ───────────────
+const PRIMARY   = '#0d46d8';   // brand blue
+const BRAND_2   = '#1b67e8';   // brand blue (light stop)
+const SECONDARY = '#132a63';   // brand ink
+const BRAND_GRAD = `linear-gradient(135deg, ${PRIMARY} 0%, ${BRAND_2} 100%)`;
+const SERIF = "'Instrument Serif', Georgia, serif";
 
 const MODEL_DEFS = [
   { key: 'openai', name: 'ChatGPT', color: SECONDARY, apiLabel: 'OpenAI API key', apiPlaceholder: 'sk-...', apiField: 'openai' },
@@ -17,8 +19,8 @@ const MODEL_DEFS = [
 
 const inputStyle = {
   width: '100%',
-  border: '1px solid #dbe3ef',
-  borderRadius: 10,
+  border: '1px solid #dce8ff',
+  borderRadius: 12,
   padding: '0.82rem 0.95rem',
   fontSize: '0.92rem',
   outline: 'none',
@@ -29,11 +31,11 @@ const inputStyle = {
 };
 
 const ghostButton = {
-  border: '1px solid #dbe3ef',
-  borderRadius: 12,
+  border: '1px solid #dce8ff',
+  borderRadius: 999,
   background: '#ffffff',
-  color: '#334155',
-  padding: '0.85rem 1.05rem',
+  color: '#0d46d8',
+  padding: '0.85rem 1.3rem',
   fontWeight: 900,
   cursor: 'pointer',
   fontFamily: 'inherit',
@@ -73,21 +75,21 @@ const Shell = ({ step, eyebrow, title, subtitle, children, actions, error, notic
     style={{ width: 'min(1060px, calc(100vw - 1.5rem))', background: '#ffffff', border: '1px solid #e5e7eb', borderRadius: 22, boxShadow: '0 24px 70px rgba(15,23,42,0.11)', overflow: 'hidden' }}
   >
     <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '0.9fr 1.1fr', minHeight: isMobile ? 'auto' : 560 }}>
-      <aside style={{ position: 'relative', background: `linear-gradient(150deg, ${SECONDARY}, #12286b)`, color: '#fff', padding: isMobile ? '1.6rem 1.4rem' : '2rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', overflow: 'hidden' }}>
+      <aside style={{ position: 'relative', background: `linear-gradient(150deg, ${SECONDARY} 10%, #0d46d8 130%)`, color: '#fff', padding: isMobile ? '1.6rem 1.4rem' : '2rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', overflow: 'hidden' }}>
         {/* animated background accents */}
         <motion.div
           animate={{ scale: [1, 1.12, 1], opacity: [0.5, 0.75, 0.5] }}
           transition={{ duration: 7, repeat: Infinity, ease: 'easeInOut' }}
-          style={{ position: 'absolute', top: -90, right: -70, width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle, rgba(30,99,214,0.5), transparent 70%)', pointerEvents: 'none' }}
+          style={{ position: 'absolute', top: -90, right: -70, width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle, rgba(27,103,232,0.5), transparent 70%)', pointerEvents: 'none' }}
         />
         <motion.div
           animate={{ scale: [1, 1.18, 1], opacity: [0.35, 0.55, 0.35] }}
           transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-          style={{ position: 'absolute', bottom: -100, left: -80, width: 280, height: 280, borderRadius: '50%', background: 'radial-gradient(circle, rgba(30,99,214,0.32), transparent 70%)', pointerEvents: 'none' }}
+          style={{ position: 'absolute', bottom: -100, left: -80, width: 280, height: 280, borderRadius: '50%', background: 'radial-gradient(circle, rgba(27,103,232,0.32), transparent 70%)', pointerEvents: 'none' }}
         />
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ background: '#fff', borderRadius: 16, padding: '12px 18px', display: 'inline-flex', marginBottom: '1.5rem', boxShadow: '0 10px 30px rgba(0,0,0,0.22)' }}>
-            <img src="/logo.png" alt="Excelliq" style={{ height: 46, objectFit: 'contain', display: 'block' }} />
+          <div style={{ background: '#fff', borderRadius: 18, padding: '14px 22px', display: 'inline-flex', marginBottom: '1.5rem', boxShadow: '0 10px 30px rgba(0,0,0,0.22)' }}>
+            <img src="/logo.png" alt="Excelliq" style={{ height: 68, objectFit: 'contain', display: 'block' }} />
           </div>
           <motion.div
             initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}
@@ -96,7 +98,7 @@ const Shell = ({ step, eyebrow, title, subtitle, children, actions, error, notic
             Powered by ChatGPT · Claude · Gemini
           </motion.div>
           <div style={{ color: '#9fc1f5', fontSize: '0.74rem', fontWeight: 900, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{eyebrow}</div>
-          <h1 style={{ fontSize: '2rem', lineHeight: 1.1, margin: '0.65rem 0 0' }}>{title}</h1>
+          <h1 style={{ fontSize: '2.5rem', lineHeight: 1.08, margin: '0.65rem 0 0', fontFamily: SERIF, fontWeight: 400, letterSpacing: '-0.01em' }}>{title}</h1>
           <p style={{ color: '#cbd5e1', lineHeight: 1.65, marginTop: '1rem' }}>{subtitle}</p>
         </div>
       </aside>
@@ -140,14 +142,14 @@ const OnboardingPage = ({ onComplete }) => {
 
   const primaryButton = {
     border: 'none',
-    borderRadius: 12,
+    borderRadius: 999,
     background: BRAND_GRAD,
     color: '#ffffff',
-    padding: '0.85rem 1.15rem',
+    padding: '0.85rem 1.5rem',
     fontWeight: 900,
     cursor: busy ? 'not-allowed' : 'pointer',
     fontFamily: 'inherit',
-    boxShadow: '0 8px 24px rgba(30,99,214,0.28)',
+    boxShadow: '0 1px 2px rgba(19,42,99,0.04), 0 8px 24px -12px rgba(13,70,216,0.6)',
   };
 
   const saveClient = (client = {}) => {
@@ -335,7 +337,7 @@ const OnboardingPage = ({ onComplete }) => {
               disabled={busy}
               onMouseEnter={e => { e.currentTarget.style.borderColor = '#9ab4e0'; e.currentTarget.style.boxShadow = '0 6px 18px rgba(15,23,42,0.08)'; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = '#dbe3ef'; e.currentTarget.style.boxShadow = '0 1px 2px rgba(15,23,42,0.04)'; }}
-              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 11, border: '1px solid #dbe3ef', borderRadius: 12, background: '#ffffff', color: '#1f2937', padding: '0.9rem 1.05rem', fontWeight: 800, fontSize: '0.95rem', cursor: busy ? 'not-allowed' : 'pointer', fontFamily: 'inherit', boxShadow: '0 1px 2px rgba(15,23,42,0.04)', transition: 'border-color 0.15s, box-shadow 0.15s' }}
+              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 11, border: '1px solid #dce8ff', borderRadius: 999, background: '#ffffff', color: '#1f2937', padding: '0.9rem 1.05rem', fontWeight: 800, fontSize: '0.95rem', cursor: busy ? 'not-allowed' : 'pointer', fontFamily: 'inherit', boxShadow: '0 1px 2px rgba(15,23,42,0.04)', transition: 'border-color 0.15s, box-shadow 0.15s' }}
             >
               <GoogleIcon /> Continue with Google
             </button>

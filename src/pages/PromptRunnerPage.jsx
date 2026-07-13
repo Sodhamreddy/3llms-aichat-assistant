@@ -19,7 +19,6 @@ const getGreeting = () => {
   return 'Good evening';
 };
 
-<<<<<<< HEAD
 const getUserName = () => {
   try {
     const user = JSON.parse(localStorage.getItem('ph_user') || '{}');
@@ -152,27 +151,5 @@ const PromptRunnerPage = ({ onRunComplete, onFollowUpComplete }) => {
     </div>
   );
 };
-=======
-const PromptRunnerPage = ({ onRunComplete, onFollowUpComplete }) => (
-  <div style={{
-    flex: 1, display: 'flex', flexDirection: 'column',
-    alignItems: 'center', justifyContent: 'center',
-    minHeight: '100vh',
-    padding: '2rem 2rem 4rem',
-    background: '#f5f4ef',
-    width: '100%',
-  }}>
-    <h1 style={{
-      fontSize: '2.25rem', fontWeight: '700', color: '#1a1a1a',
-      letterSpacing: '-0.03em', marginBottom: '1.75rem',
-      textAlign: 'center', lineHeight: 1.2,
-    }}>
-      {getGreeting()}, Sodham
-    </h1>
-
-    <PromptControl onRunComplete={onRunComplete} onFollowUpComplete={onFollowUpComplete} />
-  </div>
-);
->>>>>>> 78b2a68a (code updated according vasudha comments)
 
 export default PromptRunnerPage;
