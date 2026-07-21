@@ -9,6 +9,34 @@ const MODEL_DEFS = [
   { key: 'gemini', name: 'Gemini', color: '#4285f4' },
 ];
 
+// Brand favicons for each model — inherit currentColor so they match the pill state
+const ModelIcon = ({ modelKey, size = 14 }) => {
+  const common = { width: size, height: size, viewBox: '0 0 24 24', style: { flexShrink: 0 } };
+  if (modelKey === 'openai') {
+    return (
+      <svg {...common} fill="currentColor" aria-hidden="true">
+        <path d="M22.28 9.82a5.98 5.98 0 0 0-.52-4.91 6.05 6.05 0 0 0-6.51-2.9A6.07 6.07 0 0 0 4.98 4.18a5.98 5.98 0 0 0-3.99 2.9 6.05 6.05 0 0 0 .74 7.1 5.98 5.98 0 0 0 .51 4.91 6.05 6.05 0 0 0 6.52 2.9A5.98 5.98 0 0 0 13.26 24a6.06 6.06 0 0 0 5.77-4.21 5.99 5.99 0 0 0 4-2.9 6.06 6.06 0 0 0-.75-7.07zm-9.02 12.6a4.48 4.48 0 0 1-2.88-1.04l.14-.08 4.78-2.76a.79.79 0 0 0 .39-.68v-6.74l2.02 1.17a.07.07 0 0 1 .04.06v5.58a4.5 4.5 0 0 1-4.49 4.49zM3.6 18.3a4.47 4.47 0 0 1-.54-3.01l.14.09 4.78 2.76a.77.77 0 0 0 .78 0l5.84-3.37v2.33a.08.08 0 0 1-.03.07l-4.83 2.79a4.5 4.5 0 0 1-6.14-1.65zM2.34 7.9a4.48 4.48 0 0 1 2.34-1.97V11.6a.77.77 0 0 0 .39.68l5.8 3.35-2.02 1.17a.08.08 0 0 1-.07 0l-4.83-2.79A4.5 4.5 0 0 1 2.34 7.9zm16.6 3.86-5.84-3.4L15.12 7.2a.08.08 0 0 1 .07 0l4.83 2.78a4.49 4.49 0 0 1-.68 8.1v-5.68a.79.79 0 0 0-.39-.67zm2.01-3.03-.14-.09-4.77-2.78a.78.78 0 0 0-.79 0L9.42 9.23V6.9a.07.07 0 0 1 .03-.07l4.83-2.78a4.5 4.5 0 0 1 6.68 4.66zM8.32 12.87 6.3 11.7a.07.07 0 0 1-.04-.06V6.07a4.5 4.5 0 0 1 7.38-3.45l-.14.08L8.72 5.46a.79.79 0 0 0-.39.68zM9.42 10.5 12 9l2.6 1.5v3L12 15l-2.6-1.5z" />
+      </svg>
+    );
+  }
+  if (modelKey === 'gemini') {
+    return (
+      <svg {...common} fill="currentColor" aria-hidden="true">
+        <path d="M12 0c.4 6.4 5.6 11.6 12 12-6.4.4-11.6 5.6-12 12-.4-6.4-5.6-11.6-12-12C6.4 11.6 11.6 6.4 12 0z" />
+      </svg>
+    );
+  }
+  // claude — Anthropic sunburst
+  return (
+    <svg {...common} stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" fill="none" aria-hidden="true">
+      <line x1="12" y1="3" x2="12" y2="21" />
+      <line x1="3" y1="12" x2="21" y2="12" />
+      <line x1="5.64" y1="5.64" x2="18.36" y2="18.36" />
+      <line x1="18.36" y1="5.64" x2="5.64" y2="18.36" />
+    </svg>
+  );
+};
+
 const PRICING = {
   openai: { input: 0.15 / 1_000_000, output: 0.60 / 1_000_000 },
   claude: { input: 0.80 / 1_000_000, output: 4.00 / 1_000_000 },
@@ -180,7 +208,7 @@ const ModelCards = ({ responses, selectedModels }) => {
   );
 };
 
-const PromptControl = ({ onRunComplete, onFollowUpComplete, mode: modeProp, onModeChange }) => {
+const PromptControl = ({ onRunComplete, onFollowUpComplete, mode: modeProp, onModeChange, onActiveChange }) => {
   const initialConfig = readUserConfig();
   const [prompt, setPrompt] = useState('');
   const [submittedPrompt, setSubmittedPrompt] = useState('');
@@ -222,6 +250,12 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete, mode: modeProp, onMo
     document.addEventListener('mousedown', close);
     return () => document.removeEventListener('mousedown', close);
   }, [modeOpen]);
+
+  // Notify parent when a chat becomes active so the page can flip its background
+  const chatActive = Boolean(submittedPrompt) || status === 'running';
+  useEffect(() => {
+    onActiveChange?.(chatActive);
+  }, [chatActive, onActiveChange]);
 
   const toggleModel = (key) => {
     setSelectedModels(prev => {
@@ -436,8 +470,9 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete, mode: modeProp, onMo
                 onClick={() => toggleModel(model.key)}
                 disabled={busy || model.key === 'claude'}
                 title={model.key === 'claude' ? 'Claude is always used for synthesis' : model.name}
-                style={{ border: `1px solid ${selectedModels.includes(model.key) || model.key === 'claude' ? model.color : '#e5e7eb'}`, background: selectedModels.includes(model.key) || model.key === 'claude' ? `${model.color}10` : '#fff', color: selectedModels.includes(model.key) || model.key === 'claude' ? model.color : '#94a3b8', borderRadius: 999, padding: '5px 10px', fontSize: '0.72rem', fontWeight: 900, cursor: busy || model.key === 'claude' ? 'default' : 'pointer' }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, border: `1px solid ${selectedModels.includes(model.key) || model.key === 'claude' ? model.color : '#e5e7eb'}`, background: selectedModels.includes(model.key) || model.key === 'claude' ? `${model.color}10` : '#fff', color: selectedModels.includes(model.key) || model.key === 'claude' ? model.color : '#94a3b8', borderRadius: 999, padding: '5px 11px', fontSize: '0.72rem', fontWeight: 900, cursor: busy || model.key === 'claude' ? 'default' : 'pointer' }}
               >
+                <ModelIcon modelKey={model.key} />
                 {model.name}
               </button>
             ))}

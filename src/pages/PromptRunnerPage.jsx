@@ -53,6 +53,7 @@ const PromptRunnerPage = ({ onRunComplete, onFollowUpComplete }) => {
   const [tagline] = useState(() => getTagline());
   const [mode, setMode] = useState('battle');
   const [modeOpen, setModeOpen] = useState(false);
+  const [chatActive, setChatActive] = useState(false);
   const isMobile = useIsMobile();
 
   const currentMode = MODES.find(m => m.key === mode);
@@ -63,7 +64,8 @@ const PromptRunnerPage = ({ onRunComplete, onFollowUpComplete }) => {
       alignItems: 'center', justifyContent: 'center',
       minHeight: '100vh',
       padding: isMobile ? '4.75rem 1rem 140px' : '2rem 2rem 160px',
-      background: '#f5f4f0',
+      background: chatActive ? '#f5f4f0' : '#ffffff',
+      transition: 'background 0.3s ease',
       width: '100%',
       position: 'relative',
     }}>
@@ -147,6 +149,7 @@ const PromptRunnerPage = ({ onRunComplete, onFollowUpComplete }) => {
         onFollowUpComplete={onFollowUpComplete}
         mode={mode}
         onModeChange={setMode}
+        onActiveChange={setChatActive}
       />
     </div>
   );
