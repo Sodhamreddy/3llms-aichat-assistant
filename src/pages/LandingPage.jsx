@@ -39,8 +39,6 @@ const FEATURES = [
   { title: 'Analytics',         desc: 'Usage across your team and models at a glance.' },
 ];
 
-const WORKFLOW = ['Prompt received', 'Models queried', 'Synthesis complete'];
-
 const AUDIENCES = [
   { role: 'Researchers',      desc: "Cross-examine your AI the way you'd cross-examine a source." },
   { role: 'Analysts',         desc: 'The sharpest reads come from comparing, not assuming.' },
@@ -89,6 +87,15 @@ const FAQ = [
   { q: 'How does the synthesis engine work?', a: 'On every run, Claude reads all the raw answers and writes one reconciled, polished conclusion. You can view the raw answers too, or just the synthesis — your choice. ' },
   { q: 'Which models does Excelliq use?', a: 'ChatGPT (OpenAI), Gemini (Google) and Claude (Anthropic) — all through their official APIs. Claude is always active since it also writes the final synthesis; ChatGPT and Gemini are optional toggles.' },
   { q: 'Can Excelliq be used for any type of question? ', a: 'Excelliq works well for research, analysis, writing, and decision support questions where a well-rounded answer matters. ' },
+];
+
+// Header nav. Marketplace lives outside this page — point it at the real URL.
+const NAV = [
+  { label: 'Home',        href: 'https://ivna.ai', external: true },
+  { label: 'Features',    href: '#features' },
+  { label: 'Marketplace', href: '#' },
+  { label: 'Pricing',     href: '#pricing' },
+  { label: 'FAQ',         href: '#faq' },
 ];
 
 // Footer nav. Replace the '#' hrefs with real URLs when the links are live.
@@ -154,6 +161,25 @@ const Cross = ({ size = 16 }) => (
     <line x1="18" y1="6" x2="6" y2="18" />
   </svg>
 );
+
+// Brand icon set in /public/Excelliq Icon 2026 — each file is named exactly after
+// the item it illustrates, so a title resolves straight to its artwork. Anything
+// without a matching file quietly falls back to the generic check mark.
+const ICON_DIR = '/Excelliq Icon 2026';
+const iconSrc = (name) => encodeURI(`${ICON_DIR}/${name}.png`);
+
+const ItemIcon = ({ name, size = 24 }) => {
+  const [missing, setMissing] = useState(false);
+  if (missing) return <Check color={BLUE} size={Math.round(size * 0.72)} />;
+  return (
+    <img
+      src={iconSrc(name)} alt="" width={size} height={size}
+      loading="lazy" decoding="async"
+      onError={() => setMissing(true)}
+      style={{ objectFit: 'contain', display: 'block' }}
+    />
+  );
+};
 
 // Social marks for the footer
 const SocialMark = ({ name, size = 18 }) => {
@@ -248,57 +274,25 @@ const SectionHeading = ({ title, accent, subtitle, isMobile }) => (
   </div>
 );
 
-// ── Hero demo mockup (the workspace card + product-demo play overlay) ────────
+// ── Product demo video ───────────────────────────────────────────────────────
+// 80MB file, so nothing is fetched until the viewer actually clicks play.
+const VIDEO_SRC = encodeURI('/Final - Excelliq Video Demo.mp4');
+
+// ── Hero demo video ──────────────────────────────────────────────────────────
+// The real player, no mockup and no play overlay. `preload="metadata"` pulls just
+// enough to paint the first frame, so the 80MB body only downloads on play.
 const HeroVisual = () => (
-  <div style={{ position: 'relative', width: '100%', maxWidth: 560, margin: '0 auto' }}>
-    <div style={{ borderRadius: 18, border: `1px solid ${LINE}`, background: '#fff', boxShadow: '0 30px 70px -30px rgba(15,31,75,0.4)', overflow: 'hidden' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '11px 14px', borderBottom: `1px solid ${LINE}`, background: '#fbfcfe' }}>
-        {['#ff5f57', '#febc2e', '#28c840'].map(c => <span key={c} style={{ width: 10, height: 10, borderRadius: '50%', background: c }} />)}
-        <span style={{ marginLeft: 8, color: MUTED, fontSize: '0.76rem', fontWeight: 700 }}>excelliq.app / workspace</span>
-      </div>
-      <div style={{ padding: 14, display: 'grid', gap: 11 }}>
-        <div style={{ border: `1px solid ${LINE}`, borderRadius: 11, padding: '10px 12px', background: SOFT }}>
-          <div style={{ color: BLUE, fontSize: '0.62rem', fontWeight: 900, letterSpacing: '0.1em', marginBottom: 5 }}>PROMPT</div>
-          <div style={{ color: INK, fontWeight: 600, fontSize: '0.82rem', lineHeight: 1.4 }}>What are the strategic implications of the EU AI Act for enterprise SaaS in 2026?</div>
-        </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
-          {MODELS.map(m => (
-            <div key={m.key} style={{ border: `1px solid ${LINE}`, borderRadius: 10, padding: '9px 10px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 8 }}>
-                <span style={{ width: 7, height: 7, borderRadius: '50%', background: m.color }} />
-                <span style={{ fontSize: '0.68rem', fontWeight: 800, color: INK }}>{m.name}</span>
-              </div>
-              {[92, 78, 85, 58].map((w, i) => <div key={i} style={{ height: 5, borderRadius: 3, background: '#eef1f6', width: `${w}%`, marginBottom: 5 }} />)}
-            </div>
-          ))}
-        </div>
-        <div style={{ border: '1px solid #d4e2ff', borderRadius: 11, padding: '10px 12px', background: '#f1f6ff' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 8 }}>
-            <span style={{ width: 16, height: 16, borderRadius: 5, background: BRAND_GRAD, display: 'grid', placeItems: 'center' }}>
-              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-            </span>
-            <span style={{ fontSize: '0.72rem', fontWeight: 800, color: INK, flex: 1 }}>Claude · Final Synthesis</span>
-            <span style={{ fontSize: '0.6rem', fontWeight: 800, color: BLUE, background: '#dde9ff', padding: '2px 7px', borderRadius: 999 }}>Trusted</span>
-          </div>
-          {[96, 88].map((w, i) => <div key={i} style={{ height: 5, borderRadius: 3, background: '#dbe6fb', width: `${w}%`, marginBottom: 5 }} />)}
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, color: MUTED, fontSize: '0.68rem', fontWeight: 700 }}>
-          <span>⚡ 8.2s</span><span>· 1,240 tokens</span><span>· $0.018 cost</span>
-        </div>
-      </div>
-    </div>
-    <div style={{ position: 'absolute', inset: 0, borderRadius: 18, background: 'linear-gradient(180deg, rgba(37,99,235,0.12) 0%, rgba(37,99,235,0.55) 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-      <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#fff', display: 'grid', placeItems: 'center', boxShadow: '0 14px 32px rgba(0,0,0,0.32)' }}>
-        <svg width="22" height="22" viewBox="0 0 24 24" fill={BLUE} style={{ marginLeft: 3 }}><polygon points="6 4 20 12 6 20 6 4" /></svg>
-      </div>
-      <div style={{ color: '#fff', fontWeight: 800, fontSize: '0.9rem' }}>Product demo · 1:32</div>
-      <div style={{ position: 'absolute', left: 16, right: 16, bottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
-        <div style={{ flex: 1, height: 4, borderRadius: 999, background: 'rgba(255,255,255,0.35)' }}>
-          <div style={{ width: '25%', height: '100%', borderRadius: 999, background: '#fff' }} />
-        </div>
-        <span style={{ color: '#fff', fontSize: '0.68rem', fontWeight: 700 }}>0:23 / 1:32</span>
-      </div>
-    </div>
+  <div style={{ width: '100%', maxWidth: 760, margin: '0 auto' }}>
+    <video
+      src={VIDEO_SRC}
+      controls
+      playsInline
+      preload="metadata"
+      style={{
+        width: '100%', display: 'block', borderRadius: 18, background: '#000',
+        border: `1px solid ${LINE}`, boxShadow: '0 30px 70px -30px rgba(15,31,75,0.45)',
+      }}
+    />
   </div>
 );
 
@@ -378,7 +372,7 @@ const LivePrompt = () => {
   const synthDone = synth.length === DEMO_SYNTH.length;
 
   return (
-    <div ref={ref} style={{ maxWidth: 900, margin: '2.75rem auto 0', border: `1px solid ${LINE}`, borderRadius: 18, background: '#fff', boxShadow: '0 10px 40px -24px rgba(15,31,75,0.4)', overflow: 'hidden' }}>
+    <div ref={ref} style={{ maxWidth: 900, margin: '0 auto', border: `1px solid ${LINE}`, borderRadius: 18, background: '#fff', boxShadow: '0 10px 40px -24px rgba(15,31,75,0.4)', overflow: 'hidden' }}>
       <div style={{ padding: '1rem 1.3rem', borderBottom: `1px solid ${LINE}`, display: 'flex', alignItems: 'center', gap: 8 }}>
         <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#28c840', animation: live && !reduced ? 'eqPulse 1.6s ease-in-out infinite' : 'none' }} />
         <strong style={{ fontSize: '0.95rem', color: INK }}>Watch It Run</strong>
@@ -467,7 +461,9 @@ const LivePrompt = () => {
 };
 
 // ── Landing page ─────────────────────────────────────────────────────────────
-const LandingPage = ({ onGetStarted }) => {
+// onLogin falls back to onGetStarted — the app currently has a single entry
+// point; pass a real handler once there is a separate sign-in route.
+const LandingPage = ({ onGetStarted, onLogin = onGetStarted }) => {
   const isMobile = useIsMobile();
   const pad = isMobile ? '0 1.25rem' : '0 2rem';
   const sectionPad = isMobile ? '3.5rem 0' : '5.5rem 0';
@@ -493,13 +489,25 @@ const LandingPage = ({ onGetStarted }) => {
       <header style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(10px)', borderBottom: `1px solid ${LINE}` }}>
         <div style={{ maxWidth: WIDE, margin: '0 auto', padding: pad, height: headerH, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <img src="/logo.png" alt="Excelliq" style={{ height: isMobile ? 38 : 48, objectFit: 'contain' }} />
-          <nav style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 12 : 24 }}>
-            {!isMobile && ['Models', 'Features', 'Pricing', 'FAQ'].map(link => (
-              <a key={link} href={`#${link.toLowerCase()}`} style={{ color: MUTED, textDecoration: 'none', fontWeight: 600, fontSize: '0.92rem' }}>{link}</a>
+          <nav style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 6 : 22 }}>
+            {!isMobile && NAV.map(link => (
+              <a
+                key={link.label} href={link.href}
+                {...(link.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                style={{ color: MUTED, textDecoration: 'none', fontWeight: 600, fontSize: '0.92rem' }}
+              >
+                {link.label}
+              </a>
             ))}
             <button
+              onClick={onLogin}
+              style={{ border: isMobile ? 'none' : `1px solid ${LINE}`, borderRadius: 999, background: 'transparent', color: INK, padding: isMobile ? '0.5rem 0.6rem' : '0.55rem 1.1rem', fontWeight: 800, fontSize: isMobile ? '0.85rem' : '0.9rem', cursor: 'pointer', fontFamily: 'inherit' }}
+            >
+              Login
+            </button>
+            <button
               onClick={onGetStarted}
-              style={{ border: 'none', borderRadius: 999, background: BRAND_GRAD, color: '#fff', padding: '0.6rem 1.2rem', fontWeight: 800, fontSize: '0.9rem', cursor: 'pointer', fontFamily: 'inherit' }}
+              style={{ border: 'none', borderRadius: 999, background: BRAND_GRAD, color: '#fff', padding: isMobile ? '0.55rem 0.9rem' : '0.6rem 1.2rem', fontWeight: 800, fontSize: isMobile ? '0.85rem' : '0.9rem', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
             >
               Start Free
             </button>
@@ -509,7 +517,7 @@ const LandingPage = ({ onGetStarted }) => {
 
       {/* ── Hero ── */}
       <section style={{ position: 'relative', padding: isMobile ? '3rem 0' : '5rem 0', background: 'radial-gradient(1200px 500px at 50% -10%, #eef3ff 0%, #ffffff 60%)' }}>
-        <div style={{ maxWidth: HERO_MAXW, margin: '0 auto', padding: pad, display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.05fr 1fr', gap: isMobile ? 40 : 52, alignItems: 'center' }}>
+        <div style={{ maxWidth: HERO_MAXW, margin: '0 auto', padding: pad, display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '0.85fr 1.15fr', gap: isMobile ? 40 : 46, alignItems: 'center' }}>
           <div style={{ textAlign: isMobile ? 'center' : 'left' }}>
             <motion.h1
               initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
@@ -553,63 +561,25 @@ const LandingPage = ({ onGetStarted }) => {
         <div style={{ maxWidth: MAXW, margin: '0 auto', padding: pad }}>
           <SectionHeading title="Ask One Model." accent="Or Ask All of Them at Once." isMobile={isMobile}
             subtitle="Run just the model you trust for quick, everyday questions, or enable all of them for questions that matter, and get one consolidated answer built from every response." />
-          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: 20 }}>
-            {MODELS.map(m => (
-              <div key={m.key} style={{ border: `1px solid ${LINE}`, borderRadius: 18, padding: '1.6rem', background: '#fff', boxShadow: '0 1px 4px rgba(15,23,42,0.04)', display: 'flex', flexDirection: 'column' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: '1rem' }}>
-                  <span style={{ width: 44, height: 44, borderRadius: 12, background: m.color === '#4285F4' ? '#eef3ff' : `${m.color}12`, color: m.color, display: 'grid', placeItems: 'center' }}>
-                    <ModelMark modelKey={m.key} size={22} />
-                  </span>
-                  <div>
-                    <div style={{ fontWeight: 900, fontSize: '1.1rem', color: INK }}>{m.name}</div>
-                    <div style={{ color: MUTED, fontSize: '0.8rem', fontWeight: 600 }}>{m.vendor}</div>
-                  </div>
-                </div>
-                <p style={{ color: MUTED, fontSize: '0.95rem', lineHeight: 1.6, margin: '0 0 1.2rem', flex: 1 }}>{m.desc}</p>
-                <button onClick={onGetStarted} style={{ alignSelf: 'flex-start', border: `1px solid ${LINE}`, borderRadius: 999, background: '#fff', color: BLUE, padding: '0.5rem 1.1rem', fontWeight: 800, fontSize: '0.85rem', cursor: 'pointer', fontFamily: 'inherit' }}>
-                  Try {m.name}
-                </button>
-              </div>
-            ))}
-          </div>
           <LivePrompt />
         </div>
       </section>
 
-      {/* ── Everything you need (workflow + features) ── */}
+      {/* ── Everything you need ── */}
       <section id="features" style={{ padding: sectionPad, background: SOFT, scrollMarginTop: headerH }}>
         <div style={{ maxWidth: MAXW, margin: '0 auto', padding: pad }}>
           <SectionHeading  title="Powerful Where It Matters." accent="Simple Everywhere Else." isMobile={isMobile}
             subtitle="The rest of the content across is fine " />
-          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '0.9fr 1.4fr', gap: 22, alignItems: 'start' }}>
-            {/* complete workflow panel */}
-            <div style={{ background: '#fff', border: `1px solid ${LINE}`, borderRadius: 18, padding: '1.6rem' }}>
-              <div style={{ fontWeight: 900, color: INK, fontSize: '1.3rem', marginBottom: 4 }}>Complete workflow</div>
-              {/* <div style={{ color: MUTED, fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.05em', marginBottom: '1.2rem' }}>workflow.session</div> */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-                {WORKFLOW.map((step, i) => (
-                  <div key={step} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '0.55rem 0' }}>
-                    <span style={{ width: 22, height: 22, borderRadius: '50%', background: BRAND_GRAD, color: '#fff', display: 'grid', placeItems: 'center', flexShrink: 0 }}>
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
-                    </span>
-                    <span style={{ color: INK, fontWeight: 700, fontSize: '0.9rem' }}>{step}</span>
-                    {i < WORKFLOW.length - 1 && <span style={{ marginLeft: 'auto', color: '#c2ccdb', fontSize: '0.7rem', fontWeight: 700 }}>done</span>}
-                  </div>
-                ))}
-              </div>
-            </div>
-            {/* feature grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: 16 }}>
-              {FEATURES.map(f => (
-                <div key={f.title} style={{ background: '#fff', border: `1px solid ${LINE}`, borderRadius: 16, padding: '1.3rem' }}>
-                  <div style={{ width: 36, height: 36, borderRadius: 10, background: '#eef3ff', color: BLUE, display: 'grid', placeItems: 'center', marginBottom: '0.8rem' }}>
-                    <Check color={BLUE} size={18} />
-                  </div>
-                  <div style={{ fontWeight: 800, fontSize: '1rem', color: INK, marginBottom: '0.3rem' }}>{f.title}</div>
-                  <div style={{ color: MUTED, fontSize: '0.9rem', lineHeight: 1.55 }}>{f.desc}</div>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: 18 }}>
+            {FEATURES.map(f => (
+              <div key={f.title} style={{ background: '#fff', border: `1px solid ${LINE}`, borderRadius: 16, padding: '1.5rem' }}>
+                <div style={{ width: 40, height: 40, borderRadius: 10, background: '#eef3ff', display: 'grid', placeItems: 'center', marginBottom: '0.9rem' }}>
+                  <ItemIcon name={f.title} size={24} />
                 </div>
-              ))}
-            </div>
+                <div style={{ fontWeight: 800, fontSize: '1rem', color: INK, marginBottom: '0.3rem' }}>{f.title}</div>
+                <div style={{ color: MUTED, fontSize: '0.9rem', lineHeight: 1.55 }}>{f.desc}</div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -622,6 +592,9 @@ const LandingPage = ({ onGetStarted }) => {
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(4, 1fr)', gap: 18 }}>
             {AUDIENCES.map(a => (
               <div key={a.role} style={{ background: '#fff', border: `1px solid ${LINE}`, borderRadius: 16, padding: '1.4rem' }}>
+                <div style={{ width: 40, height: 40, borderRadius: 10, background: '#eef3ff', display: 'grid', placeItems: 'center', marginBottom: '0.9rem' }}>
+                  <ItemIcon name={a.role} size={24} />
+                </div>
                 <div style={{ fontWeight: 900, color: INK, fontSize: '1.02rem', marginBottom: '0.4rem' }}>{a.role}</div>
                 <div style={{ color: MUTED, fontSize: '0.92rem', lineHeight: 1.55 }}>{a.desc}</div>
               </div>
@@ -764,8 +737,8 @@ const LandingPage = ({ onGetStarted }) => {
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(4, 1fr)', gap: 18 }}>
             {PRIVACY.map(p => (
               <div key={p.title} style={{ background: '#fff', border: `1px solid ${LINE}`, borderRadius: 16, padding: '1.4rem' }}>
-                <div style={{ width: 38, height: 38, borderRadius: 10, background: '#eef3ff', color: BLUE, display: 'grid', placeItems: 'center', marginBottom: '0.9rem' }}>
-                  <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke={BLUE} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
+                <div style={{ width: 40, height: 40, borderRadius: 10, background: '#eef3ff', display: 'grid', placeItems: 'center', marginBottom: '0.9rem' }}>
+                  <ItemIcon name={p.title} size={24} />
                 </div>
                 <div style={{ fontWeight: 800, fontSize: '1rem', color: INK, marginBottom: '0.35rem' }}>{p.title}</div>
                 <div style={{ color: MUTED, fontSize: '0.9rem', lineHeight: 1.55 }}>{p.desc}</div>
