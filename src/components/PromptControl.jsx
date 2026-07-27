@@ -1,16 +1,20 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useId, Fragment } from 'react';
 import { ensureClientId, loadStoredUser } from '../utils/clientIdentity';
 
 const N8N_URL = import.meta.env.VITE_N8N_URL || '/n8n-proxy/webhook/bf39cd7e-9f1b-4b3e-98eb-8b746cd2b510/chat';
 
+// Authentic brand colors. Gemini carries its signature blue→purple→pink gradient.
+const GEMINI_GRADIENT = 'linear-gradient(90deg, #4285F4 0%, #9B72CB 50%, #D96570 100%)';
 const MODEL_DEFS = [
-  { key: 'openai', name: 'ChatGPT', color: '#10a37f' },
+  { key: 'openai', name: 'ChatGPT', color: '#000000' },
   { key: 'claude', name: 'Claude', color: '#d97757' },
-  { key: 'gemini', name: 'Gemini', color: '#4285f4' },
+  { key: 'gemini', name: 'Gemini', color: '#4285f4', gradient: GEMINI_GRADIENT },
 ];
 
-// Brand favicons for each model — inherit currentColor so they match the pill state
+// Brand logomarks for each model. OpenAI/Claude inherit currentColor to match the
+// pill; Gemini keeps its signature blue→purple→pink gradient regardless of state.
 const ModelIcon = ({ modelKey, size = 14 }) => {
+  const gradId = useId();
   const common = { width: size, height: size, viewBox: '0 0 24 24', style: { flexShrink: 0 } };
   if (modelKey === 'openai') {
     return (
@@ -21,8 +25,15 @@ const ModelIcon = ({ modelKey, size = 14 }) => {
   }
   if (modelKey === 'gemini') {
     return (
-      <svg {...common} fill="currentColor" aria-hidden="true">
-        <path d="M12 0c.4 6.4 5.6 11.6 12 12-6.4.4-11.6 5.6-12 12-.4-6.4-5.6-11.6-12-12C6.4 11.6 11.6 6.4 12 0z" />
+      <svg {...common} aria-hidden="true">
+        <defs>
+          <linearGradient id={gradId} x1="2" y1="4" x2="22" y2="20" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stopColor="#4285F4" />
+            <stop offset="0.5" stopColor="#9B72CB" />
+            <stop offset="1" stopColor="#D96570" />
+          </linearGradient>
+        </defs>
+        <path fill={`url(#${gradId})`} d="M12 0c.4 6.4 5.6 11.6 12 12-6.4.4-11.6 5.6-12 12-.4-6.4-5.6-11.6-12-12C6.4 11.6 11.6 6.4 12 0z" />
       </svg>
     );
   }
@@ -35,6 +46,21 @@ const ModelIcon = ({ modelKey, size = 14 }) => {
       <line x1="18.36" y1="5.64" x2="5.64" y2="18.36" />
     </svg>
   );
+};
+
+// Renders a model name in its brand color (Gemini uses its gradient).
+const BrandName = ({ model, weight = 800 }) => {
+  if (model.gradient) {
+    return (
+      <span style={{
+        backgroundImage: model.gradient,
+        WebkitBackgroundClip: 'text', backgroundClip: 'text',
+        WebkitTextFillColor: 'transparent', color: 'transparent',
+        fontWeight: weight,
+      }}>{model.name}</span>
+    );
+  }
+  return <span style={{ color: model.color, fontWeight: weight }}>{model.name}</span>;
 };
 
 const PRICING = {
@@ -185,8 +211,10 @@ const ModelCards = ({ responses, selectedModels }) => {
         return (
           <div key={card.key} style={{ background: hasError ? '#fffbeb' : '#fff', border: `1px solid ${hasError ? '#fde68a' : card.color + '25'}`, borderRadius: 14, overflow: 'hidden', boxShadow: '0 1px 5px rgba(15,23,42,0.05)' }}>
             <div style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 8, background: hasError ? '#fef9c3' : `${card.color}0a`, borderBottom: `1px solid ${hasError ? '#fde68a' : card.color + '18'}` }}>
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: hasError ? '#f59e0b' : card.color }} />
-              <strong style={{ color: '#1c1c1c', fontSize: '0.84rem', flex: 1 }}>{card.name}</strong>
+              <span style={{ color: hasError ? '#f59e0b' : card.color, display: 'inline-flex', flexShrink: 0 }}>
+                <ModelIcon modelKey={card.key} size={15} />
+              </span>
+              <strong style={{ fontSize: '0.84rem', flex: 1 }}><BrandName model={card} /></strong>
               {hasError && <span style={{ fontSize: '0.68rem', background: '#fef08a', color: '#92400e', padding: '2px 7px', borderRadius: 99, fontWeight: 700 }}>Unavailable</span>}
             </div>
             <div style={{ padding: '14px 16px', maxHeight: 300, overflowY: 'auto', fontSize: '0.88rem' }}>
@@ -415,7 +443,18 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete, mode: modeProp, onMo
           {status === 'running' && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, color: '#78716c', fontWeight: 700, fontSize: '0.86rem' }}>
               <span style={{ display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: '#d97757', animation: 'pulse 1.2s ease-in-out infinite' }} />
-              Calling ChatGPT · Claude · Gemini...
+              <span>
+                Calling{' '}
+                {MODEL_DEFS
+                  .filter(m => selectedModels.includes(m.key) || m.key === 'claude')
+                  .map((m, i, arr) => (
+                    <Fragment key={m.key}>
+                      <BrandName model={m} />
+                      {i < arr.length - 1 ? ' · ' : ''}
+                    </Fragment>
+                  ))}
+                ...
+              </span>
               <span style={{ background: '#f3f4f6', padding: '2px 8px', borderRadius: 6, fontVariantNumeric: 'tabular-nums' }}>{runningElapsed}s</span>
             </div>
           )}
@@ -451,7 +490,7 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete, mode: modeProp, onMo
         <div style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c', borderRadius: 12, padding: '0.75rem 0.9rem', fontWeight: 800, fontSize: '0.84rem' }}>{error}</div>
       )}
 
-      <div style={{ background: '#fff', border: '1.5px solid rgba(0,0,0,0.1)', borderRadius: 16, boxShadow: '0 4px 20px rgba(0,0,0,0.07)', overflow: 'hidden' }}>
+      <div style={{ background: '#ffffff', border: '1px solid rgba(0,0,0,0.08)', borderRadius: 16, boxShadow: '0 12px 32px rgba(15,23,42,0.12), 0 2px 6px rgba(15,23,42,0.06)', overflow: 'hidden' }}>
         <textarea
           ref={textareaRef}
           value={composerValue}
@@ -464,18 +503,37 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete, mode: modeProp, onMo
         />
         <div style={{ display: 'flex', alignItems: 'center', padding: '8px 12px 12px', gap: 10 }}>
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', flex: 1, alignItems: 'center' }}>
-            {MODEL_DEFS.map(model => (
-              <button
-                key={model.key}
-                onClick={() => toggleModel(model.key)}
-                disabled={busy || model.key === 'claude'}
-                title={model.key === 'claude' ? 'Claude is always used for synthesis' : model.name}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, border: `1px solid ${selectedModels.includes(model.key) || model.key === 'claude' ? model.color : '#e5e7eb'}`, background: selectedModels.includes(model.key) || model.key === 'claude' ? `${model.color}10` : '#fff', color: selectedModels.includes(model.key) || model.key === 'claude' ? model.color : '#94a3b8', borderRadius: 999, padding: '5px 11px', fontSize: '0.72rem', fontWeight: 900, cursor: busy || model.key === 'claude' ? 'default' : 'pointer' }}
-              >
-                <ModelIcon modelKey={model.key} />
-                {model.name}
-              </button>
-            ))}
+            {MODEL_DEFS.map(model => {
+              const active = selectedModels.includes(model.key) || model.key === 'claude';
+              const gradientText = active && model.gradient;
+              return (
+                <button
+                  key={model.key}
+                  onClick={() => toggleModel(model.key)}
+                  disabled={busy || model.key === 'claude'}
+                  title={model.key === 'claude' ? 'Claude is always used for synthesis' : model.name}
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 6,
+                    border: `1px solid ${active ? model.color : '#e5e7eb'}`,
+                    background: active ? `${model.color}10` : '#fff',
+                    color: active ? model.color : '#94a3b8',
+                    borderRadius: 999, padding: '5px 11px', fontSize: '0.72rem', fontWeight: 900,
+                    cursor: busy || model.key === 'claude' ? 'default' : 'pointer',
+                  }}
+                >
+                  <ModelIcon modelKey={model.key} />
+                  {gradientText ? (
+                    <span style={{
+                      backgroundImage: model.gradient,
+                      WebkitBackgroundClip: 'text',
+                      backgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      color: 'transparent',
+                    }}>{model.name}</span>
+                  ) : model.name}
+                </button>
+              );
+            })}
           </div>
           <button
             onClick={submitComposer}

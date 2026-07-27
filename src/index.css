@@ -73,9 +73,13 @@ textarea, input { font-family: inherit; }
 @keyframes spin  { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+/* soft breathing pulse for the landing "Watch It Run" demo */
+@keyframes eqPulse { 0%,100% { opacity: .45; } 50% { opacity: 1; } }
 
 /* ── Mobile (app-like) ─────────────────────────────── */
-html, body, #root { max-width: 100%; overflow-x: hidden; }
+/* `clip` — not `hidden` — so horizontal overflow is still contained without
+   creating a scroll container, which would break `position: sticky` headers. */
+html, body, #root { max-width: 100%; overflow-x: clip; }
 
 @media (max-width: 768px) {
   /* tighten generous landing/auth section gutters on phones */

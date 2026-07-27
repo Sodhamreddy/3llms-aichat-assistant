@@ -1,5 +1,10 @@
 Options -MultiViews
 RewriteEngine On
+
+# n8n chat calls: dev uses Vite's proxy, production forwards through proxy.php
+RewriteRule ^n8n-proxy/ proxy.php [L]
+
+# SPA fallback: serve real files/dirs as-is, route everything else to index.html
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^ index.html [QSA,L]

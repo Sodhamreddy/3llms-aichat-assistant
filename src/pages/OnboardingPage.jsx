@@ -11,6 +11,12 @@ const SECONDARY = '#132a63';   // brand ink
 const BRAND_GRAD = `linear-gradient(135deg, ${PRIMARY} 0%, ${BRAND_2} 100%)`;
 const SERIF = "'Instrument Serif', Georgia, serif";
 
+// Google sign-in only works when a real OAuth client id is configured. When it's
+// missing, Google's GSI script throws "Missing required parameter client_id",
+// so we must not mount the Google login hook at all in that case.
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+const GOOGLE_ENABLED = Boolean(GOOGLE_CLIENT_ID);
+
 const MODEL_DEFS = [
   { key: 'openai', name: 'ChatGPT', color: SECONDARY, apiLabel: 'OpenAI API key', apiPlaceholder: 'sk-...', apiField: 'openai' },
   { key: 'claude', name: 'Claude', color: PRIMARY, apiLabel: 'Anthropic API key', apiPlaceholder: 'sk-ant-...', apiField: 'anthropic' },
@@ -88,15 +94,9 @@ const Shell = ({ step, eyebrow, title, subtitle, children, actions, error, notic
           style={{ position: 'absolute', bottom: -100, left: -80, width: 280, height: 280, borderRadius: '50%', background: 'radial-gradient(circle, rgba(27,103,232,0.32), transparent 70%)', pointerEvents: 'none' }}
         />
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ background: '#fff', borderRadius: 18, padding: '14px 22px', display: 'inline-flex', marginBottom: '1.5rem', boxShadow: '0 10px 30px rgba(0,0,0,0.22)' }}>
-            <img src="/logo.png" alt="Excelliq" style={{ height: 68, objectFit: 'contain', display: 'block' }} />
+          <div style={{ background: '#fff', borderRadius: 12, padding: '7px 12px', display: 'inline-flex', marginBottom: '1.75rem', boxShadow: '0 8px 24px rgba(0,0,0,0.18)' }}>
+            <img src="/logo.png" alt="Excelliq" style={{ height: 40, objectFit: 'contain', display: 'block' }} />
           </div>
-          <motion.div
-            initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.14)', borderRadius: 100, padding: '5px 13px', fontSize: '0.72rem', fontWeight: 700, color: '#cfe0fb', marginBottom: '1.5rem' }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#6ea4f5' }} />
-            Powered by ChatGPT · Claude · Gemini
-          </motion.div>
           <div style={{ color: '#9fc1f5', fontSize: '0.74rem', fontWeight: 900, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{eyebrow}</div>
           <h1 style={{ fontSize: '2.5rem', lineHeight: 1.08, margin: '0.65rem 0 0', fontFamily: SERIF, fontWeight: 400, letterSpacing: '-0.01em' }}>{title}</h1>
           <p style={{ color: '#cbd5e1', lineHeight: 1.65, marginTop: '1rem' }}>{subtitle}</p>
@@ -114,6 +114,27 @@ const Shell = ({ step, eyebrow, title, subtitle, children, actions, error, notic
       </section>
     </div>
   </motion.div>
+  );
+};
+
+// ── Google button — isolates useGoogleLogin so the hook only mounts when a
+//    client id exists (otherwise GSI throws and blanks the app) ──────────────
+const GoogleAuthButton = ({ onSuccess, onError, busy }) => {
+  const googleLogin = useGoogleLogin({
+    onSuccess,
+    onError,
+    scope: 'openid email profile',
+  });
+  return (
+    <button
+      onClick={() => googleLogin()}
+      disabled={busy}
+      onMouseEnter={e => { e.currentTarget.style.borderColor = '#9ab4e0'; e.currentTarget.style.boxShadow = '0 6px 18px rgba(15,23,42,0.08)'; }}
+      onMouseLeave={e => { e.currentTarget.style.borderColor = '#dbe3ef'; e.currentTarget.style.boxShadow = '0 1px 2px rgba(15,23,42,0.04)'; }}
+      style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 11, border: '1px solid #dce8ff', borderRadius: 999, background: '#ffffff', color: '#1f2937', padding: '0.9rem 1.05rem', fontWeight: 800, fontSize: '0.95rem', cursor: busy ? 'not-allowed' : 'pointer', fontFamily: 'inherit', boxShadow: '0 1px 2px rgba(15,23,42,0.04)', transition: 'border-color 0.15s, box-shadow 0.15s' }}
+    >
+      <GoogleIcon /> Continue with Google
+    </button>
   );
 };
 
@@ -212,12 +233,6 @@ const OnboardingPage = ({ onComplete }) => {
       setBusy(false);
     }
   };
-
-  const googleLogin = useGoogleLogin({
-    onSuccess: completeGoogleAuth,
-    onError: () => setError('Google sign-in was cancelled or failed.'),
-    scope: 'openid email profile',
-  });
 
   const submitAuth = async () => {
     setError('');
@@ -332,20 +347,20 @@ const OnboardingPage = ({ onComplete }) => {
           actions={<button onClick={submitAuth} disabled={busy} style={primaryButton}>{busy ? 'Please wait...' : isLogin ? 'Log in' : 'Sign up'}</button>}
         >
           <div style={{ display: 'grid', gap: '0.85rem', maxWidth: 430 }}>
-            <button
-              onClick={() => googleLogin()}
-              disabled={busy}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = '#9ab4e0'; e.currentTarget.style.boxShadow = '0 6px 18px rgba(15,23,42,0.08)'; }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = '#dbe3ef'; e.currentTarget.style.boxShadow = '0 1px 2px rgba(15,23,42,0.04)'; }}
-              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 11, border: '1px solid #dce8ff', borderRadius: 999, background: '#ffffff', color: '#1f2937', padding: '0.9rem 1.05rem', fontWeight: 800, fontSize: '0.95rem', cursor: busy ? 'not-allowed' : 'pointer', fontFamily: 'inherit', boxShadow: '0 1px 2px rgba(15,23,42,0.04)', transition: 'border-color 0.15s, box-shadow 0.15s' }}
-            >
-              <GoogleIcon /> Continue with Google
-            </button>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, color: '#94a3b8', fontSize: '0.74rem', fontWeight: 800, margin: '0.15rem 0' }}>
-              <span style={{ flex: 1, height: 1, background: '#e5e7eb' }} />
-              OR
-              <span style={{ flex: 1, height: 1, background: '#e5e7eb' }} />
-            </div>
+            {GOOGLE_ENABLED && (
+              <>
+                <GoogleAuthButton
+                  onSuccess={completeGoogleAuth}
+                  onError={() => setError('Google sign-in was cancelled or failed.')}
+                  busy={busy}
+                />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, color: '#94a3b8', fontSize: '0.74rem', fontWeight: 800, margin: '0.15rem 0' }}>
+                  <span style={{ flex: 1, height: 1, background: '#e5e7eb' }} />
+                  OR
+                  <span style={{ flex: 1, height: 1, background: '#e5e7eb' }} />
+                </div>
+              </>
+            )}
             {!isLogin && (
               <input
                 value={name}

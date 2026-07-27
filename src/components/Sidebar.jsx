@@ -121,11 +121,11 @@ const Sidebar = ({ activePage, onPageChange, onNewChat, onCollapse, history = []
   return (
     <div style={{
       width: isMobile ? 'min(86vw, 320px)' : '240px', height: '100vh',
-      background: '#ebe9e4',
+      background: '#f4f2ed',
       position: 'fixed', left: 0, top: 0, zIndex: 100,
       display: 'flex', flexDirection: 'column',
-      borderRight: '1px solid rgba(0,0,0,0.06)',
-      boxShadow: isMobile ? '6px 0 34px rgba(0,0,0,0.28)' : 'none',
+      borderRight: '1px solid #dcd8d0',
+      boxShadow: isMobile ? '6px 0 34px rgba(0,0,0,0.28)' : '1px 0 6px rgba(0,0,0,0.04)',
     }}>
 
       {/* ── Logo ── */}

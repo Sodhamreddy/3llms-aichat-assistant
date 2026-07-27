@@ -944,7 +944,7 @@ const LandingPage = ({ onGetStarted }) => {
         <Section style={{ maxWidth: '760px', margin: '0 auto' }}>
           <motion.div variants={fadeUp(0)} style={{ textAlign: 'center', marginBottom: '3rem' }}>
             <div style={{ display: 'flex', justifyContent: 'center' }}><Eyebrow center>FAQ</Eyebrow></div>
-            <h2 style={heading('clamp(2rem, 3.6vw, 2.9rem)')}>Frequently asked<br />questions</h2>
+            <h2 style={heading('clamp(2rem, 3.6vw, 2.9rem)')}>ently asked<br />questions</h2>
           </motion.div>
           <motion.div variants={stagger(0.06)} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {FAQS.map((f, i) => (

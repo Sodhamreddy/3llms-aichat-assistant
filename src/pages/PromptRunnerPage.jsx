@@ -64,7 +64,7 @@ const PromptRunnerPage = ({ onRunComplete, onFollowUpComplete }) => {
       alignItems: 'center', justifyContent: 'center',
       minHeight: '100vh',
       padding: isMobile ? '4.75rem 1rem 140px' : '2rem 2rem 160px',
-      background: chatActive ? '#f5f4f0' : '#ffffff',
+      background: '#ffffff',
       transition: 'background 0.3s ease',
       width: '100%',
       position: 'relative',
