@@ -130,8 +130,8 @@ const Sidebar = ({ activePage, onPageChange, onNewChat, onCollapse, history = []
 
       {/* ── Logo ── */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 12px 10px' }}>
-        {/* logo is 3.68:1 — keep the height low enough that it fits the 240px rail */}
-        <img src="/logo.png" alt="Excelliq" style={{ height: isMobile ? 48 : 44, width: 'auto', maxWidth: '100%', objectFit: 'contain', display: 'block' }} />
+        {/* logo is 2.94:1 — keep the height low enough that it fits the 240px rail */}
+        <img src="/logo%20new.svg" alt="Excelliq" style={{ height: isMobile ? 60 : 55, width: 'auto', maxWidth: '100%', objectFit: 'contain', display: 'block' }} />
         <button
           onClick={onCollapse}
           title="Close sidebar"
