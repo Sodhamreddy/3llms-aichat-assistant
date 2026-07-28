@@ -494,7 +494,7 @@ const LandingPage = ({ onGetStarted, onLogin = onGetStarted }) => {
           {/* height caps the logo on roomy screens, maxWidth rescues it on narrow
               phones — height:auto keeps the 3.68:1 ratio intact either way */}
           <img
-            src="/logo%20new.svg" alt="Excelliq"
+            src="/Excelliq%20logo%20neww.png" alt="Excelliq"
             style={{ height: 'auto', maxHeight: navTight ? 42 : 54, maxWidth: '32%', objectFit: 'contain', display: 'block', minWidth: 0 }}
           />
           <nav style={{ display: 'flex', alignItems: 'center', gap: navTight ? 8 : 20, flexShrink: 0 }}>
@@ -809,7 +809,7 @@ const LandingPage = ({ onGetStarted, onLogin = onGetStarted }) => {
 
             {/* brand column */}
             <div>
-              <img src="/logo%20new.svg" alt="Excelliq" style={{ height: 55, width: 'auto', maxWidth: '100%', objectFit: 'contain', display: 'block' }} />
+              <img src="/Excelliq%20logo%20neww.png" alt="Excelliq" style={{ height: 55, width: 'auto', maxWidth: '100%', objectFit: 'contain', display: 'block' }} />
               <p style={{ color: MUTED, fontSize: '0.95rem', lineHeight: 1.75, margin: '1.4rem 0 0', maxWidth: 330 }}>
                 One prompt, three leading AI models, and a single reconciled answer — so you stop juggling tabs and start trusting what you read.
               </p>

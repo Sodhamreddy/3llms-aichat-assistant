@@ -95,7 +95,7 @@ const Shell = ({ step, eyebrow, title, subtitle, children, actions, error, notic
         />
         <div style={{ position: 'relative', zIndex: 1 }}>
           <div style={{ background: '#fff', borderRadius: 12, padding: '7px 12px', display: 'inline-flex', marginBottom: '1.75rem', boxShadow: '0 8px 24px rgba(0,0,0,0.18)' }}>
-            <img src="/logo%20new.svg" alt="Excelliq" style={{ height: 50, width: 'auto', maxWidth: '100%', objectFit: 'contain', display: 'block' }} />
+            <img src="/Excelliq%20logo%20neww.png" alt="Excelliq" style={{ height: 50, width: 'auto', maxWidth: '100%', objectFit: 'contain', display: 'block' }} />
           </div>
           <div style={{ color: '#9fc1f5', fontSize: '0.74rem', fontWeight: 900, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{eyebrow}</div>
           <h1 style={{ fontSize: '2.5rem', lineHeight: 1.08, margin: '0.65rem 0 0', fontFamily: SERIF, fontWeight: 400, letterSpacing: '-0.01em' }}>{title}</h1>
