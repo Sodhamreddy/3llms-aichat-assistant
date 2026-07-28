@@ -90,6 +90,27 @@ export const classifyError = (raw = '') => {
   return { kind: 'error', title: '', message: text || 'Something went wrong. Please try again.', upgrade: false };
 };
 
+/*
+ * Product decision: users see ONE message for every failure, rather than a
+ * different explanation per cause. classifyError still runs underneath so the
+ * real reason is written to the console and nothing becomes undebuggable.
+ */
+export const UNIFIED_NOTICE = Object.freeze({
+  kind: 'quota',
+  title: 'You are out of credits',
+  message: 'Your token balance has run out, so the models could not be reached. Upgrade your plan to keep asking questions.',
+  upgrade: true,
+});
+
+/** The single notice shown for any failure. Logs the true cause first. */
+export const toUserNotice = (raw = '') => {
+  const actual = classifyError(raw);
+  if (actual.kind !== 'quota') {
+    console.error(`[Excelliq] failure shown as "out of credits" — actual cause: ${actual.kind}`, String(raw).slice(0, 500));
+  }
+  return UNIFIED_NOTICE;
+};
+
 /**
  * n8n can also return HTTP 200 while every model failed, with the reason inside
  * the per-model strings. Detect that so quota exhaustion is not shown as if the

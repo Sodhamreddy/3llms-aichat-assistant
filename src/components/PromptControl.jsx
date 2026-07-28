@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback, useId, Fragment } from 'react';
 import { ensureClientId, loadStoredUser } from '../utils/clientIdentity';
-import { classifyError, detectFailedRun } from '../utils/errorMessages';
+import { toUserNotice, detectFailedRun } from '../utils/errorMessages';
 
 const N8N_URL = import.meta.env.VITE_N8N_URL || '/n8n-proxy/webhook/bf39cd7e-9f1b-4b3e-98eb-8b746cd2b510/chat';
 
@@ -385,7 +385,7 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete, mode: modeProp, onMo
       const failed = detectFailedRun(raw, finalAnswer);
       if (failed) {
         setStatus('idle');
-        setNotice(failed);
+        setNotice(toUserNotice(`${nextResponses.openai} ${nextResponses.claude} ${nextResponses.gemini}`));
         return;
       }
 
@@ -416,14 +416,8 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete, mode: modeProp, onMo
       }
     } catch (e) {
       setStatus('idle');
-      if (e.name === 'AbortError') {
-        setNotice({ kind: 'timeout', title: 'That took too long', message: 'The run was still going after 5 minutes and was stopped. Try a shorter prompt.', upgrade: false });
-      } else if (e.message === 'Failed to fetch') {
-        setNotice({ kind: 'network', title: 'Could not reach the server', message: 'Check your connection and try again.', upgrade: false });
-      } else {
-        // Match against the message AND the upstream provider payload.
-        setNotice(classifyError(`${e.message} ${e.detail || ''}`));
-      }
+      // Every failure shows the same notice; the real cause goes to the console.
+      setNotice(toUserNotice(`${e.name || ''} ${e.message || ''} ${e.detail || ''}`));
     } finally {
       clearInterval(timerRef.current);
     }
