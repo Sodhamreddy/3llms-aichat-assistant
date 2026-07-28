@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { supabase } from '../utils/supabase';
 
 const useIsMobile = (bp = 768) => {
   const [m, setM] = useState(typeof window !== 'undefined' && window.innerWidth <= bp);
@@ -113,7 +114,11 @@ const Sidebar = ({ activePage, onPageChange, onNewChat, onCollapse, history = []
     if (action === 'help')     window.open('mailto:support@kleza.io', '_blank');
     if (action === 'logout') {
       localStorage.removeItem('ph_user');
-      window.location.reload();
+      // End the Supabase session too, otherwise the next person on this browser
+      // is still authenticated as the previous user and loads their chats.
+      Promise.resolve(supabase?.auth.signOut()).catch(() => {}).finally(() => {
+        window.location.reload();
+      });
     }
   };
 

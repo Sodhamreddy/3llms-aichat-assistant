@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Sidebar from './components/Sidebar';
 import DashboardPage from './pages/DashboardPage';
 import PromptRunnerPage from './pages/PromptRunnerPage';
@@ -14,6 +14,11 @@ import LandingPage from './pages/LandingPage';
 import ArchitectureDiagram from './pages/ArchitectureDiagram';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import { attachClientId } from './utils/clientIdentity';
+import {
+  getUserId, readCache, writeCache, claimLegacyHistory,
+  fetchRemote, upsertRemote, deleteRemote, pushAll, mergeById,
+} from './utils/chatStore';
+import { supabase } from './utils/supabase';
 
 const useIsMobile = (bp = 768) => {
   const [m, setM] = useState(typeof window !== 'undefined' && window.innerWidth <= bp);
@@ -68,13 +73,60 @@ function ChatApp() {
     catch { return { totalInputTokens:0, totalOutputTokens:0, totalTokens:0, totalCost:0 }; }
   });
 
-  const [history, setHistory] = useState(() => {
-    try { const s = localStorage.getItem('ph_history'); return s ? JSON.parse(s) : []; }
-    catch { return []; }
-  });
+  const [history, setHistory] = useState([]);
+  const [userId, setUserId] = useState(null);
+  const historyReady = useRef(false);   // don't cache until the first load lands
 
-  useEffect(() => { localStorage.setItem('ph_usage',   JSON.stringify(usage)); },            [usage]);
-  useEffect(() => { localStorage.setItem('ph_history', JSON.stringify(history.slice(0,100))); }, [history]);
+  /*
+   * Resolve the signed-in user, then hydrate history: local cache first so the
+   * sidebar paints immediately, then whatever Supabase has, merged by id. On a
+   * user's first login here, anything cached locally is pushed up so the chats
+   * they already had are not stranded on this browser.
+   */
+  useEffect(() => {
+    let cancelled = false;
+
+    (async () => {
+      const uid = await getUserId();
+      if (cancelled) return;
+      setUserId(uid);
+
+      const cached = mergeById(readCache(uid), claimLegacyHistory(uid));
+      if (!cancelled && cached.length) setHistory(cached);
+
+      const remote = await fetchRemote(uid);
+      if (cancelled) return;
+
+      if (remote) {
+        const merged = mergeById(remote, cached);
+        setHistory(merged);
+        writeCache(uid, merged);
+        // anything local that the server has not seen yet
+        const remoteIds = new Set(remote.map(r => r.id));
+        const unsynced = cached.filter(c => !remoteIds.has(c.id));
+        if (unsynced.length) pushAll(unsynced, uid);
+      } else if (!cached.length) {
+        setHistory([]);
+      }
+      historyReady.current = true;
+    })();
+
+    // React to sign-in / sign-out without a page reload
+    const sub = supabase?.auth.onAuthStateChange((_event, session) => {
+      const nextId = session?.user?.id || null;
+      setUserId(prev => (prev === nextId ? prev : nextId));
+    });
+
+    return () => { cancelled = true; sub?.data?.subscription?.unsubscribe?.(); };
+  }, [onboardingDone]);
+
+  useEffect(() => { localStorage.setItem('ph_usage', JSON.stringify(usage)); }, [usage]);
+
+  // Cache per user. Guarded so the initial empty state never overwrites a good cache.
+  useEffect(() => {
+    if (!historyReady.current) return;
+    writeCache(userId, history);
+  }, [history, userId]);
 
   const handleRunComplete = ({ prompt, gemini, claude, openai, stage1Claude, tokenData, elapsed }) => {
     if (tokenData) setUsage(prev => ({
@@ -84,7 +136,7 @@ function ChatApp() {
       totalCost:         prev.totalCost         + (tokenData.runCost      || 0),
     }));
     const id = Date.now();
-    setHistory(prev => [{
+    const entry = {
       id, prompt,
       date: new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' }),
       best: gemini ? 'Gemini 3.1 Pro' : claude ? 'Claude Opus 4.6' : 'GPT-5.2',
@@ -92,20 +144,27 @@ function ChatApp() {
       tokenData: tokenData || null,
       elapsed: elapsed || null,
       followUps: [],
-    }, ...prev]);
+    };
+    setHistory(prev => [entry, ...prev]);
+    upsertRemote(entry, userId);          // async; cache already has it
     return id;
   };
 
   const handleFollowUpComplete = ({ historyId, question, answer, elapsed }) => {
-    setHistory(prev => prev.map(item =>
-      item.id === historyId
-        ? { ...item, followUps: [...(item.followUps || []), { question, answer, elapsed: elapsed || null }] }
-        : item
-    ));
+    setHistory(prev => prev.map(item => {
+      if (item.id !== historyId) return item;
+      const updated = {
+        ...item,
+        followUps: [...(item.followUps || []), { question, answer, elapsed: elapsed || null }],
+      };
+      upsertRemote(updated, userId);
+      return updated;
+    }));
   };
 
   const handleHistoryDelete = (id) => {
     setHistory(prev => prev.filter(item => item.id !== id));
+    deleteRemote(id, userId);
   };
 
   if (!landingDone) {
