@@ -319,11 +319,27 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete, mode: modeProp, onMo
         }),
       });
       const raw = await res.text();
-      if (raw.trimStart().startsWith('<')) throw new Error('n8n returned an HTML page — check the webhook URL or n8n workflow error.');
+      if (raw.trimStart().startsWith('<')) {
+        // An HTML body means a gateway answered, not n8n. Hostinger's nginx cuts
+        // the connection at ~55s and serves its own 504 page, which is by far the
+        // most common cause here — don't blame the webhook URL for it.
+        if ([502, 503, 504, 524].includes(res.status)) {
+          throw new Error(
+            `The run exceeded the server's ${res.status} gateway timeout (~60s). Three models plus synthesis can take longer than that — try fewer models or a shorter prompt.`
+          );
+        }
+        throw new Error(`Server returned an HTML page (HTTP ${res.status}) instead of JSON — check the webhook URL or n8n workflow error.`);
+      }
       let data;
-      try { data = JSON.parse(raw); } catch { throw new Error(`Invalid JSON from n8n: ${raw.slice(0, 120)}`); }
+      // proxy.php pads the response with keep-alive spaces; JSON.parse ignores
+      // leading whitespace, but trim before quoting `raw` in any error text.
+      try { data = JSON.parse(raw); } catch { throw new Error(`Invalid JSON from n8n: ${raw.trim().slice(0, 120)}`); }
       if (!res.ok) throw new Error(data.error || data.message || `HTTP ${res.status}`);
-      return Array.isArray(data) && data.length > 0 ? data[0] : data;
+      const payload = Array.isArray(data) && data.length > 0 ? data[0] : data;
+      // Once the proxy starts streaming it can no longer set an error status, so
+      // upstream failures come back as 200 with an `error` field.
+      if (payload && payload.error) throw new Error(payload.error);
+      return payload;
     } finally {
       clearTimeout(timeout);
     }
