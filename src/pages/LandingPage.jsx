@@ -741,7 +741,7 @@ const LandingPage = ({ onGetStarted, onLogin = onGetStarted }) => {
       {/* ── Your data stays yours ── */}
       <section style={{ padding: sectionPad, background: SOFT }}>
         <div style={{ maxWidth: MAXW, margin: '0 auto', padding: pad }}>
-          <SectionHeading title="Your data" accent="stays yours." isMobile={isMobile} />
+          <SectionHeading title="Your Data Never" accent="Leaves Your Hands." isMobile={isMobile} />
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(4, 1fr)', gap: 18 }}>
             {PRIVACY.map(p => (
               <div key={p.title} style={{ background: '#fff', border: `1px solid ${LINE}`, borderRadius: 16, padding: '1.4rem' }}>
@@ -788,7 +788,7 @@ const LandingPage = ({ onGetStarted, onLogin = onGetStarted }) => {
              Ready for an Answer <span style={{ fontStyle: 'italic', color: '#9fc1f5' }}>You Can Actually Trust?</span>
             </h2>
             <p style={{ color: '#cbd8f2', fontSize: '1.05rem', lineHeight: 1.6, maxWidth: 520, margin: '1.1rem auto 2rem' }}>
-              One prompt, three perspectives, one trusted answer. Bring your own API keys and start in seconds.
+             Ready to Ask Multiple LLMs at Once?
             </p>
             <button
               onClick={onGetStarted}
