@@ -465,6 +465,9 @@ const LivePrompt = () => {
 // point; pass a real handler once there is a separate sign-in route.
 const LandingPage = ({ onGetStarted, onLogin = onGetStarted }) => {
   const isMobile = useIsMobile();
+  // The full nav (5 links + 2 buttons) needs ~780px of its own; collapse it well
+  // before the 820 content breakpoint or it overflows the bar on small tablets.
+  const navTight = useIsMobile(980);
   const pad = isMobile ? '0 1.25rem' : '0 2rem';
   const sectionPad = isMobile ? '3.5rem 0' : '5.5rem 0';
   const headerH = 68;                    // sticky header height; also the anchor scroll offset
@@ -488,26 +491,31 @@ const LandingPage = ({ onGetStarted, onLogin = onGetStarted }) => {
       {/* ── Header ── */}
       <header style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(10px)', borderBottom: `1px solid ${LINE}` }}>
         <div style={{ maxWidth: WIDE, margin: '0 auto', padding: pad, height: headerH, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <img src="/logo.png" alt="Excelliq" style={{ height: isMobile ? 38 : 48, objectFit: 'contain' }} />
-          <nav style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 6 : 22 }}>
-            {!isMobile && NAV.map(link => (
+          {/* height caps the logo on roomy screens, maxWidth rescues it on narrow
+              phones — height:auto keeps the 3.68:1 ratio intact either way */}
+          <img
+            src="/logo.png" alt="Excelliq"
+            style={{ height: 'auto', maxHeight: navTight ? 34 : 48, maxWidth: '32%', objectFit: 'contain', display: 'block', minWidth: 0 }}
+          />
+          <nav style={{ display: 'flex', alignItems: 'center', gap: navTight ? 8 : 20, flexShrink: 0 }}>
+            {!navTight && NAV.map(link => (
               <a
                 key={link.label} href={link.href}
                 {...(link.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-                style={{ color: MUTED, textDecoration: 'none', fontWeight: 600, fontSize: '0.92rem' }}
+                style={{ color: MUTED, textDecoration: 'none', fontWeight: 600, fontSize: '0.92rem', whiteSpace: 'nowrap' }}
               >
                 {link.label}
               </a>
             ))}
             <button
               onClick={onLogin}
-              style={{ border: isMobile ? 'none' : `1px solid ${LINE}`, borderRadius: 999, background: 'transparent', color: INK, padding: isMobile ? '0.5rem 0.6rem' : '0.55rem 1.1rem', fontWeight: 800, fontSize: isMobile ? '0.85rem' : '0.9rem', cursor: 'pointer', fontFamily: 'inherit' }}
+              style={{ border: navTight ? 'none' : `1px solid ${LINE}`, borderRadius: 999, background: 'transparent', color: INK, padding: navTight ? '0.5rem 0.5rem' : '0.55rem 1.1rem', fontWeight: 800, fontSize: navTight ? '0.84rem' : '0.9rem', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
             >
               Login
             </button>
             <button
               onClick={onGetStarted}
-              style={{ border: 'none', borderRadius: 999, background: BRAND_GRAD, color: '#fff', padding: isMobile ? '0.55rem 0.9rem' : '0.6rem 1.2rem', fontWeight: 800, fontSize: isMobile ? '0.85rem' : '0.9rem', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
+              style={{ border: 'none', borderRadius: 999, background: BRAND_GRAD, color: '#fff', padding: navTight ? '0.5rem 0.85rem' : '0.6rem 1.2rem', fontWeight: 800, fontSize: navTight ? '0.84rem' : '0.9rem', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
             >
               Start Free
             </button>
