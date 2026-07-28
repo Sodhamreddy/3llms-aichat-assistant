@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback, useId, Fragment } from 'react';
 import { ensureClientId, loadStoredUser } from '../utils/clientIdentity';
+import { classifyError, detectFailedRun } from '../utils/errorMessages';
 
 const N8N_URL = import.meta.env.VITE_N8N_URL || '/n8n-proxy/webhook/bf39cd7e-9f1b-4b3e-98eb-8b746cd2b510/chat';
 
@@ -250,7 +251,8 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete, mode: modeProp, onMo
   const [synthesis, setSynthesis] = useState('');
   const [elapsed, setElapsed] = useState('');
   const [runningElapsed, setRunningElapsed] = useState(0);
-  const [error, setError] = useState('');
+  // Structured failure notice: { kind, title, message, upgrade }
+  const [notice, setNotice] = useState(null);
   const [followUps, setFollowUps] = useState([]);
   const [followUpQuestion, setFollowUpQuestion] = useState('');
   const [followUpStatus, setFollowUpStatus] = useState('idle');
@@ -337,8 +339,13 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete, mode: modeProp, onMo
       if (!res.ok) throw new Error(data.error || data.message || `HTTP ${res.status}`);
       const payload = Array.isArray(data) && data.length > 0 ? data[0] : data;
       // Once the proxy starts streaming it can no longer set an error status, so
-      // upstream failures come back as 200 with an `error` field.
-      if (payload && payload.error) throw new Error(payload.error);
+      // upstream failures come back as 200 with an `error` field. Carry `upstream`
+      // along — the real cause (quota, rate limit, bad key) is buried in there.
+      if (payload && payload.error) {
+        const err = new Error(payload.error);
+        err.detail = payload.upstream || '';
+        throw err;
+      }
       return payload;
     } finally {
       clearTimeout(timeout);
@@ -352,7 +359,7 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete, mode: modeProp, onMo
     setSubmittedPrompt(question);
     setPrompt('');
     setStatus('running');
-    setError('');
+    setNotice(null);
     setResponses({ openai: '', claude: '', gemini: '' });
     setSynthesis('');
     setElapsed('');
@@ -371,6 +378,17 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete, mode: modeProp, onMo
         gemini: selectedModels.includes('gemini') ? (raw.gemini || raw.google || '') : '',
       };
       const finalAnswer = raw.output || raw.synthesis || nextResponses.claude || 'No response.';
+
+      // n8n answers 200 even when every model failed (quota, bad key, outage).
+      // Surface that as a real message instead of rendering the error text as
+      // if it were an answer.
+      const failed = detectFailedRun(raw, finalAnswer);
+      if (failed) {
+        setStatus('idle');
+        setNotice(failed);
+        return;
+      }
+
       const elapsedVal = ((Date.now() - startedAt) / 1000).toFixed(2);
       const usage = raw.usage || {};
       const stats = {
@@ -398,12 +416,14 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete, mode: modeProp, onMo
       }
     } catch (e) {
       setStatus('idle');
-      const msg = e.name === 'AbortError'
-        ? 'Request timed out (2 min). Check n8n workflow.'
-        : e.message === 'Failed to fetch'
-        ? 'Could not reach n8n — check CORS settings in n8n (allow origin: *) or the n8n URL may be wrong.'
-        : e.message;
-      setError(msg || 'Unknown error from n8n');
+      if (e.name === 'AbortError') {
+        setNotice({ kind: 'timeout', title: 'That took too long', message: 'The run was still going after 5 minutes and was stopped. Try a shorter prompt.', upgrade: false });
+      } else if (e.message === 'Failed to fetch') {
+        setNotice({ kind: 'network', title: 'Could not reach the server', message: 'Check your connection and try again.', upgrade: false });
+      } else {
+        // Match against the message AND the upstream provider payload.
+        setNotice(classifyError(`${e.message} ${e.detail || ''}`));
+      }
     } finally {
       clearInterval(timerRef.current);
     }
@@ -502,9 +522,30 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete, mode: modeProp, onMo
         </div>
       )}
 
-      {error && (
-        <div style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#b91c1c', borderRadius: 12, padding: '0.75rem 0.9rem', fontWeight: 800, fontSize: '0.84rem' }}>{error}</div>
-      )}
+      {notice && (() => {
+        // Running out of credits is a billing state, not a crash — give it a
+        // calmer amber treatment and a way forward instead of a red error.
+        const soft = notice.kind === 'quota' || notice.kind === 'rate';
+        const c = soft
+          ? { bg: '#fffbeb', border: '#fde68a', text: '#92400e' }
+          : { bg: '#fef2f2', border: '#fecaca', text: '#b91c1c' };
+        return (
+          <div style={{ background: c.bg, border: `1px solid ${c.border}`, color: c.text, borderRadius: 12, padding: '0.85rem 1rem' }}>
+            {notice.title && (
+              <div style={{ fontWeight: 900, fontSize: '0.9rem', marginBottom: 4 }}>{notice.title}</div>
+            )}
+            <div style={{ fontWeight: 600, fontSize: '0.84rem', lineHeight: 1.55 }}>{notice.message}</div>
+            {notice.upgrade && (
+              <a
+                href="mailto:support@kleza.io?subject=Upgrade%20my%20Excelliq%20plan"
+                style={{ display: 'inline-block', marginTop: '0.7rem', background: '#0d46d8', color: '#fff', textDecoration: 'none', borderRadius: 999, padding: '0.45rem 1rem', fontWeight: 800, fontSize: '0.82rem' }}
+              >
+                Upgrade to continue
+              </a>
+            )}
+          </div>
+        );
+      })()}
 
       <div style={{ background: '#ffffff', border: '1px solid rgba(0,0,0,0.08)', borderRadius: 16, boxShadow: '0 12px 32px rgba(15,23,42,0.12), 0 2px 6px rgba(15,23,42,0.06)', overflow: 'hidden' }}>
         <textarea
