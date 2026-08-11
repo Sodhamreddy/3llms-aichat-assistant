@@ -529,14 +529,6 @@ const PromptControl = ({ onRunComplete, onFollowUpComplete, mode: modeProp, onMo
               <div style={{ fontWeight: 900, fontSize: '0.9rem', marginBottom: 4 }}>{notice.title}</div>
             )}
             <div style={{ fontWeight: 600, fontSize: '0.84rem', lineHeight: 1.55 }}>{notice.message}</div>
-            {notice.upgrade && (
-              <a
-                href="mailto:support@kleza.io?subject=Upgrade%20my%20Excelliq%20plan"
-                style={{ display: 'inline-block', marginTop: '0.7rem', background: '#0d46d8', color: '#fff', textDecoration: 'none', borderRadius: 999, padding: '0.45rem 1rem', fontWeight: 800, fontSize: '0.82rem' }}
-              >
-                Upgrade to continue
-              </a>
-            )}
           </div>
         );
       })()}

@@ -33,3 +33,10 @@ playwright-server/chrome-debug-profile/
 playwright-server/chrome-debug-profile/
 playwright-server/browser-profile/
 playwright-server/profiles/
+
+# Video assets. GitHub rejects any file over 100MB and the demo is ~210MB, so
+# videos are uploaded straight to the web server instead of being versioned.
+# Keep them in public/ locally — the build copies whatever is there.
+public/*.mp4
+public/*.mov
+public/*.webm

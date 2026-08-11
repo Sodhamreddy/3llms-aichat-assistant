@@ -275,26 +275,71 @@ const SectionHeading = ({ title, accent, subtitle, isMobile }) => (
 );
 
 // ── Product demo video ───────────────────────────────────────────────────────
-// 80MB file, so nothing is fetched until the viewer actually clicks play.
-const VIDEO_SRC = encodeURI('/Final - Excelliq Video Demo.mp4');
+// 210MB 4K file, so nothing is fetched until the viewer actually clicks play.
+const VIDEO_SRC = encodeURI('/Final - Excelliq Video Demo new.mp4');
+// 1920x1080, same aspect as the video, so it fills the frame with no letterboxing.
+const VIDEO_POSTER = encodeURI('/Excelliq YT Thumbnnail 03 Aug 2026.jpg');
 
 // ── Hero demo video ──────────────────────────────────────────────────────────
-// The real player, no mockup and no play overlay. `preload="metadata"` pulls just
-// enough to paint the first frame, so the 80MB body only downloads on play.
-const HeroVisual = () => (
-  <div style={{ width: '100%', maxWidth: 760, margin: '0 auto' }}>
-    <video
-      src={VIDEO_SRC}
-      controls
-      playsInline
-      preload="metadata"
-      style={{
-        width: '100%', display: 'block', borderRadius: 18, background: '#000',
-        border: `1px solid ${LINE}`, boxShadow: '0 30px 70px -30px rgba(15,31,75,0.45)',
-      }}
-    />
-  </div>
-);
+// Before playback: poster only, no native controls, with a play button on top.
+// The overlay must be a real button — clicking a <video> surface does not start
+// playback in any browser, only its own control buttons do.
+// After the first play, hand over to the native controls.
+const HeroVisual = () => {
+  const [playing, setPlaying] = useState(false);
+  const videoRef = useRef(null);
+
+  const start = () => {
+    const v = videoRef.current;
+    if (!v) return;
+    setPlaying(true);
+    // play() rejects if the browser blocks it; roll the overlay back if so.
+    Promise.resolve(v.play()).catch(() => setPlaying(false));
+  };
+
+  return (
+    <div style={{ width: '100%', maxWidth: 760, margin: '0 auto' }}>
+      <div style={{ position: 'relative', width: '100%' }}>
+        <video
+          ref={videoRef}
+          src={VIDEO_SRC}
+          poster={VIDEO_POSTER}
+          controls={playing}
+          playsInline
+          preload="none"
+          onPlay={() => setPlaying(true)}
+          style={{
+            width: '100%', display: 'block', aspectRatio: '16 / 9', objectFit: 'cover',
+            borderRadius: 18, background: '#000',
+            border: `1px solid ${LINE}`, boxShadow: '0 30px 70px -30px rgba(15,31,75,0.45)',
+          }}
+        />
+        {!playing && (
+          <button
+            type="button"
+            onClick={start}
+            aria-label="Play the Excelliq product demo"
+            style={{
+              position: 'absolute', inset: 0, borderRadius: 18, border: 'none', padding: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'rgba(0,0,0,0.28)', cursor: 'pointer', fontFamily: 'inherit',
+            }}
+          >
+            <span style={{
+              width: 80, height: 80, borderRadius: '50%', background: 'rgba(255,255,255,0.94)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+            }}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill={BLUE2} style={{ marginLeft: 4 }}>
+                <polygon points="6 4 20 12 6 20" />
+              </svg>
+            </span>
+          </button>
+        )}
+      </div>
+    </div>
+  );
+};
 
 // ── Live-prompt widget (three minds answering in real time) ──────────────────
 // A looping, scripted demo: the question types itself, all three models stream
