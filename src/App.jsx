@@ -1,18 +1,33 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import Sidebar from './components/Sidebar';
-import DashboardPage from './pages/DashboardPage';
-import PromptRunnerPage from './pages/PromptRunnerPage';
-import LLMModelsPage from './pages/LLMModelsPage';
-import ResultsHistoryPage from './pages/ResultsHistoryPage';
-import AutomationsPage from './pages/AutomationsPage';
-import AnalyticsPage from './pages/AnalyticsPage';
-import IntegrationsPage from './pages/IntegrationsPage';
-import SettingsPage from './pages/SettingsPage';
-import AdminPortal from './pages/AdminPortal';
-import OnboardingPage from './pages/OnboardingPage';
+
+/*
+ * Only the landing page is eager — it is the first paint for every new visitor.
+ * Everything behind it is split into its own chunk and fetched on demand, so a
+ * marketing visit no longer downloads the admin portal, analytics, the
+ * architecture diagram and every dashboard screen up front.
+ */
 import LandingPage from './pages/LandingPage';
-import ArchitectureDiagram from './pages/ArchitectureDiagram';
-import ResetPasswordPage from './pages/ResetPasswordPage';
+
+const DashboardPage       = lazy(() => import('./pages/DashboardPage'));
+const PromptRunnerPage    = lazy(() => import('./pages/PromptRunnerPage'));
+const LLMModelsPage       = lazy(() => import('./pages/LLMModelsPage'));
+const ResultsHistoryPage  = lazy(() => import('./pages/ResultsHistoryPage'));
+const AutomationsPage     = lazy(() => import('./pages/AutomationsPage'));
+const AnalyticsPage       = lazy(() => import('./pages/AnalyticsPage'));
+const IntegrationsPage    = lazy(() => import('./pages/IntegrationsPage'));
+const SettingsPage        = lazy(() => import('./pages/SettingsPage'));
+const AdminPortal         = lazy(() => import('./pages/AdminPortal'));
+const OnboardingPage      = lazy(() => import('./pages/OnboardingPage'));
+const ArchitectureDiagram = lazy(() => import('./pages/ArchitectureDiagram'));
+const ResetPasswordPage   = lazy(() => import('./pages/ResetPasswordPage'));
+
+// Neutral placeholder while a route chunk downloads.
+const PageFallback = () => (
+  <div style={{ padding: '3rem', textAlign: 'center', color: '#78716c', fontWeight: 600, fontSize: '0.9rem' }}>
+    Loading…
+  </div>
+);
 import { attachClientId } from './utils/clientIdentity';
 import {
   getUserId, readCache, writeCache, claimLegacyHistory,
@@ -172,10 +187,18 @@ function ChatApp() {
   }
 
   if (!onboardingDone) {
-    return <OnboardingPage onComplete={handleOnboardingComplete} />;
+    return (
+      <Suspense fallback={<PageFallback />}>
+        <OnboardingPage onComplete={handleOnboardingComplete} />
+      </Suspense>
+    );
   }
 
-  const renderPage = () => {
+  const renderPage = () => (
+    <Suspense fallback={<PageFallback />}>{renderRoute()}</Suspense>
+  );
+
+  const renderRoute = () => {
     switch (activePage) {
       case 'prompt-runner':   return <PromptRunnerPage key={chatKey} onRunComplete={handleRunComplete} onFollowUpComplete={handleFollowUpComplete} />;
       case 'dashboard':       return <DashboardPage history={history} usage={usage} onNavigate={setActivePage} />;
@@ -272,8 +295,13 @@ const isPasswordResetRoute = () => {
 };
 
 function App() {
-  if (window.location.pathname.startsWith('/admin')) return <AdminPortal />;
-  if (isPasswordResetRoute()) return <ResetPasswordPage />;
+  // Both of these are lazy, so they need their own Suspense boundary.
+  if (window.location.pathname.startsWith('/admin')) {
+    return <Suspense fallback={<PageFallback />}><AdminPortal /></Suspense>;
+  }
+  if (isPasswordResetRoute()) {
+    return <Suspense fallback={<PageFallback />}><ResetPasswordPage /></Suspense>;
+  }
   return <ChatApp />;
 }
 
